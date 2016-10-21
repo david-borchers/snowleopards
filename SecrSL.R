@@ -2,6 +2,8 @@
 
 
 #Running basic SECR models with Sl data
+# Going ahead with Gobi and Sarychat. Data files and shapes.
+# David added this comment
 library(secr)
 library(spatstat)
 library(maptools)
