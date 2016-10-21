@@ -2,7 +2,7 @@
 
 
 #Running basic SECR models with Sl data
-# Going ahead with Gobi and Sarychat
+# Going ahead with Gobi and Sarychat. Data files and shapes.
 
 library(secr)
 library(spatstat)
