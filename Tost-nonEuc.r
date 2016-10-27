@@ -1,3 +1,8 @@
+library(secr)
+library(fields)
+source("scrplotting.r")
+
+
 #Running SECR for Tost 2012
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd"))
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
@@ -76,7 +81,6 @@ userdfn2 <- function (xy1, xy2, mask) {
   trans <- geoCorrection(trans)
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
-source("scrplotting.r")
 
 Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, 
@@ -116,7 +120,10 @@ Nhat1D1.nonU
 # -----------------------------------------------
 
 # First save objects so don't have to refit:
-save(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
+TostSurface<-predictDsurface(Tost.hhn.DHab, se.D=TRUE, cl.D=TRUE)
+TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
+TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
+save(Tost.cams,TostMask1,TostSurface,TostSurface.nonU,TostSurface.D.nonU,Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
 # load fitted objects:
 load("./Tost/Tost-nonEuc-fits2.RData")
 
@@ -128,7 +135,7 @@ Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
 
 # Do plots next to each other:
 par(mfrow=c(2,1))
-plot(TostSurface,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+plot.Dsurface(TostSurface,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
 # Hmmm, that is pretty unclear; try on log scale:
 Dhat=TostSurface; covariates(Dhat)$D.0=log(covariates(Dhat)$D.0)
