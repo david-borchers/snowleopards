@@ -73,7 +73,6 @@ Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                         noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1))
-
 coefficients(Tost.hhn.DHab.nonU)
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -84,18 +83,35 @@ plot(Tost.cams,add=TRUE)
 Nhat1.nonU<-region.N(Tost.hhn.DHab.nonU)
 Nhat1.nonU
 
+# Try with flat density and non-Euclidian:
+Tost.hhn.D.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                             model=list(D~1, lambda0~1, sigma~1, 
+                                        noneuc ~ stdGC -1), 
+                             details = list(userdist = userdfn1),
+                             start = list(noneuc = 1))
+
+coefficients(Tost.hhn.D.nonU)
+TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
+plot(TostSurface.D.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Tost.cams,add=TRUE)
+plotcovariate(TostSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Tost.cams,add=TRUE)
+
+Nhat1D1.nonU<-region.N(Tost.hhn.D.nonU)
+Nhat1D1.nonU
+
 
 
 # Compare with and without non-Euclidian distance:
 # -----------------------------------------------
 
 # First save objects so don't have to refit:
-save(Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits1.RData")
+save(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits1.RData")
 # load fitted objects:
 load("./Tost/Tost-nonEuc-fits1.RData")
 
 # Compare AICs:
-AIC(Tost.hhn.DHab.nonU,Tost.hhn.DHab)
+AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab)
 
 # get density range so plot on same scale
 Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
@@ -115,7 +131,7 @@ plot(Dhat.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
 lambda0=exp(coef(Tost.hhn.DHab.nonU)["lambda",1]) # on the real scale
 sigma=exp(coef(Tost.hhn.DHab.nonU)["sigma",1]) # on the real scale
 alpha=coef(Tost.hhn.DHab.nonU)["noneuc.stdGC",1] # on the beta scale
-covariates(TostMask1)$noneuc=exp(alpha*covariates(TostMask1)$stdGC)
+covariates(TostMask1)$noneuc=exp(-alpha*covariates(TostMask1)$stdGC)
 # Do the plotting
 par(mfrow=c(2,1))
 j=6 # trap number
@@ -144,6 +160,27 @@ plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
 
 # Loop through a bunch by repeatedly running code below:
 j=j+1;j
+predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
+                  detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn1)
+covariates(TostMask1)$predicted.pj=predicted.pj
+plotcovariate(TostMask1,covariate="predicted.pj",contour=FALSE,asp=1)
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
+# and plot stdGC below it:
+plotcovariate(TostSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
+
+
+
+# Plot measure of probability of detection by given trap, from all points on mask:
+lambda0=exp(coef(Tost.hhn.D.nonU)["lambda",1]) # on the real scale
+sigma=exp(coef(Tost.hhn.D.nonU)["sigma",1]) # on the real scale
+alpha=coef(Tost.hhn.D.nonU)["noneuc.stdGC",1] # on the beta scale
+covariates(TostMask1)$noneuc=exp(-alpha*covariates(TostMask1)$stdGC)
+# Do the plotting
+par(mfrow=c(2,1))
+j=1 # trap number
 predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
                   detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn1)
 covariates(TostMask1)$predicted.pj=predicted.pj
