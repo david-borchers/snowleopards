@@ -76,7 +76,7 @@ userdfn2 <- function (xy1, xy2, mask) {
   trans <- geoCorrection(trans)
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
-
+source("scrplotting.r")
 
 Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, 
