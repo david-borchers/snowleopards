@@ -30,7 +30,7 @@ head(covariates(NoyonMask1))
 summary(covariates(NoyonMask1))
 summary(covariates(traps(all.data.Noyon)))
 
-plot(NoyonMask1, covariate="stdGRIDCODE", contour=FALSE, col=terrain.colors(15), legend = FALSE)
+plot(NoyonMask1, covariate="GRIDCODE", contour=FALSE, col=terrain.colors(15), legend = FALSE)
 
 # Standarize Rgd (this makes fits a bit more stable)
 # --------------------------------------------------
@@ -42,7 +42,7 @@ head(covariates(traps(all.data.Noyon)))
 # Also standarize stdGRIDCODE for good measure
 # -----------------------------------------
 summary(covariates(NoyonMask1))
-covariates(NoyonMask1)$stdGC = scale(covariates(NoyonMask1)$stdGRIDCODE)
+covariates(NoyonMask1)$stdGC = scale(covariates(NoyonMask1)$GRIDCODE)
 names(covariates(NoyonMask1))
 
 
