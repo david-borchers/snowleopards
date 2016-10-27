@@ -66,6 +66,16 @@ userdfn1 <- function (xy1, xy2, mask) {
   trans <- geoCorrection(trans)
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
+# variant not using inverse of mean
+userdfn2 <- function (xy1, xy2, mask) {
+  if (missing(xy1)) return('noneuc')
+  require(gdistance)
+  Sraster <- raster(mask, 'noneuc')
+  ## conductance is inverse of friction
+  trans <- transition(Sraster, transitionFunction = function(x) mean(x),  directions = 16)
+  trans <- geoCorrection(trans)
+  costDistance(trans, as.matrix(xy1), as.matrix(xy2))
+}
 
 
 Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
@@ -106,9 +116,9 @@ Nhat1D1.nonU
 # -----------------------------------------------
 
 # First save objects so don't have to refit:
-save(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits1.RData")
+save(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
 # load fitted objects:
-load("./Tost/Tost-nonEuc-fits1.RData")
+load("./Tost/Tost-nonEuc-fits2.RData")
 
 # Compare AICs:
 AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab)
@@ -146,7 +156,7 @@ plotcovariate(TostSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
 
-j=16
+j=16 # also try 32, 25, 39
 predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
                   detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn1)
 covariates(TostMask1)$predicted.pj=predicted.pj
@@ -172,7 +182,8 @@ plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white"))
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
 
 
-
+# Look at constant-D non-Euclidian model:
+# --------------------------------------
 # Plot measure of probability of detection by given trap, from all points on mask:
 lambda0=exp(coef(Tost.hhn.D.nonU)["lambda",1]) # on the real scale
 sigma=exp(coef(Tost.hhn.D.nonU)["sigma",1]) # on the real scale
@@ -191,3 +202,46 @@ plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
 plotcovariate(TostSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
+
+
+
+# Test with different distance metric function userdfn2:
+Tost.hhn.D.nonU2<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                          model=list(D~1, lambda0~1, sigma~1, 
+                                     noneuc ~ stdGC -1), 
+                          details = list(userdist = userdfn2),
+                          start = list(noneuc = 1))
+
+coefficients(Tost.hhn.D.nonU2)
+TostSurface.D.nonU2<-predictDsurface(Tost.hhn.D.nonU2, se.D=TRUE, cl.D=TRUE)
+plot(TostSurface.D.nonU2,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Tost.cams,add=TRUE)
+plotcovariate(TostSurface.D.nonU2,covariate="stdGC",asp=1,contour=FALSE)
+plot(Tost.cams,add=TRUE)
+
+Nhat1D1.nonU2<-region.N(Tost.hhn.D.nonU2)
+Nhat1D1.nonU2
+
+
+# Look at constant-D non-Euclidian model with userdfn2:
+# ----------------------------------------------------
+# Plot measure of probability of detection by given trap, from all points on mask:
+lambda0=exp(coef(Tost.hhn.D.nonU2)["lambda",1]) # on the real scale
+sigma=exp(coef(Tost.hhn.D.nonU2)["sigma",1]) # on the real scale
+alpha=coef(Tost.hhn.D.nonU2)["noneuc.stdGC",1] # on the beta scale
+covariates(TostMask1)$noneuc=exp(alpha*covariates(TostMask1)$stdGC)
+covariates(TostMask1)$noneuc=exp(covariates(TostMask1)$stdGC)
+# Do the plotting
+par(mfrow=c(2,1))
+j=39 # trap number
+predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
+                  detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn2)
+covariates(TostMask1)$predicted.pj=predicted.pj
+plotcovariate(TostMask1,covariate="predicted.pj",contour=FALSE,asp=1)
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
+# and plot stdGC below it:
+plotcovariate(TostMask1,covariate="stdGC",asp=1,contour=FALSE)
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
+plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
+
