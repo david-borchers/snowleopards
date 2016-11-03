@@ -1,7 +1,8 @@
+library(secr)
+library(fields)
 #Running SECR for Tost 2012
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd"))
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
-
 plot(boundaryTost)
 plot(x=all.data.Tost, add=TRUE)
 TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryTost)
@@ -125,11 +126,11 @@ AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab)
 
 # get density range so plot on same scale
 Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
-
 # Do plots next to each other:
+windows() #Opens a separate window for plotting maps
 par(mfrow=c(2,1))
-plot(TostSurface,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
-plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+plot.Dsurface(TostSurface,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+plot.Dsurface(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
 # Hmmm, that is pretty unclear; try on log scale:
 Dhat=TostSurface; covariates(Dhat)$D.0=log(covariates(Dhat)$D.0)
 Dhat.nonU=TostSurface.nonU; covariates(Dhat.nonU)$D.0=log(covariates(Dhat.nonU)$D.0)
