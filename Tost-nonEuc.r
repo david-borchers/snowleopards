@@ -147,7 +147,7 @@ plot(Tost.cams,add=TRUE)
 Nhat1.nonU<-region.N(Tost.hhn.DHab.nonU.GBGC)
 Nhat1.nonU
 
-# Model with stdGC and stdBC in noneuc:
+# Model with stdBC in noneuc:
 # -------------------------------------
 Tost.hhn.DHab.nonU.GB<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
@@ -169,15 +169,15 @@ Nhat1.nonU
 TostSurface<-predictDsurface(Tost.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
-TostSurface.D.nonU.GB<-predictDsurface(Tost.hhn.D.nonU.GB, se.D=TRUE, cl.D=TRUE)
-TostSurface.D.nonU.GBGC<-predictDsurface(Tost.hhn.D.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
+TostSurface.DHab.nonU.GB<-predictDsurface(Tost.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)
+TostSurface.DHab.nonU.GBGC<-predictDsurface(Tost.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 save(Tost.cams,TostMask1,TostSurface,TostSurface.nonU,TostSurface.D.nonU,Tost.hhn.D.nonU,
-     Tost.hhn.DHab.nonU,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
+     Tost.hhn.DHab.nonU,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
 # load fitted objects:
 load("./Tost/Tost-nonEuc-fits2.RData")
 
 # Compare AICs:
-AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,Tost.hhn.DHab.nonU.GB)
+AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC)
 
 # get density range so plot on same scale
 Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
