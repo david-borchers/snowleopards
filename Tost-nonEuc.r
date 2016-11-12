@@ -57,13 +57,13 @@ head(covariates(TostMask1))
 
 Tost.cams=traps(all.data.Tost)
 
-#Tost.hhn<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 #Tost.hhn.detrug<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Rgd, sigma~Rgd), detectfn="HHN", mask=TostMask1)
 #Tost.hhn.Dxy<-secr.fit(all.data.Tost, model=list(D~x+y, lambda0~1, sigma~1), detectfn="HHN", mask=TostM)
 Tost.hhn.DHab<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
-#AIC(Tost.hhn.Dx, Tost.hhn.DHab, Tost.hhn.Dxy)
+AIC(Tost.hhn, Tost.hhn.DHab)
 coefficients(Tost.hhn.DHab)
 TostSurface<-predictDsurface(Tost.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface,asp=1,contour=FALSE)
@@ -73,18 +73,19 @@ plot(Tost.cams,add=TRUE)
 Nhat1<-region.N(Tost.hhn.DHab) #Estimates the population N of the animals within the region defined by mask
 Nhat1
 
-
+Nhat2<-region.N(Tost.hhn)
+Nhat2
 
 # Non-Euclidian fits
 # ==================
 # This taken straight from secr vignette:
 userdfn1 <- function (xy1, xy2, mask) {
-  if (missing(xy1)) return('noneuc')
-  require(gdistance)
-  Sraster <- raster(mask, 'noneuc')
+  if (missing(xy1)) return('noneuc') #When function is called, more of a jargon. Tells that it is a non-euclidean function
+  require(gdistance) #to load transition and geoCorrection functions
+  Sraster <- raster(mask, 'noneuc') #Creates a raster from a set of coordinates and attributes and turn that into a raster. noneuc needs to be made in advance in the mask that is being used in the analysis
   ## conductance is inverse of friction
   trans <- transition(Sraster, transitionFunction = function(x) 1/mean(x),  directions = 16)
-  trans <- geoCorrection(trans)
+  trans <- geoCorrection(trans) #takes care of earth's curvature and also the distance differences between square and diagonally neighbouring cells
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
 # variant not using inverse of mean
@@ -103,7 +104,7 @@ userdfn2 <- function (xy1, xy2, mask) {
 Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
-                             start = list(noneuc = 1))
+                             start = list(noneuc = 1)) #-1 gets rid of the intercept
 coefficients(Tost.hhn.DHab.nonU)
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
