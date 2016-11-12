@@ -145,8 +145,8 @@ plot(Tost.cams,add=TRUE)
 plotcovariate(TostSurface.nonU.GBGC,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams,add=TRUE)
 
-Nhat1.nonU<-region.N(Tost.hhn.DHab.nonU.GBGC)
-Nhat1.nonU
+Nhat1.nonU.GBGC<-region.N(Tost.hhn.DHab.nonU.GBGC)
+Nhat1.nonU.GBGC
 
 # Model with stdBC in noneuc:
 # -------------------------------------
@@ -161,8 +161,10 @@ plot(Tost.cams,add=TRUE)
 plotcovariate(TostSurface.nonU.GB,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams,add=TRUE)
 
-Nhat1.nonU<-region.N(Tost.hhn.DHab.nonU.GB)
-Nhat1.nonU
+Nhat1.nonU.GB<-region.N(Tost.hhn.DHab.nonU.GB)
+Nhat1.nonU.GB
+
+
 # Compare with and without non-Euclidian distance:
 # -----------------------------------------------
 
@@ -229,7 +231,7 @@ alpha=coef(Tost.hhn.DHab.nonU)["noneuc.stdGC",1] # on the beta scale
 covariates(TostMask1)$noneuc=exp(-alpha*covariates(TostMask1)$stdGC)
 # Do the plotting
 par(mfrow=c(2,1))
-j=6 # trap number
+j=7 # trap number
 predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
                   detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn1)
 covariates(TostMask1)$predicted.pj=predicted.pj
@@ -241,7 +243,7 @@ plotcovariate(TostSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,col="white")) 
 plot(Tost.cams[j,], add = TRUE,detpar=list(pch=19,cex=0.25,col="black"))
 
-j=16 # also try 32, 25, 39
+j=32 # also try 16, 25, 39
 predicted.pj=pdot(TostMask1,Tost.cams[j,],noccasions=1,detectfn='HHN',
                   detectpar=list(lambda0=lambda0,sigma=sigma),userdist=userdfn1)
 covariates(TostMask1)$predicted.pj=predicted.pj
