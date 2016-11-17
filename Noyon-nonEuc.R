@@ -179,3 +179,46 @@ load("./Noyon2013/Noyon-nonEuc-fits.RData")
 AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.nonU, 
     Noyon.hhn.DHab.nonU.GBGC, Noyon.hhn.DHab.nonU.GB)
 
+# get density range so plot on same scale
+Dlim=range(covariates(NoyonSurface.nonU)$D.0,covariates(NoyonSurface)$D.0)
+
+# Do plots next to each other:
+par(mfrow=c(2,1))
+plot.Dsurface(NoyonSurface,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+plot(NoyonSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+# Using log scale to plot clearly:
+Dhat=NoyonSurface; covariates(Dhat)$D.0=log(covariates(Dhat)$D.0)
+Dhat.nonU=NoyonSurface.nonU; covariates(Dhat.nonU)$D.0=log(covariates(Dhat.nonU)$D.0)
+Dlim=range(covariates(Dhat.nonU)$D.0,covariates(Dhat)$D.0)
+plot(Dhat,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+plot(Dhat.nonU,asp=1,contour=FALSE,col=terrain.colors(40),zlim=Dlim)
+
+# Plot non-euclidian distance map, selecting origin with cursor.
+dmap <- function (traps, mask, userd, i = 1, ...) {
+  if (is.na(i)) i <- nearesttrap(unlist(locator(1)), traps) 
+  covariates(mask) <- data.frame(d = userd[i,]) 
+  covariates(mask)$d[!is.finite(covariates(mask)$d)] <- NA 
+  plotcovariate(mask, covariate = 'd',  ...)
+  points(traps[i,], pch = 3, col = 'red')
+}
+
+# plot gridcode
+quartz(h=5,w=10) #DID NOT FIND THIS FUNCTION!!!
+plotcovariate(NoyonSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
+text(Noyon.cams,labels=as.character(1:40),cex=0.75)
+# plot distance from given trap
+trap=7 # choose trap
+dmask=NoyonMask1
+head(covariates(NoyonMask1))
+covariates(dmask)$noneuc = log(covariates(NoyonMask1)$noneuc +1) # log for better plot
+im=prep4image(data.frame(x=dmask$x,y=dmask$y,z=covariates(dmask)$stdGC),plot=FALSE)
+quartz(h=5,w=10)
+crfun=function(x) sqrt(prod(x))
+userd = nedist(Tost.cams,dmask,dmask,transitionFunction=crfun)
+dmap(Tost.cams, dmask, userd, i=trap, contour=FALSE)
+dmap(Tost.cams, dmask, userd, i=NA, contour=FALSE)
+points(Tost.cams[trap,],pch=19,cex=2,col="white")
+points(Tost.cams[trap,],pch=19,cex=1.5)
+contour(im,add=TRUE,col="gray",lwd=0.5,nlevels=6)
+text(Tost.cams,labels=as.character(1:40),cex=0.75,col="white")
+
