@@ -7,7 +7,7 @@ source("scrplotting.r")
 
 # Read capture file and boundary
 all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Substrate",	"Brokenness", "Rgd"))
-boundaryNoyon=readShapeSpatial("./Noyon2013//Habitat/NoyonStudy_Area.shp")
+boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
 # and plot it
 plot(boundaryNoyon)
 plot(x=all.data.Noyon, add=TRUE)
@@ -122,7 +122,7 @@ plot(Noyon.cams,add=TRUE)
 plotcovariate(NoyonSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE)
 plot(Noyon.cams,add=TRUE)
 
-Nhat1D1.nonU<-region.N(Tost.hhn.D.nonU)
+Nhat1D1.nonU<-region.N(Noyon.hhn.D.nonU)
 Nhat1D1.nonU
 AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU)
 
@@ -203,16 +203,20 @@ dmap <- function (traps, mask, userd, i = 1, ...) {
 }
 
 # plot gridcode
-quartz(h=5,w=10) #DID NOT FIND THIS FUNCTION!!!
+windows(h=5,w=10) #DID NOT FIND THIS FUNCTION!!!
 plotcovariate(NoyonSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
 text(Noyon.cams,labels=as.character(1:40),cex=0.75)
+
 # plot distance from given trap
+##for some reason, error stating replacement has 0 rows, data has 9927 at row 215!
 trap=7 # choose trap
 dmask=NoyonMask1
 head(covariates(NoyonMask1))
+names(covariates(NoyonMask1))
+covariates(NoyonMask1)$noneuc=exp(-alpha*covariates(NoyonMask1)$stdGC)
 covariates(dmask)$noneuc = log(covariates(NoyonMask1)$noneuc +1) # log for better plot
 im=prep4image(data.frame(x=dmask$x,y=dmask$y,z=covariates(dmask)$stdGC),plot=FALSE)
-quartz(h=5,w=10)
+windows(h=5,w=10)
 crfun=function(x) sqrt(prod(x))
 userd = nedist(Tost.cams,dmask,dmask,transitionFunction=crfun)
 dmap(Tost.cams, dmask, userd, i=trap, contour=FALSE)

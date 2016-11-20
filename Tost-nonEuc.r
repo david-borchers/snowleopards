@@ -205,7 +205,7 @@ dmap <- function (traps, mask, userd, i = 1, ...) {
   points(traps[i,], pch = 3, col = 'red')
 }
 # plot gridcode
-quartz(h=5,w=10)
+windows(h=5,w=10)
 plotcovariate(TostSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
 text(Tost.cams,labels=as.character(1:40),cex=0.75)
 # plot distance from given trap

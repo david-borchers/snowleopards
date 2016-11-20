@@ -12,7 +12,7 @@ load("./Tost/Tost-nonEuc-fits2.RData")
 # load plotting functions
 source("lcplots.r")
 
-# Plot riggedness, with numbered traps overlaid
+# Plot ruggedness, with numbered traps overlaid
 # --------------------------
 plotcovariate(TostSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
 text(Tost.cams,labels=as.character(1:40),cex=0.75)
