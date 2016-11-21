@@ -1,6 +1,7 @@
 library(secr)
 library(fields)
 library(maptools)
+setwd()
 source("scrplotting.r")
 
 #Running SECR for Nemegt 2013
@@ -63,8 +64,9 @@ Nemegt.hhn<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~1, sigma~1), detec
 Nemegt.hhn.detrgd<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
 
-#AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab)
+AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab)
 coefficients(Nemegt.hhn.DHab)
+coefficients(Nemegt.hhn.detrgd)
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurface,asp=1,contour=FALSE)
 plotcovariate(NemegtSurface,covariate="stdGC",asp=1,contour=FALSE)
