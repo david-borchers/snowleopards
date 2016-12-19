@@ -1,7 +1,6 @@
 library(secr)
 library(fields)
 library(maptools)
-setwd()
 source("scrplotting.r")
 
 #Running SECR for Nemegt 2013
@@ -10,8 +9,10 @@ source("scrplotting.r")
 all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Brokenness",	"Grass", "Rgd"))
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
+
 plot(boundaryNemegt)
 plot(x=all.data.Nemegt, add=TRUE)
+text(traps(all.data.Nemegt),labels=as.character(1:40),cex=0.75)
 
 # Make mask:
 NemegtMask=make.mask(traps(all.data.Nemegt), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNemegt)
@@ -22,7 +23,7 @@ NemegtMask1<-addCovariates(NemegtMask, SLCost.Nemegt)
 
 # Read binary habitat suitability code into mask covariate ...
 SLCostBINARY.Nemegt<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
-plot(SLCostBINARY.Nemegt, add=TRUE)
+#plot(SLCostBINARY.Nemegt, add=TRUE)
 
 NemegtMask1<-addCovariates(NemegtMask1, SLCostBINARY.Nemegt)
 head(covariates(NemegtMask1))
@@ -63,11 +64,16 @@ Nemegt.cams=traps(all.data.Nemegt)
 Nemegt.hhn<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.detrgd<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detrgd10<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detrgd01<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
 
-AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab)
+AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01)
+
 coefficients(Nemegt.hhn.DHab)
 coefficients(Nemegt.hhn.detrgd)
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab, se.D=TRUE, cl.D=TRUE)
+
+windows()
 plot(NemegtSurface,asp=1,contour=FALSE)
 plotcovariate(NemegtSurface,covariate="stdGC",asp=1,contour=FALSE)
 plot(Nemegt.cams,add=TRUE)
@@ -118,6 +124,8 @@ Nemegt.hhn.D.nonU<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                            start = list(noneuc = 1))
 
 coefficients(Nemegt.hhn.D.nonU)
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU)
+
 NemegtSurface.D.nonU<-predictDsurface(Nemegt.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurface.D.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
 plot(Nemegt.cams,add=TRUE)
@@ -135,6 +143,7 @@ Nemegt.hhn.DHab.nonU.GBGC<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=Nemegt
                                    details = list(userdist = userdfn1),
                                    start = list(noneuc = 1))
 coefficients(Nemegt.hhn.DHab.nonU.GBGC)
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU, Nemegt.hhn.DHab.nonU.GBGC, Nemegt.hhn.D.nonU)
 
 NemegtSurface.nonU.GBGC<-predictDsurface(Nemegt.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurface.nonU.GBGC,asp=1,contour=FALSE,col=terrain.colors(40))

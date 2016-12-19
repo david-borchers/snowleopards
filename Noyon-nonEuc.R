@@ -62,15 +62,16 @@ Noyon.cams=traps(all.data.Noyon)
 Noyon.hhn<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.detrgd<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.DHab<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NoyonMask1)
+Noyon.hhn.DHab.DetRgd01<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN",mask=NoyonMask1)
 
-AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab)
-coefficients(Noyon.hhn.DHab)
-NoyonSurface<-predictDsurface(Noyon.hhn.DHab, se.D=TRUE, cl.D=TRUE)
+AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab, Noyon.hhn.DHab.DetRgd01)
+coefficients(Noyon.hhn.DHab.DetRgd01)
+NoyonSurface<-predictDsurface(Noyon.hhn.DHab.DetRgd01, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface,asp=1,contour=FALSE)
 plotcovariate(NoyonSurface,covariate="stdGC",asp=1,contour=FALSE)
 plot(Noyon.cams,add=TRUE)
 
-Nhat1<-region.N(Noyon.hhn.DHab) #Estimates the population N of the animals within the region defined by mask
+Nhat1<-region.N(Noyon.hhn.DHab.DetRgd01) #Estimates the population N of the animals within the region defined by mask
 Nhat1
 
 Nhat2<-region.N(Noyon.hhn)
