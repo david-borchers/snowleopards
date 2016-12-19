@@ -160,6 +160,7 @@ plot(Noyon.cams,add=TRUE)
 Nhat1.nonU<-region.N(Noyon.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
+
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
 
@@ -178,6 +179,14 @@ load("./Noyon2013/Noyon-nonEuc-fits.RData")
 # Compare all model AICs:
 AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.nonU, 
     Noyon.hhn.DHab.nonU.GBGC, Noyon.hhn.DHab.nonU.GB)
+
+
+# Best non-Euclidian
+Nhatbest.nonU<-region.N(Noyon.hhn.DHab.nonU)
+Nhatbest.nonU
+# Best Euclidian
+Nhatbest.U<-region.N(Noyon.hhn)
+Nhatbest.U
 
 # get density range so plot on same scale
 Dlim=range(covariates(NoyonSurface.nonU)$D.0,covariates(NoyonSurface)$D.0)
