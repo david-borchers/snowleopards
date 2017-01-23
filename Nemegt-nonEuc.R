@@ -10,7 +10,9 @@ all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", tra
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
 
-plot(boundaryNemegt)
+#traps(all.data.Nemegt)<-addCovariates(traps(all.data.Nemegt), #Add a covariate of waterholes
+
+                                      plot(boundaryNemegt)
 plot(x=all.data.Nemegt, add=TRUE)
 text(traps(all.data.Nemegt),labels=as.character(1:40),cex=0.75)
 
@@ -66,11 +68,17 @@ Nemegt.hhn.detrgd<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~stdRgd, sig
 Nemegt.hhn.DHab<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab.detrgd10<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab.detrgd01<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detTopo10<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detTopo01<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~Topo), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detTopoRgd<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~Topo, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
 
-AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01)
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.detTopo10, Nemegt.hhn.DHab.detTopo01, Nemegt.hhn.DHab.detTopoRgd)
+AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, Nemegt.hhn.DHab.detTopo10)
 
 coefficients(Nemegt.hhn.DHab)
 coefficients(Nemegt.hhn.detrgd)
+coefficients(Nemegt.hhn.DHab.detTopo10)
+coefficients(Nemegt.hhn.DHab.detTopo01)
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 
 windows()
@@ -171,6 +179,26 @@ plot(Nemegt.cams,add=TRUE)
 Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
+# Model with stdGC in noneuc, topography for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamTopo<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+                               model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                               details = list(userdist = userdfn1),
+                               start = list(noneuc = 1)) #-1 gets rid of the intercept
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU)
+coefficients(Nemegt.hhn.DHab.nonU)
+NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
+windows()
+plot(NemegtSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU)
+Nhat1.nonU
+
+
+
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
 
@@ -214,6 +242,6 @@ dmap <- function (traps, mask, userd, i = 1, ...) {
 }
 
 # plot gridcode
-quartz(h=5,w=10) #DID NOT FIND THIS FUNCTION!!!
+windows()
 plotcovariate(NemegtSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
 text(Nemegt.cams,labels=as.character(1:40),cex=0.75)
