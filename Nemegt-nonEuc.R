@@ -10,6 +10,11 @@ all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", tra
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
 
+<<<<<<< HEAD
+=======
+#traps(all.data.Nemegt)<-addCovariates(traps(all.data.Nemegt), #Add a covariate of waterholes
+
+>>>>>>> 74c2d140f1b5b0919819bee4796d614df8059d4f
 plot(boundaryNemegt)
 plot(x=all.data.Nemegt, add=TRUE)
 text(traps(all.data.Nemegt),labels=as.character(1:40),cex=0.75)
@@ -182,7 +187,8 @@ NemegtSurface.DHab.nonU.GB<-predictDsurface(Nemegt.hhn.DHab.nonU.GB, se.D=TRUE, 
 NemegtSurface.DHab.nonU.GBGC<-predictDsurface(Nemegt.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 save(Nemegt.cams,NemegtMask1,NemegtSurface,NemegtSurface.nonU,NemegtSurface.D.nonU,Nemegt.hhn.DHab,
      Nemegt.hhn,Nemegt.hhn.detrgd,Nemegt.hhn.D.nonU,Nemegt.hhn.DHab.nonU,Nemegt.hhn.DHab.nonU.GB,
-     Nemegt.hhn.DHab.nonU.GBGC,Nemegt.hhn.DHab,file="./Nemegt/Nemegt-nonEuc-fits.RData")
+     Nemegt.hhn.DHab.nonU.GBGC,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detTopo10, Nemegt.hhn.DHab.detTopo01, 
+     Nemegt.hhn.DHab.detTopoRgd,file="./Nemegt/Nemegt-nonEuc-fits.RData")
 # load fitted objects:
 load("./Nemegt/Nemegt-nonEuc-fits.RData")
 

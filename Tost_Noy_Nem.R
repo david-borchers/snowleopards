@@ -97,7 +97,7 @@ TNN.hhn.DRgd<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~1), 
 
 coefficients(TNN.hhn)
 predict(TNN.hhn)
-TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd, se.D=TRUE, cl.D=TRUE)
+TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd)
 windows()
 plot(TNNSurface.DRgd,asp=1,contour=FALSE) #This generates an error. Something I am doing wrong here it seems...
 
