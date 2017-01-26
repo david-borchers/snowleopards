@@ -182,6 +182,15 @@ load("./Tost/Tost-nonEuc-fits2.RData")
 # Compare AICs:
 AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC)
 
+
+# Best non-Euclidian
+Tost.Nhatbest.nonU<-region.N(Tost.hhn.DHab.nonU)
+# Best Euclidian
+Tost.Nhatbest.U<-region.N(Tost.hhn.DHab)
+# Compare them:
+Tost.Nhatbest.nonU
+Tost.Nhatbest.U
+
 # get density range so plot on same scale
 Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
 

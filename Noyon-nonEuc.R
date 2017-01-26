@@ -183,11 +183,16 @@ AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.n
 
 
 # Best non-Euclidian
-Nhatbest.nonU<-region.N(Noyon.hhn.DHab.nonU)
-Nhatbest.nonU
+Noyon.Nhatbest.nonU<-region.N(Noyon.hhn.DHab.nonU)
 # Best Euclidian
-Nhatbest.U<-region.N(Noyon.hhn)
-Nhatbest.U
+Noyon.Nhatbest.U<-region.N(Noyon.hhn)
+# Compare them:
+Noyon.Nhatbest.nonU
+Noyon.Nhatbest.U
+# Euclidian with same density model:
+Noyon.Nhatcomp.U<-region.N(Noyon.hhn.DHab)
+Noyon.Nhatbest.nonU
+Noyon.Nhatcomp.U
 
 # get density range so plot on same scale
 Dlim=range(covariates(NoyonSurface.nonU)$D.0,covariates(NoyonSurface)$D.0)
