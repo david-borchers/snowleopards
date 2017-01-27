@@ -4,7 +4,7 @@ library(maptools)
 source("scrplotting.r")
 
 # Read combined capture file and boundary for Tost, Noyon & Nemegt
-all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo"))
+all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
 covariates(traps(all.data.TNN))
 
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
@@ -91,10 +91,25 @@ TNN.hhn<-secr.fit(all.data.TNN,
                   model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", 
                   mask=list(TostMask1, NoyonMask1, NemegtMask1))
 
+TNN.hhn.detTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN",
+                       mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
+TNN.hhn.detTopo01<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~Topo), detectfn="HHN",
+                            mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
+
 ####Is the code below correct? Can't seem to add different covariates for different sessions (here areas)  
 TNN.hhn.DRgd<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN",
                        mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
+TNN.hhn.DRgd.DetTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN",
+                       mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
+TNN.hhn.DRgd.DetWater<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Water, sigma~1), detectfn="HHN",
+                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
+
+AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd)
 coefficients(TNN.hhn)
 predict(TNN.hhn)
 TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd)
