@@ -6,7 +6,7 @@ source("scrplotting.r")
 #Running SECR for Nemegt 2013
 
 # Read capture file and boundary
-all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Brokenness",	"Grass", "Rgd"))
+all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Brokenness",	"Grass", "Rgd", "Water"))
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
 
@@ -176,6 +176,46 @@ plot(Nemegt.cams,add=TRUE)
 Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
+<<<<<<< HEAD
+=======
+# Model with stdGC in noneuc, topography for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamTopo<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+                               model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                               details = list(userdist = userdfn1),
+                               start = list(noneuc = 1)) #-1 gets rid of the intercept
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU)
+coefficients(Nemegt.hhn.DHab.nonU)
+NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
+windows()
+plot(NemegtSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU)
+Nhat1.nonU
+
+# Model with stdGC in noneuc, Water for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+                                       model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                       details = list(userdist = userdfn1),
+                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with stdGC in noneuc, Topo+Water for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamTopoW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+                                    model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                    details = list(userdist = userdfn1),
+                                    start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
+    Nemegt.hhn.DHab.detTopo10, Nemegt.hhn.DHab.detW, Nemegt.hhn.DHab.nonU.LamTopoW, Nemegt.hhn.DHab.nonU.LamTopo,
+    Nemegt.hhn.DHab.nonU.LamW, Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU)
+
+
+>>>>>>> 7d031bbfaba4dea8f7fa915da92ebe75a460dd91
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
 

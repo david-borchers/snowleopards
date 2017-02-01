@@ -6,7 +6,7 @@ source("scrplotting.r")
 #Running SECR for Noyon 2013
 
 # Read capture file and boundary
-all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Substrate",	"Brokenness", "Rgd"))
+all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
 # and plot it
 plot(boundaryNoyon)

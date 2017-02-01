@@ -7,7 +7,7 @@ source("scrplotting.r")
 #Running SECR for Tost 2012
 
 # Read capture file and boundary
-all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd"))
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
 # and plot it
 plot(boundaryTost)
