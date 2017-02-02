@@ -3,13 +3,53 @@ library(fields)
 library(maptools)
 source("scrplotting.r")
 
+# Testing reading traps as .csv or .txt (the former does not work)
+#test = read.csv("./Tost_Noyon_Nemegt/Tost_Traps.csv");head(test)
+#test1 = read.traps(file="./Tost_Noyon_Nemegt/Tost_Traps.txt", detector="count", covnames = c("Effort","Rgd","Topo", "Water"))
+#test2 = read.traps(file="./Tost_Noyon_Nemegt/Noyon_Traps.txt", detector="count", covnames = c("Effort","Rgd","Topo", "Water"))
+#test3 = read.traps(file="./Tost_Noyon_Nemegt/Nemegt_Traps.txt", detector="count", covnames = c("Effort","Rgd","Topo", "Water"))
+#summary(test1)
+#summary(test2)
+#summary(test3)
+
 # Read combined capture file and boundary for Tost, Noyon & Nemegt
-all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
+TNN.trapfiles = c("./Tost_Noyon_Nemegt/Tost_Traps.txt",
+                  "./Tost_Noyon_Nemegt/Noyon_Traps.txt",
+                  "./Tost_Noyon_Nemegt/Nemegt_Traps.txt")
+all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = TNN.trapfiles, detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
+# old command has all traps in a single file, not by session:
+#all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
 covariates(traps(all.data.TNN))
 
+# Read boundary files
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
-
+boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
+boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
+# and plot them
 plot(boundaryNemegt)
+plot(boundaryNoyon)
+plot(boundaryTost)
+
+# plot all together:
+# Find extent of bounding boxes of boundarys:
+bbox.Nemegt = bbox(boundaryNemegt)
+bbox.Noyon = bbox(boundaryNoyon)
+bbox.Tost = bbox(boundaryTost)
+bbxlim = range(bbox.Nemegt["x",],bbox.Noyon["x",],bbox.Tost["x",])
+bbylim = range(bbox.Nemegt["y",],bbox.Noyon["y",],bbox.Tost["y",])
+
+# redundant code for old traps without sessions
+#trapsxy = traps(all.data.TNN)[[1]] # (strange that each element of list has ALL traps in it)
+#trnames = row.names(trapsxy)
+#sessnum = rep(NA,length(trnames))
+#sessnum[which(substr(trnames,1,6)=="Nemegt")] = 3
+#sessnum[which(substr(trnames,1,5)=="Noyon")] = 2
+#sessnum[which(substr(trnames,1,4)=="Tost")] = 1
+plot(bbxlim,bbylim,xlim=bbxlim,ylim=bbylim,type="n") 
+plot(boundaryNemegt,add=TRUE,border=3)
+plot(boundaryNoyon,add=TRUE,border=2)
+plot(boundaryTost,add=TRUE,border=1)
+
 
 # Make 3 masks
 NemegtMask=make.mask(traps(all.data.Nemegt), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNemegt)
@@ -55,11 +95,28 @@ summary(covariates(TostMask1))
 
 # Standarize Rgd on traps (this makes fits a bit more stable)
 # -----------------------------------------------------------
-summary(covariates(traps(all.data.TNN)))
-names(covariates(traps(all.data.TNN)))
-covariates(traps(all.data.TNN))$stdRgd = scale(covariates(traps(all.data.TNN))$Rgd)
+TNN.cams=traps(all.data.TNN)
+# look at covariates for each session:
+lapply(covariates(TNN.cams),summary)
+# To standardise in same way over all sessions, need to combine, standarise and then separate:
+Rgds = c(covariates(TNN.cams[[1]])$Rgd,
+         covariates(TNN.cams[[2]])$Rgd,
+         covariates(TNN.cams[[3]])$Rgd)
+stdRgd = scale(Rgds)
+n1 = dim(TNN.cams[[1]])[1]
+n2 = dim(TNN.cams[[2]])[1]
+n3 = dim(TNN.cams[[3]])[1]
+covariates(TNN.cams[[1]])$stdRgd = stdRgd[1:n1]
+covariates(TNN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
+covariates(TNN.cams[[3]])$stdRgd = stdRgd[(n1+n2+1):(n1+n2+n3)]
 
-summary(covariates(traps(all.data.TNN)))
+# look at covariates for each session again:
+lapply(covariates(TNN.cams),summary)
+
+# put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
+traps(all.data.TNN[[1]]) = TNN.cams[[1]]
+traps(all.data.TNN[[2]]) = TNN.cams[[2]]
+traps(all.data.TNN[[3]]) = TNN.cams[[3]]
 
 # Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
 # ------------------------------------------------------------------------
@@ -80,34 +137,52 @@ covariates(TostMask1)$stdGC = scale(covariates(TostMask1)$GRIDCODE)
 covariates(TostMask1)$stdBC = scale(covariates(TostMask1)$BINCODE)
 summary(covariates(TostMask1))
 names(covariates(TostMask1))
-plot(NoyonMask1, covariate="stdGC", contour = FALSE, col = terrain.colors(12), legend = FALSE, add = TRUE)
-plot(NemegtMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(16), legend = FALSE)
-plot(TostMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(16), legend = FALSE, add=TRUE)
-###How to change xy of the screen to plot all masks together???
 
-TNN.cams=traps(all.data.TNN)
+# Plot sessions together:
+pdf("Allregions.pdf",h=5,w=10)
+plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) 
+# Plot the terrain
+plot(NoyonMask1, covariate="stdGC", contour = FALSE, col = terrain.colors(16), legend = FALSE, add = TRUE)
+plot(NemegtMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(16), legend = FALSE, add = TRUE)
+plot(TostMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(16), legend = FALSE, add=TRUE)
+# Add the traps
+plot(traps(all.data.TNN)[[1]],add=TRUE,detpar=list(col="black",pch="+"))
+plot(traps(all.data.TNN)[[2]],add=TRUE,detpar=list(col="black",pch="+"))
+plot(traps(all.data.TNN)[[3]],add=TRUE,detpar=list(col="black",pch="+"))
+# and the borders over the top
+plot(boundaryNemegt,add=TRUE)#,border=3)
+plot(boundaryNoyon,add=TRUE)#,border=2)
+plot(boundaryTost,add=TRUE)#,border=1)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+dev.off()
 
 TNN.hhn<-secr.fit(all.data.TNN, 
                   model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", 
                   mask=list(TostMask1, NoyonMask1, NemegtMask1))
 
-TNN.hhn.detTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN",
-                       mask = list(TostMask1, NoyonMask1, NemegtMask1))
-
-TNN.hhn.detTopo01<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~Topo), detectfn="HHN",
-                            mask = list(TostMask1, NoyonMask1, NemegtMask1))
-
-
 ####Is the code below correct? Can't seem to add different covariates for different sessions (here areas)  
 TNN.hhn.DRgd<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN",
                        mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
-TNN.hhn.DRgd.DetTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN",
-                       mask = list(TostMask1, NoyonMask1, NemegtMask1))
+coefficients(TNN.hhn.DRgd)
+predict(TNN.hhn.DRgd)
+TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd)
+# When you have sessions, you have to plot by session:
+windows()
+plot(TNNSurface.DRgd[[1]],asp=1,contour=FALSE,asp=1) 
+plot(TNNSurface.DRgd[[2]],asp=1,contour=FALSE,asp=1) 
+plot(TNNSurface.DRgd[[3]],asp=1,contour=FALSE,asp=1) 
 
-TNN.hhn.DRgd.DetWater<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Water, sigma~1), detectfn="HHN",
-                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
+# Try with session factor
+# -----------------------
+sess = as.factor(1:3)
+TNN.hhn.DRgd.sess<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda0~1, sigma~1), detectfn="HHN",
+                       mask = list(TostMask1, NoyonMask1, NemegtMask1),sessioncov=data.frame(sfac=sess))
 
+<<<<<<< HEAD
 TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
@@ -168,3 +243,20 @@ plot(TNNSurface.DRgd,asp=1,contour=FALSE) #This generates an error. Something I 
 
 # How to get region.N for each of the 3 areas?
  
+=======
+# region.N for each of the 3 areas:
+region.N(TNN.hhn.DRgd.sess,region=TostMask1,session="1")
+region.N(TNN.hhn.DRgd.sess,region=NoyonMask1,session="2")
+region.N(TNN.hhn.DRgd.sess,region=NemegtMask1,session="3")
+
+
+coefficients(TNN.hhn.DRgd.sess)
+predict(TNN.hhn.DRgd.sess)
+TNNSurface.DRgd.sess<-predictDsurface(TNN.hhn.DRgd.sess)
+
+# When you have sessions, you have to plot by session:
+plot(TNNSurface.DRgd.sess[[1]],asp=1,contour=FALSE) 
+plot(TNNSurface.DRgd.sess[[2]],asp=1,contour=FALSE) 
+plot(TNNSurface.DRgd.sess[[3]],asp=1,contour=FALSE) 
+
+>>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921

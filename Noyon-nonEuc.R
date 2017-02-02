@@ -166,6 +166,7 @@ plot(Noyon.cams,add=TRUE)
 Nhat1.nonU<-region.N(Noyon.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
+<<<<<<< HEAD
 # Model with stdGC in noneuc Topo in Detection:
 # ---------------------------
 Noyon.hhn.DHab.Topo10.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
@@ -189,6 +190,8 @@ Noyon.hhn.DHab.Topo10W.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=Noyon
 
 AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU, Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.DetW.nonU,
     Noyon.hhn.DHab.Topo10W.nonU)
+=======
+>>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921
 
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
@@ -211,6 +214,19 @@ load("./Noyon2013/Noyon-nonEuc-fits.RData") #Second round analysis (with water a
 # Compare all model AICs:
 AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.nonU, 
     Noyon.hhn.DHab.nonU.GBGC, Noyon.hhn.DHab.nonU.GB)
+
+
+# Best non-Euclidian
+Noyon.Nhatbest.nonU<-region.N(Noyon.hhn.DHab.nonU)
+# Best Euclidian
+Noyon.Nhatbest.U<-region.N(Noyon.hhn)
+# Compare them:
+Noyon.Nhatbest.nonU
+Noyon.Nhatbest.U
+# Euclidian with same density model:
+Noyon.Nhatcomp.U<-region.N(Noyon.hhn.DHab)
+Noyon.Nhatbest.nonU
+Noyon.Nhatcomp.U
 
 # get density range so plot on same scale
 Dlim=range(covariates(NoyonSurface.nonU)$D.0,covariates(NoyonSurface)$D.0)

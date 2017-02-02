@@ -7,7 +7,11 @@ source("scrplotting.r")
 #Running SECR for Tost 2012
 
 # Read capture file and boundary
+<<<<<<< HEAD
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Rgd", "Topo",	"Altidute",	"Water"))
+=======
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
+>>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
 # and plot it
 plot(boundaryTost)
@@ -219,6 +223,15 @@ load("./Tost/Tost-nonEuc-fits3.RData") #second round analysis, using nonU, water
 
 # Compare AICs:
 AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC)
+
+
+# Best non-Euclidian
+Tost.Nhatbest.nonU<-region.N(Tost.hhn.DHab.nonU)
+# Best Euclidian
+Tost.Nhatbest.U<-region.N(Tost.hhn.DHab)
+# Compare them:
+Tost.Nhatbest.nonU
+Tost.Nhatbest.U
 
 # get density range so plot on same scale
 Dlim=range(covariates(TostSurface.nonU)$D.0,covariates(TostSurface)$D.0)
