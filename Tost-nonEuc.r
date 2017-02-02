@@ -7,7 +7,7 @@ source("scrplotting.r")
 #Running SECR for Tost 2012
 
 # Read capture file and boundary
-all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd"))
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Rgd", "Topo",	"Altidute",	"Water"))
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
 # and plot it
 plot(boundaryTost)
@@ -58,12 +58,13 @@ head(covariates(TostMask1))
 Tost.cams=traps(all.data.Tost)
 
 Tost.hhn<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
-#Tost.hhn.detrug<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Rgd, sigma~Rgd), detectfn="HHN", mask=TostMask1)
-#Tost.hhn.Dxy<-secr.fit(all.data.Tost, model=list(D~x+y, lambda0~1, sigma~1), detectfn="HHN", mask=TostM)
+Tost.hhn.detTopo10<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.detWater<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.DHab<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
-AIC(Tost.hhn, Tost.hhn.DHab)
+AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater)
 coefficients(Tost.hhn.DHab)
 TostSurface<-predictDsurface(Tost.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface,asp=1,contour=FALSE)
@@ -106,6 +107,36 @@ Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1)) #-1 gets rid of the intercept
 coefficients(Tost.hhn.DHab.nonU)
+AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHab.nonU)
+
+# Model with stdGC in noneuc & Detection Topo:
+# ---------------------------
+Tost.hhn.DHab.nonU.Topo10<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                             model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                             details = list(userdist = userdfn1),
+                             start = list(noneuc = 1)) #-1 gets rid of the intercept
+coefficients(Tost.hhn.DHab.nonU.Topo10)
+
+# Model with stdGC in noneuc & Detection Water:
+# ---------------------------
+Tost.hhn.DHab.nonU.W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                    model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                    details = list(userdist = userdfn1),
+                                    start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
+# Model with stdGC in noneuc & Detection Topo water:
+# ---------------------------
+Tost.hhn.DHab.nonU.T01W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                               model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                               details = list(userdist = userdfn1),
+                               start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
+AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHab.nonU, Tost.hhn.DHab.nonU.Topo10,
+    Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W)
+
+
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
 plot(Tost.cams,add=TRUE)
@@ -175,9 +206,16 @@ TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 TostSurface.DHab.nonU.GB<-predictDsurface(Tost.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)
 TostSurface.DHab.nonU.GBGC<-predictDsurface(Tost.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 save(Tost.cams,TostMask1,TostSurface,TostSurface.nonU,TostSurface.D.nonU,Tost.hhn.D.nonU,
-     Tost.hhn.DHab.nonU,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC,Tost.hhn.DHab,file="./Tost/Tost-nonEuc-fits2.RData")
+     Tost.hhn.DHab.nonU,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC,Tost.hhn.DHab,
+     file="./Tost/Tost-nonEuc-fits2.RData")
 # load fitted objects:
-load("./Tost/Tost-nonEuc-fits2.RData")
+load("./Tost/Tost-nonEuc-fits2.RData") #first round analysis
+
+save(Tost.cams,TostMask1,TostSurface,TostSurface.nonU,TostSurface.D.nonU,Tost.hhn.DHab, Tost.hhn.detWater, 
+     Tost.hhn.detTopo10, Tost.hhn, Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W, Tost.hhn.DHab.nonU.Topo10, 
+     Tost.hhn.DHab.nonU, file="./Tost/Tost-nonEuc-fits3.RData")
+load("./Tost/Tost-nonEuc-fits3.RData") #second round analysis, using nonU, water, topo as det covs
+
 
 # Compare AICs:
 AIC(Tost.hhn.D.nonU,Tost.hhn.DHab.nonU,Tost.hhn.DHab,Tost.hhn.DHab.nonU.GB,Tost.hhn.DHab.nonU.GBGC)

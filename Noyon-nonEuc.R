@@ -6,7 +6,7 @@ source("scrplotting.r")
 #Running SECR for Noyon 2013
 
 # Read capture file and boundary
-all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Substrate",	"Brokenness", "Rgd"))
+all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
 # and plot it
 plot(boundaryNoyon)
@@ -63,9 +63,14 @@ Noyon.hhn<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~1, sigma~1), detectf
 Noyon.hhn.detrgd<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.DHab<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.DHab.DetRgd01<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN",mask=NoyonMask1)
+Noyon.hhn.detWater<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=NoyonMask1)
+Noyon.hhn.detTopo10<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=NoyonMask1)
+Noyon.hhn.detTopoWater<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Topo+Water, sigma~1), detectfn="HHN", mask=NoyonMask1)
 
-AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab, Noyon.hhn.DHab.DetRgd01)
+AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab, Noyon.hhn.DHab.DetRgd01, Noyon.hhn.detWater, 
+    Noyon.hhn.detTopo10, Noyon.hhn.detTopoWater)
 coefficients(Noyon.hhn.DHab.DetRgd01)
+
 NoyonSurface<-predictDsurface(Noyon.hhn.DHab.DetRgd01, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface,asp=1,contour=FALSE)
 plotcovariate(NoyonSurface,covariate="stdGC",asp=1,contour=FALSE)
@@ -161,6 +166,30 @@ plot(Noyon.cams,add=TRUE)
 Nhat1.nonU<-region.N(Noyon.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
+# Model with stdGC in noneuc Topo in Detection:
+# ---------------------------
+Noyon.hhn.DHab.Topo10.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+                              model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with stdGC in noneuc Water in Detection:
+# ---------------------------
+Noyon.hhn.DHab.DetW.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+                                     model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                     details = list(userdist = userdfn1),
+                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with stdGC in noneuc Topo & Water in Detection:
+# ---------------------------
+Noyon.hhn.DHab.Topo10W.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+                                     model=list(D~stdGC, lambda0~Water+Topo, sigma~1, noneuc ~ stdGC -1), 
+                                     details = list(userdist = userdfn1),
+                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU, Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.DetW.nonU,
+    Noyon.hhn.DHab.Topo10W.nonU)
+
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
 
@@ -172,9 +201,12 @@ NoyonSurface.DHab.nonU.GB<-predictDsurface(Noyon.hhn.DHab.nonU.GB, se.D=TRUE, cl
 NoyonSurface.DHab.nonU.GBGC<-predictDsurface(Noyon.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 save(Noyon.cams,NoyonMask1,NoyonSurface,NoyonSurface.nonU,NoyonSurface.D.nonU,Noyon.hhn.DHab,
       Noyon.hhn,Noyon.hhn.detrgd,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU,Noyon.hhn.DHab.nonU.GB,
-      Noyon.hhn.DHab.nonU.GBGC,Noyon.hhn.DHab,file="./Noyon2013/Noyon-nonEuc-fits.RData")
+      Noyon.hhn.DHab.nonU.GBGC,Noyon.hhn.DHab, Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.DetW.nonU,
+     Noyon.hhn.DHab.Topo10W.nonU, file="./Noyon2013/Noyon-nonEuc-fits3.RData")
 # load fitted objects:
 load("./Noyon2013/Noyon-nonEuc-fits.RData")
+
+load("./Noyon2013/Noyon-nonEuc-fits.RData") #Second round analysis (with water and topography)
 
 # Compare all model AICs:
 AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.nonU, 

@@ -108,13 +108,63 @@ TNN.hhn.DRgd.DetTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Top
 TNN.hhn.DRgd.DetWater<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Water, sigma~1), detectfn="HHN",
                                  mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
+TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
+                                mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
-AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd)
-coefficients(TNN.hhn)
-predict(TNN.hhn)
-TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd)
+# Non-Euclidian fits
+# ==================
+# This taken straight from secr vignette:
+userdfn1 <- function (xy1, xy2, mask) {
+  if (missing(xy1)) return('noneuc') #When function is called, more of a jargon. Tells that it is a non-euclidean function
+  require(gdistance) #to load transition and geoCorrection functions
+  Sraster <- raster(mask, 'noneuc') #Creates a raster from a set of coordinates and attributes and turn that into a raster. noneuc needs to be made in advance in the mask that is being used in the analysis
+  ## conductance is inverse of friction
+  trans <- transition(Sraster, transitionFunction = function(x) 1/mean(x),  directions = 16)
+  trans <- geoCorrection(trans) #takes care of earth's curvature and also the distance differences between square and diagonally neighbouring cells
+  costDistance(trans, as.matrix(xy1), as.matrix(xy2))
+}
+
+# Model with stdGC in noneuc:
+# ---------------------------
+TNN.hhn.DHab.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                            model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                            details = list(userdist = userdfn1),
+                               start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with constt D in noneuc:
+# ---------------------------
+TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                            model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                            details = list(userdist = userdfn1),
+                       
+                            start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
+# Model with constt D in noneuc:
+# ---------------------------
+TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                       model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                       details = list(userdist = userdfn1),
+                       
+                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with constt D in noneuc:
+# ---------------------------
+TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                       model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                       details = list(userdist = userdfn1),
+                       
+                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
+AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.DetWater, 
+    TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU)
+coefficients(TNN.hhn.DRgd.DetWater)
+predict(TNN.hhn.DRgd.DetWater)
+TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd.DetWater)
 windows()
 plot(TNNSurface.DRgd,asp=1,contour=FALSE) #This generates an error. Something I am doing wrong here it seems...
+
 
 # How to get region.N for each of the 3 areas?
  
