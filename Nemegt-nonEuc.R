@@ -6,15 +6,12 @@ source("scrplotting.r")
 #Running SECR for Nemegt 2013
 
 # Read capture file and boundary
-all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Brokenness",	"Grass", "Rgd", "Water"))
+all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"))
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
 
-<<<<<<< HEAD
-=======
 #traps(all.data.Nemegt)<-addCovariates(traps(all.data.Nemegt), #Add a covariate of waterholes
 
->>>>>>> 74c2d140f1b5b0919819bee4796d614df8059d4f
 plot(boundaryNemegt)
 plot(x=all.data.Nemegt, add=TRUE)
 text(traps(all.data.Nemegt),labels=as.character(1:40),cex=0.75)
@@ -176,8 +173,6 @@ plot(Nemegt.cams,add=TRUE)
 Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
-<<<<<<< HEAD
-=======
 # Model with stdGC in noneuc, topography for lambda:
 # ---------------------------
 Nemegt.hhn.DHab.nonU.LamTopo<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
@@ -210,17 +205,25 @@ Nemegt.hhn.DHab.nonU.LamTopoW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=Ne
                                     details = list(userdist = userdfn1),
                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
 
-AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
+NemegtAIC=AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
     Nemegt.hhn.DHab.detTopo10, Nemegt.hhn.DHab.detW, Nemegt.hhn.DHab.nonU.LamTopoW, Nemegt.hhn.DHab.nonU.LamTopo,
     Nemegt.hhn.DHab.nonU.LamW, Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU)
 
+write.csv(NemegtAIC, file = "NemegtAIC.csv")
 
->>>>>>> 7d031bbfaba4dea8f7fa915da92ebe75a460dd91
+NemegtSurface<-predictDsurface(Nemegt.hhn.DHab.detW, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurface,asp=1,contour=FALSE,col=terrain.colors(40))
+
+NemegtSurfaceNU<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurfaceNU,asp=1,contour=FALSE,col=terrain.colors(40))
+
+NemegtSurfaceNU1<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurfaceNU1,asp=1,contour=FALSE,col=terrain.colors(40))
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
 
 # Save objects:
-NemegtSurface<-predictDsurface(Nemegt.hhn.DHab, se.D=TRUE, cl.D=TRUE)
+NemegtSurface<-predictDsurface(Nemegt.hhn.DHab.detW, se.D=TRUE, cl.D=TRUE)
 NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 NemegtSurface.D.nonU<-predictDsurface(Nemegt.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 NemegtSurface.DHab.nonU.GB<-predictDsurface(Nemegt.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)

@@ -1,0 +1,7 @@
+"","model","detectfn","npar","logLik","AIC","AICc","dAICc","AICcwt"
+"Noyon.hhn.DHab.nonU","D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",5,-213.37641986784,436.753,444.253,0,0.8952
+"Noyon.hhn.DHab.Topo10.nonU","D~stdGC lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",6,-212.917728668467,437.835,449.835,5.58199999999999,0.0549
+"Noyon.hhn.DHab.DetW.nonU","D~stdGC lambda0~Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",6,-213.012778472334,438.026,450.026,5.77300000000002,0.0499
+"Noyon.hhn.DHab.Topo10W.nonU","D~stdGC lambda0~Water + Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",7,-212.78908033914,439.578,458.245,13.992,0
+"Noyon.hhn","D~1 lambda0~1 sigma~1","hazard halfnormal",3,-225.693293697519,457.387,459.787,15.534,0
+"Noyon.hhn.D.nonU","D~1 lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",4,-224.49627840246,456.993,461.437,17.184,0
