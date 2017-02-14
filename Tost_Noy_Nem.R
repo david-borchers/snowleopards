@@ -59,6 +59,11 @@ NoyonMask=make.mask(traps(all.data.Noyon), spacing=500, buffer = 25000, type="tr
 
 TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryTost)
 
+summary(NemegtMask) #To get the total area of the mask
+summary(NoyonMask)
+summary(TostMask)
+totalarea(NemegtMask)
+
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
 SLCost.Nemegt<-readShapePoly("./Nemegt/Habitat/Nemegt_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
 NemegtMask1<-addCovariates(NemegtMask, SLCost.Nemegt)
@@ -186,7 +191,6 @@ TNN.hhn.DRgd.sess<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda0~1, 
 TNN.hhn.DRgd.sess.DetW<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda0~sfac*Water, sigma~1), detectfn="HHN",
                             mask = list(TostMask1, NoyonMask1, NemegtMask1),sessioncov=data.frame(sfac=sess))
 
-
 TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
@@ -298,3 +302,6 @@ plot(TNNSurface.DRgd.sess[[1]],asp=1,contour=FALSE)
 plot(TNNSurface.DRgd.sess[[2]],asp=1,contour=FALSE) 
 plot(TNNSurface.DRgd.sess[[3]],asp=1,contour=FALSE) 
 
+plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[1]], asp=1, contour=FALSE)
+plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[2]], asp=1, contour=FALSE)
+plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[3]], asp=1, contour=FALSE)
