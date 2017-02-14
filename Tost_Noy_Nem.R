@@ -16,7 +16,8 @@ source("scrplotting.r")
 TNN.trapfiles = c("./Tost_Noyon_Nemegt/Tost_Traps.txt",
                   "./Tost_Noyon_Nemegt/Noyon_Traps.txt",
                   "./Tost_Noyon_Nemegt/Nemegt_Traps.txt")
-all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = TNN.trapfiles, detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
+all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", binary.usage = FALSE, trapfile = TNN.trapfiles, detector="count", fmt = "trapID", trapcovnames = c("Rgd","Topo", "Water"))
+#binary.usage=FALSE to be inserted in the trap file read command. ID X Y USage / <covariates>
 # old command has all traps in a single file, not by session:
 #all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
 covariates(traps(all.data.TNN))
@@ -140,7 +141,7 @@ names(covariates(TostMask1))
 
 # Plot sessions together:
 pdf("Allregions.pdf",h=5,w=10)
-plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) 
+plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) #Generates Error!
 # Plot the terrain
 plot(NoyonMask1, covariate="stdGC", contour = FALSE, col = terrain.colors(16), legend = FALSE, add = TRUE)
 plot(NemegtMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(16), legend = FALSE, add = TRUE)
@@ -182,9 +183,13 @@ sess = as.factor(1:3)
 TNN.hhn.DRgd.sess<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda0~1, sigma~1), detectfn="HHN",
                        mask = list(TostMask1, NoyonMask1, NemegtMask1),sessioncov=data.frame(sfac=sess))
 
-<<<<<<< HEAD
+TNN.hhn.DRgd.sess.DetW<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda0~sfac*Water, sigma~1), detectfn="HHN",
+                            mask = list(TostMask1, NoyonMask1, NemegtMask1),sessioncov=data.frame(sfac=sess))
+
+
 TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
 
 # Non-Euclidian fits
 # ==================
@@ -210,45 +215,79 @@ TNN.hhn.DHab.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, N
 # ---------------------------
 TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
                             model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
-                            details = list(userdist = userdfn1),
-                       
-                            start = list(noneuc = 1)) #-1 gets rid of the intercept
+                            details = list(userdist = userdfn1), start = list(noneuc = 1)) #-1 gets rid of the intercept
 
 
-# Model with constt D in noneuc:
+# Model with D dependent on Rgd OR session in noneuc:
 # ---------------------------
-TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
-                       model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
-                       details = list(userdist = userdfn1),
-                       
-                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+TNN.hhn.DRgd_sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1),
+                                 model=list(D~stdGC+sfac, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                                 sessioncov=data.frame(sfac=sess),details = list(userdist = userdfn1), 
+                                 start = list(noneuc = 1)) #-1 gets rid of the intercept
 
-# Model with constt D in noneuc:
+
+# Model with D dependent on Rgd & different for each session in noneuc:
 # ---------------------------
-TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
-                       model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
-                       details = list(userdist = userdfn1),
-                       
-                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+TNN.hhn.DRgd.sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1),
+                                 model=list(D~stdGC*sfac, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                                 sessioncov=data.frame(sfac=sess),details = list(userdist = userdfn1), 
+                                 start = list(noneuc = 1)) #-1 gets rid of the intercept
 
+# Model with D dependent on Rgd &  different for each session, lambda on water in noneuc:
+# ---------------------------
+TNN.hhn.DRgd.sess.D.W_sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1),
+                                          model=list(D~stdGC*sfac, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                          sessioncov=data.frame(sfac=sess), details = list(userdist = userdfn1), 
+                                          start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with D dependent on Rgd, lambda on water & BOTH different for each session in noneuc:
+# ---------------------------
+TNN.hhn.DRgd.sess.D.W.sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                            model=list(D~stdGC*sfac, lambda0~Water*sfac, sigma~1, noneuc ~ stdGC -1), 
+                            sessioncov=data.frame(sfac=sess),
+                            details = list(userdist = userdfn1), start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with D dependent on Rgd, lambda on water+topo & BOTH different for each session in noneuc:
+# ---------------------------
+TNN.hhn.DRgd.sess.D_W_sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                          model=list(D~stdGC*sfac, lambda0~(Water+Topo)*sfac, sigma~1, noneuc ~ stdGC -1), 
+                                          sessioncov=data.frame(sfac=sess),
+                                          details = list(userdist = userdfn1), start = list(noneuc = 1)) #-1 gets rid of the intercept
+#Took 1938 iterations to converge!!!
 
 AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.DetWater, 
-    TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU)
+    TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU, TNN.hhn.DRgd.sess.D.W.sess.nonU,TNN.hhn.DRgd.sess.D.W_sess.nonU,
+    TNN.hhn.DRgd.sess.nonU,TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU)
+
 coefficients(TNN.hhn.DRgd.DetWater)
+coefficients(TNN.hhn.DRgd.sess.D_W_sess.nonU)
+coefficients(TNN.hhn.DRgd.sess.D.W.sess.nonU)
 predict(TNN.hhn.DRgd.DetWater)
-TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd.DetWater)
+predict(TNN.hhn.DRgd.sess.D.W.sess.nonU)
+
+  TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd.DetWater)
 windows()
 plot(TNNSurface.DRgd,asp=1,contour=FALSE) #This generates an error. Something I am doing wrong here it seems...
 
+save(TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.sess, TNN.hhn.DRgd.sess.DetW, TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, 
+     TNN.hhn.nonU, TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.nonU, TNN.hhn.DRgd.sess.D.W_sess.nonU, 
+     TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fits.RData")
+# load fitted objects:
+load("./Tost_Noyon_Nemegt/TNN-nonEuc-fits.RData")
 
 # How to get region.N for each of the 3 areas?
- 
-=======
 # region.N for each of the 3 areas:
 region.N(TNN.hhn.DRgd.sess,region=TostMask1,session="1")
 region.N(TNN.hhn.DRgd.sess,region=NoyonMask1,session="2")
 region.N(TNN.hhn.DRgd.sess,region=NemegtMask1,session="3")
 
+region.N(TNN.hhn.DRgd.sess,region=TostMask1,session="1")
+region.N(TNN.hhn.DRgd.sess,region=NoyonMask1,session="2")
+region.N(TNN.hhn.DRgd.sess,region=NemegtMask1,session="3")
+
+region.N(TNN.hhn.DRgd.sess.D.W.sess.nonU,region=TostMask1,session="1")
+region.N(TNN.hhn.DRgd.sess.D.W.sess.nonU,region=NoyonMask1,session="2")
+region.N(TNN.hhn.DRgd.sess.D.W.sess.nonU, region=NemegtMask1,session="3")
 
 coefficients(TNN.hhn.DRgd.sess)
 predict(TNN.hhn.DRgd.sess)
@@ -259,4 +298,3 @@ plot(TNNSurface.DRgd.sess[[1]],asp=1,contour=FALSE)
 plot(TNNSurface.DRgd.sess[[2]],asp=1,contour=FALSE) 
 plot(TNNSurface.DRgd.sess[[3]],asp=1,contour=FALSE) 
 
->>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921
