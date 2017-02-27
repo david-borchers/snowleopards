@@ -205,11 +205,13 @@ Nemegt.hhn.DHab.nonU.LamTopoW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=Ne
                                     details = list(userdist = userdfn1),
                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
 
-NemegtAIC=AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
-    Nemegt.hhn.DHab.detTopo10, Nemegt.hhn.DHab.detW, Nemegt.hhn.DHab.nonU.LamTopoW, Nemegt.hhn.DHab.nonU.LamTopo,
-    Nemegt.hhn.DHab.nonU.LamW, Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU)
+NemegtAIC=AIC(Nemegt.hhn, Nemegt.hhn.detrgd, Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
+              Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU, Nemegt.hhn.DHab.nonU.GBGC, Nemegt.hhn.DHab.nonU.GB, Nemegt.hhn.DHab.nonU.LamTopo, 
+              Nemegt.hhn.DHab.nonU.LamW, Nemegt.hhn.DHab.nonU.LamTopoW)
+write.csv(NemegtAIC, file = "AICNemegt.csv")
 
-write.csv(NemegtAIC, file = "NemegtAIC.csv")
+NhatNem.nonU.Topo10<-region.N(Nemegt.hhn.DHab.nonU.LamW)
+NhatNemNull<-region.N(Nemegt.hhn)
 
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab.detW, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurface,asp=1,contour=FALSE,col=terrain.colors(40))

@@ -7,11 +7,12 @@ source("scrplotting.r")
 #Running SECR for Tost 2012
 
 # Read capture file and boundary
-<<<<<<< HEAD
-all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Rgd", "Topo",	"Altidute",	"Water"))
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
+trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
+fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
 =======
-all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
->>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921
+#all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
+
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
 # and plot it
 plot(boundaryTost)
@@ -66,6 +67,7 @@ Tost.hhn.detTopo10<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~
 Tost.hhn.detWater<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.DHab<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
+#AIC(Tost.hhn,Tost.hhn1)
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
 AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater)
@@ -137,10 +139,6 @@ Tost.hhn.DHab.nonU.T01W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                start = list(noneuc = 1)) #-1 gets rid of the intercept
 
 
-AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHab.nonU, Tost.hhn.DHab.nonU.Topo10,
-    Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W)
-
-
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
 plot(Tost.cams,add=TRUE)
@@ -199,6 +197,13 @@ plot(Tost.cams,add=TRUE)
 Nhat1.nonU.GB<-region.N(Tost.hhn.DHab.nonU.GB)
 Nhat1.nonU.GB
 
+AICTost=AIC(Tost.hhn, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHab, Tost.hhn.DHab.nonU, Tost.hhn.DHab.nonU.Topo10, 
+            Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W, Tost.hhn.D.nonU, Tost.hhn.DHab.nonU.GBGC, Tost.hhn.DHab.nonU.GB)
+
+write.csv(AICTost, file = "AICTost.csv")
+
+Nhat1.nonU.Topo10<-region.N(Tost.hhn.DHab.nonU.Topo10)
+Nhat1null<-region.N(Tost.hhn)
 
 # Compare with and without non-Euclidian distance:
 # -----------------------------------------------

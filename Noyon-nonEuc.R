@@ -82,6 +82,7 @@ Nhat1
 Nhat2<-region.N(Noyon.hhn)
 Nhat2
 
+
 # Non-Euclidian fits
 # ==================
 # This taken straight from secr vignette:
@@ -156,6 +157,7 @@ Noyon.hhn.DHab.nonU.GB<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1
                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
                                 details = list(userdist = userdfn1),
                                 start = list(noneuc = 1))
+AIC(Noyon.hhn.DHab.nonU.GB)
 coefficients(Noyon.hhn.DHab.nonU.GB)
 NoyonSurface.nonU.GB<-predictDsurface(Noyon.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface.nonU.GB,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -166,7 +168,6 @@ plot(Noyon.cams,add=TRUE)
 Nhat1.nonU<-region.N(Noyon.hhn.DHab.nonU.GB)
 Nhat1.nonU
 
-<<<<<<< HEAD
 # Model with stdGC in noneuc Topo in Detection:
 # ---------------------------
 Noyon.hhn.DHab.Topo10.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
@@ -188,10 +189,14 @@ Noyon.hhn.DHab.Topo10W.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=Noyon
                                      details = list(userdist = userdfn1),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
 
-AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU, Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.DetW.nonU,
-    Noyon.hhn.DHab.Topo10W.nonU)
-=======
->>>>>>> ef2f50a9fd932c6d18652f41045acd3ac1105921
+AICNoyon=AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab, Noyon.hhn.DHab.DetRgd01, Noyon.hhn.detWater, 
+             Noyon.hhn.detTopo10, Noyon.hhn.detTopoWater, Noyon.hhn.DHab.nonU, Noyon.hhn.D.nonU, Noyon.hhn.DHab.nonU.GBGC, 
+             Noyon.hhn.DHab.nonU.GB, Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.DetW.nonU, Noyon.hhn.DHab.Topo10W.nonU)
+
+write.csv(AICNoyon, file = "AICNoyon.csv")
+
+NhatNoy.nonU.Topo10<-region.N(Noyon.hhn.DHab.nonU.GB)
+NhatNoyNull<-region.N(Noyon.hhn)
 
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------
