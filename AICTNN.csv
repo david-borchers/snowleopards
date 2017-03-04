@@ -1,0 +1,14 @@
+,model,detectfn,npar,logLik,AIC,AICc,dAICc,AICcwt
+TNN.hhn.DRgd.sess.D.W.sess.nonU,D~stdGC * sfac lambda0~Water * sfac sigma~1 noneuc~stdGC - 1,hazard halfnormal,14,-531.8832869,1091.767,1102.536,0,0.9915
+TNN.hhn.DRgd.sess.D_W_sess.nonU,D~stdGC * sfac lambda0~(Water + Topo) * sfac sigma~1 noneuc~stdGC - 1,hazard halfnormal,17,-530.5265929,1095.053,1112.053,9.517,0.0085
+TNN.hhn.DRgd.DetWater,D~stdGC lambda0~Water sigma~1,hazard halfnormal,5,-576.4532866,1162.907,1164.157,61.621,0
+TNN.hhn.DRgd.sess.D.W_sess.nonU,D~stdGC * sfac lambda0~Water sigma~1 noneuc~stdGC - 1,hazard halfnormal,10,-570.2461468,1160.492,1165.609,63.073,0
+TNN.hhn.detTopo10,D~stdGC lambda0~Topo sigma~1,hazard halfnormal,5,-578.2063626,1166.413,1167.663,65.127,0
+TNN.hhn.DHab.nonU,D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1,hazard halfnormal,5,-579.5192428,1169.038,1170.288,67.752,0
+TNN.hhn.DRgd.DetTopo10W,D~stdGC lambda0~Topo + Water sigma~1,hazard halfnormal,6,-579.6879392,1171.376,1173.163,70.627,0
+TNN.hhn.nonU,D~1 lambda0~1 sigma~1 noneuc~stdGC - 1,hazard halfnormal,4,-582.6499697,1173.3,1174.116,71.58,0
+TNN.hhn.DRgd_sess.nonU,D~stdGC + sfac lambda0~1 sigma~1 noneuc~stdGC - 1,hazard halfnormal,7,-579.2863753,1172.573,1175.008,72.472,0
+TNN.hhn.detTopo01,D~stdGC lambda0~1 sigma~Topo,hazard halfnormal,5,-583.1674425,1176.335,1177.585,75.049,0
+TNN.hhn.DRgd.sess.nonU,D~stdGC * sfac lambda0~1 sigma~1 noneuc~stdGC - 1,hazard halfnormal,9,-577.7702855,1173.541,1177.631,75.095,0
+TNN.hhn,D~1 lambda0~1 sigma~1,hazard halfnormal,3,-590.5879088,1187.176,1187.656,85.12,0
+TNN.hhn.DRgd,D~stdGC lambda0~1 sigma~1,hazard halfnormal,4,-589.968581,1187.937,1188.753,86.217,0

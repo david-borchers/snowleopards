@@ -62,11 +62,12 @@ head(covariates(TostMask1))
 
 Tost.cams=traps(all.data.Tost)
 
-Tost.hhn<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
-Tost.hhn.detTopo10<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
-Tost.hhn.detWater<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
-Tost.hhn.DHab<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhnx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.detTopo10x<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.detWaterx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.DHabx<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
+AIC(Tost.hhn)
 #AIC(Tost.hhn,Tost.hhn1)
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
@@ -108,7 +109,7 @@ userdfn2 <- function (xy1, xy2, mask) {
 
 # Model with stdGC in noneuc:
 # ---------------------------
-Tost.hhn.DHab.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1)) #-1 gets rid of the intercept
@@ -117,7 +118,7 @@ AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHa
 
 # Model with stdGC in noneuc & Detection Topo:
 # ---------------------------
-Tost.hhn.DHab.nonU.Topo10<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonU.Topo10x<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1)) #-1 gets rid of the intercept
@@ -125,7 +126,7 @@ coefficients(Tost.hhn.DHab.nonU.Topo10)
 
 # Model with stdGC in noneuc & Detection Water:
 # ---------------------------
-Tost.hhn.DHab.nonU.W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonU.Wx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                     model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                                     details = list(userdist = userdfn1),
                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
@@ -133,7 +134,7 @@ Tost.hhn.DHab.nonU.W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
 
 # Model with stdGC in noneuc & Detection Topo water:
 # ---------------------------
-Tost.hhn.DHab.nonU.T01W<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonU.T01Wx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
                                details = list(userdist = userdfn1),
                                start = list(noneuc = 1)) #-1 gets rid of the intercept
@@ -149,7 +150,7 @@ Nhat1.nonU<-region.N(Tost.hhn.DHab.nonU)
 Nhat1.nonU
 
 # Try with flat density and non-Euclidian:
-Tost.hhn.D.nonU<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.D.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~1, lambda0~1, sigma~1, 
                                         noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
@@ -167,7 +168,7 @@ Nhat1D1.nonU
 
 # Model with stdGC and stdBC in noneuc:
 # -------------------------------------
-Tost.hhn.DHab.nonU.GBGC<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonU.GBGCx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1))
@@ -183,7 +184,7 @@ Nhat1.nonU.GBGC
 
 # Model with stdBC in noneuc:
 # -------------------------------------
-Tost.hhn.DHab.nonU.GB<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+Tost.hhn.DHab.nonU.GBx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
                                 details = list(userdist = userdfn1),
                                 start = list(noneuc = 1))
@@ -197,13 +198,21 @@ plot(Tost.cams,add=TRUE)
 Nhat1.nonU.GB<-region.N(Tost.hhn.DHab.nonU.GB)
 Nhat1.nonU.GB
 
-AICTost=AIC(Tost.hhn, Tost.hhn.detTopo10, Tost.hhn.detWater, Tost.hhn.DHab, Tost.hhn.DHab.nonU, Tost.hhn.DHab.nonU.Topo10, 
-            Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W, Tost.hhn.D.nonU, Tost.hhn.DHab.nonU.GBGC, Tost.hhn.DHab.nonU.GB)
+#Ignoring the models with binary habitat covariate GB for ocmparison
+AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
+            Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
+            Tost.hhn.D.nonUx)
 
-write.csv(AICTost, file = "AICTost.csv")
+write.csv(AICTost, file = "AICTostx.csv")
+
+save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
+      Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, Tost.hhn.D.nonUx, 
+      Tost.hhn.DHab.nonU.GBGCx, Tost.hhn.DHab.nonU.GBx, file="./Tost/Tost-nonEuc-fitsx.RData")
+load("./Tost/Tost-nonEuc-fitsx.RData")
 
 Nhat1.nonU.Topo10<-region.N(Tost.hhn.DHab.nonU.Topo10)
 Nhat1null<-region.N(Tost.hhn)
+
 
 # Compare with and without non-Euclidian distance:
 # -----------------------------------------------

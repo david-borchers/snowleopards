@@ -1,0 +1,10 @@
+"","model","detectfn","npar","logLik","AIC","AICc","dAICc","AICcwt"
+"Tost.hhn.DHab.nonU.Topo10x","D~stdGC lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",6,-226.801492156134,465.603,471.603,0,0.5865
+"Tost.hhn.DHab.nonU.Wx","D~stdGC lambda0~Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",6,-227.304841314703,466.61,472.61,1.00700000000001,0.3545
+"Tost.hhn.DHab.nonU.T01Wx","D~stdGC lambda0~Topo + Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",7,-226.790972160136,467.582,476.197,4.59399999999999,0.059
+"Tost.hhn.D.nonUx","D~1 lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",4,-242.658367280019,493.317,495.817,24.214,0
+"Tost.hhn.DHab.nonUx","D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",5,-248.12413516851,506.248,510.248,38.645,0
+"Tost.hhnx","D~1 lambda0~1 sigma~1","hazard halfnormal",3,-252.942841843642,511.886,513.297,41.694,0
+"Tost.hhn.detTopo10x","D~1 lambda0~Topo sigma~1","hazard halfnormal",4,-251.727462335237,511.455,513.955,42.352,0
+"Tost.hhn.detWaterx","D~1 lambda0~Water sigma~1","hazard halfnormal",4,-252.130058624478,512.26,514.76,43.157,0
+"Tost.hhn.DHabx","D~stdGC lambda0~1 sigma~1","hazard halfnormal",4,-252.662992859503,513.326,515.826,44.223,0

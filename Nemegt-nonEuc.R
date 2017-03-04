@@ -68,6 +68,11 @@ Nemegt.hhn.detrgd<-secr.fit(all.data.Nemegt, model=list(D~1, lambda0~stdRgd, sig
 Nemegt.hhn.DHab<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab.detrgd10<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask1)
 Nemegt.hhn.DHab.detrgd01<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhnx<-Nemegt.hhn
+Nemegt.hhn.detrgdx<-Nemegt.hhn.detrgd
+Nemegt.hhn.DHabx<-Nemegt.hhn.DHab
+Nemegt.hhn.DHab.detrgd10x<-Nemegt.hhn.DHab.detrgd10
+Nemegt.hhn.DHab.detrgd01x<-Nemegt.hhn.DHab.detrgd01
 
 AIC(Nemegt.hhn, Nemegt.hhn.detrgd,Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01)
 
@@ -101,12 +106,12 @@ userdfn1 <- function (xy1, xy2, mask) {
 
 # Model with stdGC in noneuc:
 # ---------------------------
-Nemegt.hhn.DHab.nonU<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonUx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                               model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                               details = list(userdist = userdfn1),
                               start = list(noneuc = 1)) #-1 gets rid of the intercept
 AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU)
-coefficients(Nemegt.hhn.DHab.nonU)
+coefficients(Nemegt.hhn.DHab.nonUx)
 NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 windows()
 plot(NemegtSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -119,7 +124,7 @@ Nhat1.nonU
 
 # Model with Flat density and non-Euclidian:
 #-------------------------------------------
-Nemegt.hhn.D.nonU<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.D.nonUx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                            model=list(D~1, lambda0~1, sigma~1, 
                                       noneuc ~ stdGC -1), 
                            details = list(userdist = userdfn1),
@@ -140,7 +145,7 @@ Nhat1D1.nonU
 
 # Model with stdGC and stdBC in noneuc:
 # -------------------------------------
-Nemegt.hhn.DHab.nonU.GBGC<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonU.GBGCx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                                    model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
                                    details = list(userdist = userdfn1),
                                    start = list(noneuc = 1))
@@ -159,7 +164,7 @@ AIC(Nemegt.hhn,Nemegt.hhn.D.nonU,Nemegt.hhn.DHab.nonU, Nemegt.hhn.DHab.nonU.GBGC
 
 # Model with stdBC only in noneuc:
 # -------------------------------------
-Nemegt.hhn.DHab.nonU.GB<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonU.GBx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                                  model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
                                  details = list(userdist = userdfn1),
                                  start = list(noneuc = 1))
@@ -175,7 +180,7 @@ Nhat1.nonU
 
 # Model with stdGC in noneuc, topography for lambda:
 # ---------------------------
-Nemegt.hhn.DHab.nonU.LamTopo<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonU.LamTopox<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                                model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
                                details = list(userdist = userdfn1),
                                start = list(noneuc = 1)) #-1 gets rid of the intercept
@@ -193,28 +198,41 @@ Nhat1.nonU
 
 # Model with stdGC in noneuc, Water for lambda:
 # ---------------------------
-Nemegt.hhn.DHab.nonU.LamW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonU.LamWx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                                        model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                                        details = list(userdist = userdfn1),
                                        start = list(noneuc = 1)) #-1 gets rid of the intercept
 
+coefficients(Nemegt.hhn.DHab.nonU.LamWx)
 # Model with stdGC in noneuc, Topo+Water for lambda:
 # ---------------------------
-Nemegt.hhn.DHab.nonU.LamTopoW<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
+Nemegt.hhn.DHab.nonU.LamTopoWx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=NemegtMask1,
                                     model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
                                     details = list(userdist = userdfn1),
                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
+coefficients(Nemegt.hhn.DHab.nonU.LamTopoWx)
 
-NemegtAIC=AIC(Nemegt.hhn, Nemegt.hhn.detrgd, Nemegt.hhn.DHab, Nemegt.hhn.DHab.detrgd10, Nemegt.hhn.DHab.detrgd01, 
-              Nemegt.hhn.DHab.nonU, Nemegt.hhn.D.nonU, Nemegt.hhn.DHab.nonU.GBGC, Nemegt.hhn.DHab.nonU.GB, Nemegt.hhn.DHab.nonU.LamTopo, 
-              Nemegt.hhn.DHab.nonU.LamW, Nemegt.hhn.DHab.nonU.LamTopoW)
-write.csv(NemegtAIC, file = "AICNemegt.csv")
+NemegtAIC=AIC(Nemegt.hhnx, Nemegt.hhn.detrgdx, Nemegt.hhn.DHabx, Nemegt.hhn.DHab.detrgd10x, 
+              Nemegt.hhn.DHab.detrgd01x, Nemegt.hhn.DHab.nonUx, Nemegt.hhn.D.nonUx, Nemegt.hhn.DHab.nonU.GBGCx, 
+              Nemegt.hhn.DHab.nonU.GBx, Nemegt.hhn.DHab.nonU.LamTopox, Nemegt.hhn.DHab.nonU.LamWx,
+              Nemegt.hhn.DHab.nonU.LamTopoWx)
+NemegtAIC
+
+write.csv(NemegtAIC, file = "AICNemegtx.csv")
 
 NhatNem.nonU.Topo10<-region.N(Nemegt.hhn.DHab.nonU.LamW)
 NhatNemNull<-region.N(Nemegt.hhn)
 
+NhatNem.Topmodelx<-region.N(Nemegt.hhn.DHab.nonU.LamWx)
+NhatNem.Nullx<-region.N(Nemegt.hhnx)
+
+NemegtSurfaceX<-predictDsurface(Nemegt.hhn.DHab.nonU.LamWx, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurfaceX,asp=1,contour=FALSE, add=TRUE)
+plot(x=all.data.Nemegt, col=lwd())
+coefficients(Nemegt.hhn.DHab.nonU.LamWx)
+
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab.detW, se.D=TRUE, cl.D=TRUE)
-plot(NemegtSurface,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(NemegtSurface,asp=1,contour=FALSE,col=terrain.colors(40), add = TRUE)
 
 NemegtSurfaceNU<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurfaceNU,asp=1,contour=FALSE,col=terrain.colors(40))
