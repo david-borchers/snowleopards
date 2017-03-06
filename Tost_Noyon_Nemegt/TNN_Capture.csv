@@ -1,36 +1,30 @@
 #Session,ID,Occasion,Detector
 1,Anu,1,TostSLT002
-1,Cub,1,TostSLT002
-1,Ariun/Spooky,1,TostSLT002
+1,Ariun,1,TostSLT002
 1,Agnes,1,TostSLT003
-1,F8/Agnes cub1,1,TostSLT003
-1,F8/Agnes cub1,1,TostSLT007
+1,F8,1,TostSLT003
+1,F8,1,TostSLT007
 1,Agnes,1,TostSLT007
 1,Aztai,1,TostSLT008
 1,Aztai,1,TostSLT008
 1,Aztai,1,TostSLT008
 1,Suhder,1,TostSLT011
-1,Ariun/Spooky,1,TostSLT011
+1,Ariun,1,TostSLT011
 1,Devekh,1,TostSLT012
-1,Ariun/Spooky,1,TostSLT014
-1,Ariun/Spooky,1,TostSLT014
+1,Ariun,1,TostSLT014
+1,Ariun,1,TostSLT014
 1,Agnes,1,TostSLT014
 1,Tenger,1,TostSLT016
 1,Devekh,1,TostSLT016
-1,NEC,1,TostSLT017
 1,Shinejh,1,TostSLT017
 1,Lasya,1,TostSLT019
-1,Lasya cub1,1,TostSLT019
-1,Lasya cub2,1,TostSLT019
-1,Ariun/Spooky,1,TostSLT019
+1,Ariun,1,TostSLT019
 1,Devekh,1,TostSLT020
 1,Shinejh,1,TostSLT020
-1,Shinejh cub1,1,TostSLT020
-1,Shinejh cub2,1,TostSLT020
 1,Devekh,1,TostSLT020
 1,Devekh,1,TostSLT020
 1,Devekh,1,TostSLT020
-1,Suuder?,1,TostSLT021
+1,Suuder,1,TostSLT021
 1,Tenger,1,TostSLT022
 1,Aztai,1,TostSLT024
 1,Aztai,1,TostSLT025
@@ -45,30 +39,30 @@
 1,Suhder Cub 1,1,TostSLT025
 1,Aztai,1,TostSLT029
 1,Devekh,1,TostSLT030
-1,Ariun/Spooky,1,TostSLT030
+1,Ariun,1,TostSLT030
 1,Agnes,1,TostSLT031
 1,Agnes,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
+1,F8,1,TostSLT031
+1,F8,1,TostSLT031
+1,F8,1,TostSLT031
+1,F8,1,TostSLT031
+1,F8,1,TostSLT031
 1,Agnes,1,TostSLT031
-1,F8/Agnes cub1,1,TostSLT031
+1,F8,1,TostSLT031
 1,Agnes,1,TostSLT031
 1,Agnes,1,TostSLT031
-1,Ariun/Spooky,1,TostSLT032
-1,F8/Agnes cub1,1,TostSLT032
-1,F8/Agnes cub1,1,TostSLT032
-1,Ariun/Spooky,1,TostSLT033
+1,Ariun,1,TostSLT032
+1,F8,1,TostSLT032
+1,F8,1,TostSLT032
+1,Ariun,1,TostSLT033
 1,Anu,1,TostSLT033
-1,Suuder?,1,TostSLT033
+1,Suuder,1,TostSLT033
 1,Anu,1,TostSLT033
 1,Anu,1,TostSLT034
 1,Inquisitive Cub 1,1,TostSLT034
-1,Ariun/Spooky,1,TostSLT035
+1,Ariun,1,TostSLT035
 1,Anu,1,TostSLT035
-1,Ariun/Spooky,1,TostSLT035
+1,Ariun,1,TostSLT035
 1,Khashaa,1,TostSLT036
 1,Khashaa,1,TostSLT036
 1,Khashaa,1,TostSLT036
@@ -76,37 +70,34 @@
 1,Devekh,1,TostSLT036
 1,Devekh,1,TostSLT037
 1,Devekh,1,TostSLT037
-1,Ariun/Spooky,1,TostSLT039
-1,Ariun/Spooky,1,TostSLT039
+1,Ariun,1,TostSLT039
+1,Ariun,1,TostSLT039
 1,Agnes,1,TostSLT039
 1,Aztai,1,TostSLT040
 1,Aztai,1,TostSLT040
 1,Suhder Cub 1,1,TostSLT040
 1,Tenger,1,TostSLT040
 1,Tenger,1,TostSLT040
-1,Tenger cub,1,TostSLT040
 1,Lasya,1,TostSLT101
 1,Lasya,1,TostSLT101
 1,Lasya,1,TostSLT101
 1,Lasya,1,TostSLT101
-1,Ariun/Spooky,1,TostSLT101
+1,Ariun,1,TostSLT101
 1,Lasya,1,TostSLT102
-1,Ariun/Spooky,1,TostSLT102
+1,Ariun,1,TostSLT102
 1,Devekh,1,TostSLT102
 1,Devekh,1,TostSLT102
 1,Agnes,1,TostSLT103
-1,F8/Agnes cub1,1,TostSLT103
+1,F8,1,TostSLT103
 1,Agnes,1,TostSLT103
-1,F8/Agnes cub1,1,TostSLT103
-1,F8/Agnes cub1,1,TostSLT103
-1,Ariun/Spooky,1,TostSLT103
+1,F8,1,TostSLT103
+1,F8,1,TostSLT103
+1,Ariun,1,TostSLT103
 1,Khashaa,1,TostSLT104
 1,Devekh,1,TostSLT104
 1,Khashaa,1,TostSLT104
 1,Lasya,1,TostSLT104
 1,Lasya,1,TostSLT104
-1,Lasya cub1,1,TostSLT104
-1,Lasya cub2,1,TostSLT104
 2,Siri,1,NoyonSLT003
 2,Gina,1,NoyonSLT006
 2,Arnica,1,NoyonSLT006
@@ -118,13 +109,8 @@
 2,Jen,1,NoyonSLT007
 2,Siri,1,NoyonSLT007
 2,Jen,1,NoyonSLT007
-2,Jcub1,1,NoyonSLT007
-2,Jcub2,1,NoyonSLT007
 2,Jen,1,NoyonSLT007
-2,Jcub1,1,NoyonSLT007
-2,Jcub2,1,NoyonSLT007
 2,Jen,1,NoyonSLT007
-2,Jcub1,1,NoyonSLT007
 2,Brad,1,NoyonSLT009
 2,Abi,1,NoyonSLT014
 2,Abi,1,NoyonSLT014
@@ -152,7 +138,6 @@
 2,Arnica,1,NoyonSLT024
 2,Matt,1,NoyonSLT024
 2,Marika,1,NoyonSLT025
-2,?,1,NoyonSLT025
 2,Gina,1,NoyonSLT025
 2,Arnica,1,NoyonSLT025
 2,Gina,1,NoyonSLT025
@@ -178,8 +163,6 @@
 2,Kimberley,1,NoyonSLT040
 2,Siri,1,NoyonSLT041
 2,Jen,1,NoyonSLT041
-2,J Cub,1,NoyonSLT041
-2,J Cub,1,NoyonSLT041
 2,Siri,1,NoyonSLT041
 2,Brad,1,NoyonSLT102
 2,Brad,1,NoyonSLT102
