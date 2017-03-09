@@ -210,7 +210,9 @@ Nemegt.hhn.DHab.nonU.LamTopoWx<-secr.fit(all.data.Nemegt, detectfn="HHN", mask=N
                                     model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
                                     details = list(userdist = userdfn1),
                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
-coefficients(Nemegt.hhn.DHab.nonU.LamTopoWx)
+coefficients(Nemegt.hhn.DHab.nonU.LamTopoW)
+coefficients(Nemegt.hhn.D.nonUx)
+
 
 NemegtAIC=AIC(Nemegt.hhnx, Nemegt.hhn.detrgdx, Nemegt.hhn.DHabx, Nemegt.hhn.DHab.detrgd10x, 
               Nemegt.hhn.DHab.detrgd01x, Nemegt.hhn.DHab.nonUx, Nemegt.hhn.D.nonUx, Nemegt.hhn.DHab.nonU.GBGCx, 
@@ -218,14 +220,13 @@ NemegtAIC=AIC(Nemegt.hhnx, Nemegt.hhn.detrgdx, Nemegt.hhn.DHabx, Nemegt.hhn.DHab
               Nemegt.hhn.DHab.nonU.LamTopoWx)
 NemegtAIC
 
-write.csv(NemegtAIC, file = "AICNemegtx.csv")
+coefficients(Nemegt.hhn.DHab.nonU.LamWx)
 
-NhatNem.nonU.Topo10<-region.N(Nemegt.hhn.DHab.nonU.LamW)
-NhatNemNull<-region.N(Nemegt.hhn)
+write.csv(NemegtAIC, file = "AICNemegtx.csv")
 
 NhatNem.Topmodelx<-region.N(Nemegt.hhn.DHab.nonU.LamWx)
 NhatNem.Nullx<-region.N(Nemegt.hhnx)
-
+windows()
 NemegtSurfaceX<-predictDsurface(Nemegt.hhn.DHab.nonU.LamWx, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurfaceX,asp=1,contour=FALSE, add=TRUE)
 plot(x=all.data.Nemegt, col=lwd())

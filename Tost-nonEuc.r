@@ -10,13 +10,14 @@ source("scrplotting.r")
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
 trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
 fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
-=======
+
 #all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
 
 boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
 # and plot it
 plot(boundaryTost)
 plot(x=all.data.Tost, add=TRUE)
+summary(all.data.Tost)
 
 # Make mask:
 TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryTost)
@@ -67,18 +68,19 @@ Tost.hhn.detTopo10x<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma
 Tost.hhn.detWaterx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.DHabx<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
-AIC(Tost.hhn)
+
+AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx)
+Null.Abundance = region.N(Tost.hhnx) 
 #AIC(Tost.hhn,Tost.hhn1)
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
 
-AIC(Tost.hhn, Tost.hhn.DHab, Tost.hhn.detTopo10, Tost.hhn.detWater)
-coefficients(Tost.hhn.DHab)
+coefficients(Tost.hhn.DHabx)
 TostSurface<-predictDsurface(Tost.hhn.DHab, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface,asp=1,contour=FALSE)
 plotcovariate(TostSurface,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams,add=TRUE)
 
-Nhat1<-region.N(Tost.hhn.DHab) #Estimates the population N of the animals within the region defined by mask
+Nhat1<-region.N(Tost.hhn.DHabx) #Estimates the population N of the animals within the region defined by mask
 Nhat1
 
 Nhat2<-region.N(Tost.hhn)
@@ -156,6 +158,20 @@ Tost.hhn.D.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1))
 
+# Try with flat density, water and non-Euclidian:
+Tost.hhn.D.DetW.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                           model=list(D~1, lambda0~Water, sigma~1, 
+                                      noneuc ~ stdGC -1), 
+                           details = list(userdist = userdfn1),
+                           start = list(noneuc = 1))
+
+# Try with flat density, Topo and non-Euclidian:
+Tost.hhn.D.DetT10.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                model=list(D~1, lambda0~Topo, sigma~1, 
+                                           noneuc ~ stdGC -1), 
+                                details = list(userdist = userdfn1),
+                                start = list(noneuc = 1))
+
 coefficients(Tost.hhn.D.nonU)
 TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.D.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -188,20 +204,21 @@ Tost.hhn.DHab.nonU.GBx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
                                 details = list(userdist = userdfn1),
                                 start = list(noneuc = 1))
-coefficients(Tost.hhn.DHab.nonU.GB)
-TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)
-plot(TostSurface.nonU.GB,asp=1,contour=FALSE,col=terrain.colors(40))
+coefficients(Tost.hhn.DHab.nonU.GBGCx)
+TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU.GBGCx, se.D=TRUE, cl.D=TRUE)
+plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
 plot(Tost.cams,add=TRUE)
 plotcovariate(TostSurface.nonU.GB,covariate="stdGC",asp=1,contour=FALSE)
 plot(Tost.cams,add=TRUE)
 
-Nhat1.nonU.GB<-region.N(Tost.hhn.DHab.nonU.GB)
+Nhat1.nonU.GB<-region.N(Tost.hhn.DHab.nonU.GBGCx)
 Nhat1.nonU.GB
+region.N(Tost.hhnx)
 
 #Ignoring the models with binary habitat covariate GB for ocmparison
 AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
             Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
-            Tost.hhn.D.nonUx)
+            Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx)
 
 write.csv(AICTost, file = "AICTostx.csv")
 
@@ -212,6 +229,16 @@ load("./Tost/Tost-nonEuc-fitsx.RData")
 
 Nhat1.nonU.Topo10<-region.N(Tost.hhn.DHab.nonU.Topo10)
 Nhat1null<-region.N(Tost.hhn)
+
+TopSurface=predictDsurface(Tost.hhn.DHab.nonUx)
+plot(TopSurface,asp=1,contour=FALSE,col=terrain.colors(40))
+coefficients(Tost.hhn.DHab.nonUx)
+
+Nhat.TopModelx<-region.N(Tost.hhn.DHab.nonUx)
+Nhat.null<-region.N(Tost.hhnx)
+
+TostSurfaceX<-predictDsurface(Tost.hhn.DHab.nonU.Topo10x, se.D=TRUE, cl.D=TRUE)
+plot(TostSurfaceX,asp=1,contour=FALSE)
 
 
 # Compare with and without non-Euclidian distance:

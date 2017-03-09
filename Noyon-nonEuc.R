@@ -6,11 +6,16 @@ source("scrplotting.r")
 #Running SECR for Noyon 2013
 
 # Read capture file and boundary
-all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", trapfile = "./Noyon2013/Noyon_trap2013secr.csv", detector="count", fmt = "trapID", trapcovnames = c("Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
+all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", 
+                              trapfile = "./Noyon2013/Noyon_trap2013secr.csv", 
+                              detector="count", 
+                              fmt = "trapID", 
+                              trapcovnames = c("Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
 # and plot it
 plot(boundaryNoyon)
 plot(x=all.data.Noyon, add=TRUE)
+summary(all.data.Noyon)
 
 # Make mask:
 NoyonMask=make.mask(traps(all.data.Noyon), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNoyon)
@@ -137,12 +142,11 @@ AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU)
 
 # Model with stdGC and stdBC in noneuc:
 # -------------------------------------
-Noyon.hhn.DHab.nonU.GBGC<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.nonU.GBGCx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                   model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
                                   details = list(userdist = userdfn1),
                                   start = list(noneuc = 1))
 coefficients(Noyon.hhn.DHab.nonU.GBGC)
-Noyon.hhn.DHab.nonU.GBGCx<-Noyon.hhn.DHab.nonU.GBGC
 
 NoyonSurface.nonU<-predictDsurface(Noyon.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface.nonU.GBGC,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -195,6 +199,7 @@ Noyon.hhn.DHab.DetW.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMas
                                      details = list(userdist = userdfn1),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
 Noyon.hhn.DHab.DetW.nonUx<-Noyon.hhn.DHab.DetW.nonU
+coefficients(Noyon.hhn.DHab.DetW.nonUx)
 
 # Model with stdGC in noneuc Topo & Water in Detection:
 # ---------------------------
@@ -206,13 +211,21 @@ Noyon.hhn.DHab.Topo10W.nonUx<-Noyon.hhn.DHab.Topo10W.nonU
 
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
              Noyon.hhn.detTopo10x, Noyon.hhn.detTopoWaterx, Noyon.hhn.DHab.nonUx, Noyon.hhn.D.nonUx, 
-             Noyon.hhn.DHab.Topo10.nonUx, Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx)
+             Noyon.hhn.DHab.Topo10.nonUx, Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx,
+             Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx)
 AICNoyon
 
-write.csv(AICNoyon, file = "AICNoyon.csv")
+write.csv(AICNoyon, file = "AICNoyonx.csv")
 
-NhatNoy.nonU.Topo10<-region.N(Noyon.hhn.DHab.nonU.GB)
+NhatNoy.nonU.Topo10<-region.N(Noyon.hhn.DHab.nonU.GBx)
 NhatNoyNull<-region.N(Noyon.hhn)
+
+Nhat.TopModelNoyx<-region.N(Noyon.hhn.DHab.nonUx)
+Nhat.NoyNullx<-region.N(Noyon.hhnx)
+
+NoyonSurfaceX<-predictDsurface(Noyon.hhn.DHab.nonU.GBx, se.D=TRUE, cl.D=TRUE)
+plot(NoyonSurfaceX,asp=1,contour=FALSE)
+coefficients(Noyon.hhn.DHab.nonU.GBx)
 
 # Compare models with and without non-Euclidian distance:
 # -----------------------------------------------

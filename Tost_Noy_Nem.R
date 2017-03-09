@@ -16,11 +16,15 @@ source("scrplotting.r")
 TNN.trapfiles = c("./Tost_Noyon_Nemegt/Tost_Traps.txt",
                   "./Tost_Noyon_Nemegt/Noyon_Traps.txt",
                   "./Tost_Noyon_Nemegt/Nemegt_Traps.txt")
-all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", binary.usage = FALSE, trapfile = TNN.trapfiles, detector="count", fmt = "trapID", trapcovnames = c("Rgd","Topo", "Water"))
+all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", 
+                            binary.usage = FALSE, trapfile = TNN.trapfiles, 
+                            detector="count", fmt = "trapID", 
+                            trapcovnames = c("Rgd","Topo", "Water"))
 #binary.usage=FALSE to be inserted in the trap file read command. ID X Y USage / <covariates>
 # old command has all traps in a single file, not by session:
 #all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", trapfile = "./Tost_Noyon_Nemegt/TNN_Traps.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort","Rgd","Topo", "Water"))
 covariates(traps(all.data.TNN))
+summary(all.data.TNN)
 
 # Read boundary files
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
@@ -36,7 +40,7 @@ plot(boundaryTost)
 bbox.Nemegt = bbox(boundaryNemegt)
 bbox.Noyon = bbox(boundaryNoyon)
 bbox.Tost = bbox(boundaryTost)
-bbxlim = range(bbox.Nemegt["x",],bbox.Noyon["x",],bbox.Tost["x",])
+bbxlim = range(bbox.Nemegt["x",],bbox.Noyon["x",],bbox.Tost["x",]) #Set plot limit for all 3 areas together
 bbylim = range(bbox.Nemegt["y",],bbox.Noyon["y",],bbox.Tost["y",])
 
 # redundant code for old traps without sessions
@@ -62,7 +66,6 @@ TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trap
 summary(NemegtMask) #To get the total area of the mask
 summary(NoyonMask)
 summary(TostMask)
-totalarea(NemegtMask)
 
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
 SLCost.Nemegt<-readShapePoly("./Nemegt/Habitat/Nemegt_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
@@ -259,25 +262,28 @@ TNN.hhn.DRgd.sess.D_W_sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=lis
                                           details = list(userdist = userdfn1), start = list(noneuc = 1)) #-1 gets rid of the intercept
 #Took 1938 iterations to converge!!!
 
-AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.DetWater, 
+TNNAIC=AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.DetWater, 
     TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU, TNN.hhn.DRgd.sess.D.W.sess.nonU,TNN.hhn.DRgd.sess.D.W_sess.nonU,
     TNN.hhn.DRgd.sess.nonU,TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU)
+write.csv(TNNAIC, file = "AICTNNx.csv")
+getwd()
 
-coefficients(TNN.hhn.DRgd.DetWater)
-coefficients(TNN.hhn.DRgd.sess.D_W_sess.nonU)
+
+coefficients(TNN.hhn.DHab.nonU)
 coefficients(TNN.hhn.DRgd.sess.D.W.sess.nonU)
+coefficients(TNN.hhn.DRgd.sess.D_W_sess.nonU)
 predict(TNN.hhn.DRgd.DetWater)
 predict(TNN.hhn.DRgd.sess.D.W.sess.nonU)
 
-  TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd.DetWater)
+TNNSurface.DRgdX<-predictDsurface(TNN.hhn.DRgd.DetWater)
 windows()
 plot(TNNSurface.DRgd,asp=1,contour=FALSE) #This generates an error. Something I am doing wrong here it seems...
 
 save(TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.sess, TNN.hhn.DRgd.sess.DetW, TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, 
      TNN.hhn.nonU, TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.nonU, TNN.hhn.DRgd.sess.D.W_sess.nonU, 
-     TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fits.RData")
+     TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx.RData")
 # load fitted objects:
-load("./Tost_Noyon_Nemegt/TNN-nonEuc-fits.RData")
+load("./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx.RData")
 
 # How to get region.N for each of the 3 areas?
 # region.N for each of the 3 areas:
@@ -296,11 +302,21 @@ region.N(TNN.hhn.DRgd.sess.D.W.sess.nonU, region=NemegtMask1,session="3")
 coefficients(TNN.hhn.DRgd.sess)
 predict(TNN.hhn.DRgd.sess)
 TNNSurface.DRgd.sess<-predictDsurface(TNN.hhn.DRgd.sess)
+TNNSurface.Top<-predictDsurface(TNN.hhn.DRgd.sess.D.W.sess.nonU)
+
+TNNSurfacex.Top<-predictDsurface(TNN.hhn.DHab.nonU)
+plot(TNNSurfacex.Top[[1]], asp=1,contour=FALSE)
 
 # When you have sessions, you have to plot by session:
+windows()
+plot(TNNSurface.Top[[1]],asp=1,contour=FALSE) 
+plot(TNNSurface.Top[[2]],asp=1,contour=FALSE) 
+plot(TNNSurface.Top[[3]],asp=1,contour=FALSE) 
+
 plot(TNNSurface.DRgd.sess[[1]],asp=1,contour=FALSE) 
 plot(TNNSurface.DRgd.sess[[2]],asp=1,contour=FALSE) 
 plot(TNNSurface.DRgd.sess[[3]],asp=1,contour=FALSE) 
+
 
 plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[1]], asp=1, contour=FALSE)
 plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[2]], asp=1, contour=FALSE)
