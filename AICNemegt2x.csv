@@ -1,0 +1,13 @@
+"","model","detectfn","npar","logLik","AIC","AICc","dAICc","AICcwt"
+"Nemegt.hhn.DHab.nonU.LamW2x","D~stdGC lambda0~Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",6,-138.899604622308,289.799,300.299,0,1
+"Nemegt.hhn.D.nonU2x","D~1 lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",4,-151.162296610085,310.325,314.325,14.026,0
+"Nemegt.hhn.DHab.nonU.GB2x","D~stdGC lambda0~1 sigma~1 noneuc~stdBC - 1","hazard halfnormal",5,-148.881051847318,307.762,314.429,14.13,0
+"Nemegt.hhn.DHab.nonU.LamTopoW2x","D~stdGC lambda0~Topo + Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",8,-137.219545829859,290.439,314.439,14.14,0
+"Nemegt.hhn2x","D~1 lambda0~1 sigma~1","hazard halfnormal",3,-153.728879920525,313.458,315.64,15.341,0
+"Nemegt.hhn.DHab2x","D~stdGC lambda0~1 sigma~1","hazard halfnormal",4,-152.806851308264,313.614,317.614,17.315,0
+"Nemegt.hhn.DHab.nonU2x","D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",5,-151.134184937234,312.268,318.935,18.636,0
+"Nemegt.hhn.DHab.nonU.GBGC2x","D~stdGC lambda0~1 sigma~1 noneuc~stdGC + stdBC - 1","hazard halfnormal",6,-148.306625973971,308.613,319.113,18.814,0
+"Nemegt.hhn.DHab.detrgd012x","D~stdGC lambda0~1 sigma~stdRgd","hazard halfnormal",5,-152.68550224644,315.371,322.038,21.739,0
+"Nemegt.hhn.detrgd2x","D~1 lambda0~stdRgd sigma~stdRgd","hazard halfnormal",5,-152.751441141648,315.503,322.17,21.871,0
+"Nemegt.hhn.DHab.detrgd102x","D~stdGC lambda0~stdRgd sigma~1","hazard halfnormal",5,-152.777233738622,315.554,322.221,21.922,0
+"Nemegt.hhn.DHab.nonU.LamTopo2x","D~stdGC lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",7,-147.257015391865,308.514,324.514,24.215,0

@@ -296,3 +296,227 @@ dmap <- function (traps, mask, userd, i = 1, ...) {
 quartz(h=5,w=10) #DID NOT FIND THIS FUNCTION!!!
 plotcovariate(NemegtSurface.D.nonU,covariate="stdGC",asp=1,contour=FALSE,col=terrain.colors(40))
 text(Nemegt.cams,labels=as.character(1:40),cex=0.75)
+
+########################
+#########################
+########################
+
+#Running SECR for Nemegt 2013 with Additional Camera Points!!!
+#########################
+##########################
+##########################
+
+# Read capture file and boundary
+all.data.Nemegt2x<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", 
+                               trapfile = "./Nemegt/Nemegt2013_Cams_add.csv", 
+                               detector="count", fmt = "trapID", 
+                               trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"))
+
+boundaryNemegt2x=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
+# and plot it
+summary(all.data.Nemegt2x)
+
+#traps(all.data.Nemegt)<-addCovariates(traps(all.data.Nemegt), #Add a covariate of waterholes
+
+plot(boundaryNemegt2x)
+plot(x=all.data.Nemegt2x, add=TRUE)
+text(traps(all.data.Nemegt2x),labels=as.character(1:40),cex=0.75)
+
+# Make mask:
+NemegtMask2x=make.mask(traps(all.data.Nemegt2x), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNemegt2x)
+
+# Read ruggedness covariate and put it into mask covariate GRIDCODE
+SLCost.Nemegt2x<-readShapePoly("./Nemegt//Habitat/Nemegt_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
+NemegtMask12x<-addCovariates(NemegtMask2x, SLCost.Nemegt2x)
+
+# Read binary habitat suitability code into mask covariate ...
+SLCostBINARY.Nemegt2x<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
+#plot(SLCostBINARY.Nemegt, add=TRUE)
+
+NemegtMask12x<-addCovariates(NemegtMask12x, SLCostBINARY.Nemegt2x)
+head(covariates(NemegtMask12x))
+names(covariates(NemegtMask12x))[3:4] = c("binaryID","BINCODE") #Rename headers
+summary(covariates(NemegtMask12x))
+# make NAs in BINCODE zeros:
+covariates(NemegtMask12x)$BINCODE[is.na(covariates(NemegtMask12x)$BINCODE)] = 0
+summary(covariates(NemegtMask12x))
+
+
+# Standarize Rgd on traps (this makes fits a bit more stable)
+# -----------------------------------------------------------
+summary(covariates(traps(all.data.Nemegt2x)))
+covariates(traps(all.data.Nemegt2x))$stdRgd = scale(covariates(traps(all.data.Nemegt2x))$Rgd)
+summary(covariates(traps(all.data.Nemegt2x)))
+head(covariates(traps(all.data.Nemegt2x)))
+
+# Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
+# ------------------------------------------------------------------------
+summary(covariates(NemegtMask12x))
+covariates(NemegtMask12x)$stdGC = scale(covariates(NemegtMask12x)$GRIDCODE)
+covariates(NemegtMask12x)$stdBC = scale(covariates(NemegtMask12x)$BINCODE)
+summary(covariates(NemegtMask12x))
+names(covariates(NemegtMask12x))
+
+
+head(covariates(NemegtMask12x))
+summary(covariates(NemegtMask12x))
+summary(covariates(traps(all.data.Nemegt2x)))
+
+plot(NemegtMask12x, covariate="stdGC", contour=FALSE, col=terrain.colors(10), legend = FALSE)
+head(covariates(traps(all.data.Nemegt2x)))
+head(covariates(NemegtMask12x))
+
+
+Nemegt.cams=traps(all.data.Nemegt2x)
+
+Nemegt.hhn2x<-secr.fit(all.data.Nemegt2x, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.detrgd2x<-secr.fit(all.data.Nemegt2x, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab2x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab.detrgd102x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab.detrgd012x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
+
+AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x,Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, Nemegt.hhn.DHab.detrgd012x)
+
+coefficients(Nemegt.hhn.DHab2x)
+coefficients(Nemegt.hhn.detrgd2x)
+NemegtSurface<-predictDsurface(Nemegt.hhn.DHab2x, se.D=TRUE, cl.D=TRUE)
+
+windows()
+plot(NemegtSurface,asp=1,contour=FALSE)
+plotcovariate(NemegtSurface,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1<-region.N(Nemegt.hhn.DHab2x) #Estimates the population N of the animals within the region defined by mask
+Nhat1
+
+Nhat2<-region.N(Nemegt.hhn2x)
+Nhat2
+
+# Non-Euclidian fits
+# ==================
+# This taken straight from secr vignette:
+userdfn1 <- function (xy1, xy2, mask) {
+  if (missing(xy1)) return('noneuc') #When function is called, more of a jargon. Tells that it is a non-euclidean function
+  require(gdistance) #to load transition and geoCorrection functions
+  Sraster <- raster(mask, 'noneuc') #Creates a raster from a set of coordinates and attributes and turn that into a raster. noneuc needs to be made in advance in the mask that is being used in the analysis
+  ## conductance is inverse of friction
+  trans <- transition(Sraster, transitionFunction = function(x) 1/mean(x),  directions = 16)
+  trans <- geoCorrection(trans) #takes care of earth's curvature and also the distance differences between square and diagonally neighbouring cells
+  costDistance(trans, as.matrix(xy1), as.matrix(xy2))
+}
+
+# Model with stdGC in noneuc:
+# ---------------------------
+Nemegt.hhn.DHab.nonU2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                                details = list(userdist = userdfn1),
+                                start = list(noneuc = 1)) #-1 gets rid of the intercept
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU2x)
+coefficients(Nemegt.hhn.DHab.nonU2x)
+NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU2x, se.D=TRUE, cl.D=TRUE)
+windows()
+plot(NemegtSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU2x)
+Nhat1.nonU
+
+# Model with Flat density and non-Euclidian:
+#-------------------------------------------
+Nemegt.hhn.D.nonU2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                             model=list(D~1, lambda0~1, sigma~1, 
+                                        noneuc ~ stdGC -1), 
+                             details = list(userdist = userdfn1),
+                             start = list(noneuc = 1))
+
+coefficients(Nemegt.hhn.D.nonU2x)
+AIC(Nemegt.hhn2x,Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x)
+
+NemegtSurface.D.nonU2x<-predictDsurface(Nemegt.hhn.D.nonU2x, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurface.D.nonU2x,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.D.nonU2x,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1D1.nonU<-region.N(Nemegt.hhn.D.nonU2x)
+Nhat1D1.nonU
+#AIC(Nemegt.hhn,Nemegt.hhn.D.nonU,Nemegt.hhn.DHab.nonU)
+
+# Model with stdGC and stdBC in noneuc:
+# -------------------------------------
+Nemegt.hhn.DHab.nonU.GBGC2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                     model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
+                                     details = list(userdist = userdfn1),
+                                     start = list(noneuc = 1))
+coefficients(Nemegt.hhn.DHab.nonU.GBGC2x)
+AIC(Nemegt.hhn2x,Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, Nemegt.hhn.D.nonU2x)
+
+NemegtSurface.nonU.GBGC2x<-predictDsurface(Nemegt.hhn.DHab.nonU.GBGC2x, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurface.nonU.GBGC2x,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU.GBGC2x,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU.GBGC2x)
+Nhat1.nonU
+AIC(Nemegt.hhn,Nemegt.hhn.D.nonU2x,Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x)
+
+# Model with stdBC only in noneuc:
+# -------------------------------------
+Nemegt.hhn.DHab.nonU.GB2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                   model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
+                                   details = list(userdist = userdfn1),
+                                   start = list(noneuc = 1))
+coefficients(Nemegt.hhn.DHab.nonU.GB2x)
+NemegtSurface.nonU.GB2x<-predictDsurface(Nemegt.hhn.DHab.nonU.GB2x, se.D=TRUE, cl.D=TRUE)
+plot(NemegtSurface.nonU.GB2x,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU.GB2x,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU.GB2x)
+Nhat1.nonU
+
+# Model with stdGC in noneuc, topography for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamTopo2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                        model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                                        details = list(userdist = userdfn1),
+                                        start = list(noneuc = 1)) #-1 gets rid of the intercept
+AIC(Nemegt.hhn,Nemegt.hhn.DHab.nonU2x)
+coefficients(Nemegt.hhn.DHab.nonU2x)
+NemegtSurface.nonU<-predictDsurface(Nemegt.hhn.DHab.nonU2x, se.D=TRUE, cl.D=TRUE)
+windows()
+plot(NemegtSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
+plot(Nemegt.cams,add=TRUE)
+plotcovariate(NemegtSurface.nonU,covariate="stdGC",asp=1,contour=FALSE)
+plot(Nemegt.cams,add=TRUE)
+
+Nhat1.nonU<-region.N(Nemegt.hhn.DHab.nonU2x)
+Nhat1.nonU
+
+# Model with stdGC in noneuc, Water for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamW2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                     model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                     details = list(userdist = userdfn1),
+                                     start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
+# Model with stdGC in noneuc, Topo+Water for lambda:
+# ---------------------------
+Nemegt.hhn.DHab.nonU.LamTopoW2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mask=NemegtMask12x,
+                                         model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                         details = list(userdist = userdfn1),
+                                         start = list(noneuc = 1)) #-1 gets rid of the intercept
+coefficients(Nemegt.hhn.DHab.nonU.LamTopoW2x)
+coefficients(Nemegt.hhn.D.nonU2x)
+
+
+NemegtAIC2x=AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, 
+              Nemegt.hhn.DHab.detrgd012x, Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, 
+              Nemegt.hhn.DHab.nonU.GB2x, Nemegt.hhn.DHab.nonU.LamTopo2x, Nemegt.hhn.DHab.nonU.LamW2x,
+              Nemegt.hhn.DHab.nonU.LamTopoW2x)
+NemegtAIC2x
