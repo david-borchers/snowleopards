@@ -211,6 +211,7 @@ userdfn1 <- function (xy1, xy2, mask) {
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
 
+
 # Model with stdGC in noneuc:
 # ---------------------------
 TNN.hhn.DHab.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
@@ -266,6 +267,8 @@ TNNAIC=AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.
     TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU, TNN.hhn.DRgd.sess.D.W.sess.nonU,TNN.hhn.DRgd.sess.D.W_sess.nonU,
     TNN.hhn.DRgd.sess.nonU,TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU)
 write.csv(TNNAIC, file = "AICTNNx.csv")
+TNNAIC = read.csv("AICTNNx.csv")
+
 getwd()
 
 
@@ -284,6 +287,7 @@ save(TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.sess, TNN.hhn.DRgd.sess.DetW, TNN.hhn.D
      TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx.RData")
 # load fitted objects:
 load("./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx.RData")
+
 
 # How to get region.N for each of the 3 areas?
 # region.N for each of the 3 areas:
@@ -321,3 +325,94 @@ plot(TNNSurface.DRgd.sess[[3]],asp=1,contour=FALSE)
 plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[1]], asp=1, contour=FALSE)
 plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[2]], asp=1, contour=FALSE)
 plot(TNN.hhn.DRgd.sess.D.W.sess.nonU[[3]], asp=1, contour=FALSE)
+
+
+
+# --------------------------- David additions March 2017 ----------------------------------
+
+# David trial Model with stdGC in noneuc and smooth (k=3) stdGC effect on D and lambda0~sfac*Water:
+# ---------------------------
+TNN.hhn.DHabS3.lambdaSfacWater.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                              model=list(D~s(stdGC,k=3), lambda0~sfac*Water, sigma~1, noneuc ~ stdGC -1), 
+                              sessioncov=data.frame(sfac=sess), details = list(userdist = userdfn1),
+                              start = list(noneuc = 1)) #-1 gets rid of the intercept
+# Some convergence problems with the above model; need to refit starting from this fit, but not yet done that.
+
+# David trial Model with stdGC in noneuc and smooth (k=3) stdGC effect on D:
+# ---------------------------
+TNN.hhn.DHabS3.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                              model=list(D~s(stdGC,k=3), lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1)) #-1 gets rid of the intercept
+# Fit again, using estimates from above as starting values:
+TNN.hhn.DHabS3a.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                              model=list(D~s(stdGC,k=3), lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = TNN.hhn.DHabS3.nonU) 
+
+TNN.hhn.DHabS3.nonU = TNN.hhn.DHabS3a.nonU
+
+save(TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.sess, TNN.hhn.DRgd.sess.DetW, TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, 
+     TNN.hhn.nonU, TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.nonU, TNN.hhn.DRgd.sess.D.W_sess.nonU, 
+     TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU,TNN.hhn.DHabS3.nonU, 
+     file="./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx1.RData")
+# load fitted objects:
+load("./Tost_Noyon_Nemegt/TNN-nonEuc-fitsx1.RData")
+
+AIC(TNN.hhn.DRgd, TNN.hhn.DRgd.sess, TNN.hhn.DRgd.sess.DetW, TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, 
+    TNN.hhn.nonU, TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.nonU, TNN.hhn.DRgd.sess.D.W_sess.nonU, 
+    TNN.hhn.DRgd.sess.D.W.sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU,TNN.hhn.DHabS3.nonU)
+
+# individual regions:
+AICTostx = read.csv("AICTostx.csv")
+AICTostx
+AICNoyonx = read.csv("AICNoyonx.csv")
+AICNoyonx
+AICNemegtx = read.csv("AICNemegtx.csv")
+AICNemegtx
+
+# Best separate AICs:
+aics = c(465.603,436.753,286.066)
+aicsum = sum(aics);aicsum # Combined AIC for models fitted separately to each stratum
+
+# Abundance and plots for given model
+#fit = TNN.hhn.DHabS3.lambdaSfacWater.nonU
+fit = TNN.hhn.DHabS3.nonU
+
+# region.N for each of the 3 areas:
+region.N(fit,region=TostMask1,session="1")
+region.N(fit,region=NoyonMask1,session="2")
+region.N(fit,region=NemegtMask1,session="3")
+
+coefficients(fit)
+predict(fit)
+fitpred<-predictDsurface(fit)
+
+# When you have sessions, you have to plot by session:
+windows()
+plot(fitpred[[1]],asp=1,contour=FALSE) 
+plot(fitpred[[2]],asp=1,contour=FALSE) 
+plot(fitpred[[3]],asp=1,contour=FALSE) 
+
+# difficult to see on natural scale - dominated by massive density spikes at a few points (high gridcode)
+# so look on the log density scale:
+logfitpred = fitpred
+for(i in 1:3) covariates(logfitpred[[i]])$D.0 = log(covariates(fitpred[[i]])$D.0)
+quartz(h=10,w=5)
+par(mfrow=c(3,1))
+plot(logfitpred[[1]],asp=1,contour=FALSE) 
+plot(logfitpred[[2]],asp=1,contour=FALSE) 
+plot(logfitpred[[3]],asp=1,contour=FALSE) 
+
+# Plot effect of stdGC on density:
+masks = list(TostMask1, NoyonMask1,NemegtMask1)
+quartz(h=9,w=9)
+par(mfrow=c(3,2))
+for(i in 1:3) {
+  Dhat = covariates(fitpred[[i]])$D.0
+  ord = order(Dhat)
+  stdGC4plot = covariates(masks[[i]])$stdGC[ord]
+  plot(stdGC4plot,sort(Dhat),type="l")
+  plot(masks[[i]],covariate="stdGC",contour=FALSE,asp=1)
+}
+
