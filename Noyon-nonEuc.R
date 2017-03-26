@@ -8,7 +8,7 @@ source("scrplotting.r")
 # Read capture file and boundary
 all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", 
                               trapfile = "./Noyon2013/Noyon_trap2013secr.csv", 
-                              detector="count", 
+                              detector="count", binary.usage=FALSE,
                               fmt = "trapID", 
                               trapcovnames = c("Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
@@ -68,24 +68,25 @@ Noyon.hhnx<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~1, sigma~1), detect
 Noyon.hhn.detrgdx<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.DHabx<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.DHab.DetRgd01x<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN",mask=NoyonMask1)
+Noyon.hhn.DHab.DetRgd10x<-secr.fit(all.data.Noyon, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN",mask=NoyonMask1)
 Noyon.hhn.detWaterx<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.detTopo10x<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=NoyonMask1)
 Noyon.hhn.detTopoWaterx<-secr.fit(all.data.Noyon, model=list(D~1, lambda0~Topo+Water, sigma~1), detectfn="HHN", mask=NoyonMask1)
 
-AIC(Noyon.hhn, Noyon.hhn.detrgd)
-AIC(Noyon.hhn, Noyon.hhn.detrgd, Noyon.hhn.DHab, Noyon.hhn.DHab.DetRgd01, Noyon.hhn.detWater, 
-    Noyon.hhn.detTopo10, Noyon.hhn.detTopoWater)
+AIC(Noyon.hhn, Noyon.hhn.detrgdx)
+AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
+    Noyon.hhn.detTopo10x, Noyon.hhn.detTopoWaterx)
 coefficients(Noyon.hhn.DHab.DetRgd01)
 
-NoyonSurface<-predictDsurface(Noyon.hhn.DHab.DetRgd01, se.D=TRUE, cl.D=TRUE)
+NoyonSurface<-predictDsurface(Noyon.hhn.DHab.DetRgd01x, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface,asp=1,contour=FALSE)
 plotcovariate(NoyonSurface,covariate="stdGC",asp=1,contour=FALSE)
 plot(Noyon.cams,add=TRUE)
 
-Nhat1<-region.N(Noyon.hhn.DHab.DetRgd01) #Estimates the population N of the animals within the region defined by mask
+Nhat1<-region.N(Noyon.hhn.DHab.DetRgd01x) #Estimates the population N of the animals within the region defined by mask
 Nhat1
 
-Nhat2<-region.N(Noyon.hhn)
+Nhat2<-region.N(Noyon.hhnx)
 Nhat2
 
 
@@ -104,11 +105,11 @@ userdfn1 <- function (xy1, xy2, mask) {
 
 # Model with stdGC in noneuc:
 # ---------------------------
-Noyon.hhn.DHab.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                              details = list(userdist = userdfn1),
                              start = list(noneuc = 1)) #-1 gets rid of the intercept
-Noyon.hhn.DHab.nonUx<-Noyon.hhn.DHab.nonU
+#Noyon.hhn.DHab.nonUx<-Noyon.hhn.DHab.nonU
 AIC(Noyon.hhn,Noyon.hhn.DHab.nonU)
 coefficients(Noyon.hhn.DHab.nonU)
 NoyonSurface.nonU<-predictDsurface(Noyon.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
@@ -123,12 +124,12 @@ Nhat1.nonU
 
 # Model with Flat density and non-Euclidian:
 #-------------------------------------------
-Noyon.hhn.D.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.D.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                           model=list(D~1, lambda0~1, sigma~1, 
                                      noneuc ~ stdGC -1), 
                           details = list(userdist = userdfn1),
                           start = list(noneuc = 1))
-Noyon.hhn.D.nonUx<-Noyon.hhn.D.nonU
+#Noyon.hhn.D.nonUx<-Noyon.hhn.D.nonU
 coefficients(Noyon.hhn.D.nonU)
 NoyonSurface.D.nonU<-predictDsurface(Noyon.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 plot(NoyonSurface.D.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -160,11 +161,11 @@ AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU, Noyon.hhn.DHab.nonU.GBGC)
 
 # Model with stdBC only in noneuc:
 # -------------------------------------
-Noyon.hhn.DHab.nonU.GB<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.nonU.GBx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~stdBC-1), 
                                 details = list(userdist = userdfn1),
                                 start = list(noneuc = 1))
-Noyon.hhn.DHab.nonU.GBx<-Noyon.hhn.DHab.nonU.GB
+#Noyon.hhn.DHab.nonU.GBx<-Noyon.hhn.DHab.nonU.GB
 AIC(Noyon.hhn.DHab.nonU.GB)
 coefficients(Noyon.hhn.DHab.nonU.GB)
 NoyonSurface.nonU.GB<-predictDsurface(Noyon.hhn.DHab.nonU.GB, se.D=TRUE, cl.D=TRUE)
@@ -178,41 +179,41 @@ Nhat1.nonU
 
 # Model with stdGC in noneuc Topo in Detection:
 # ---------------------------
-Noyon.hhn.DHab.Topo10.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.Topo10.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                               model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
                               details = list(userdist = userdfn1),
                               start = list(noneuc = 1)) #-1 gets rid of the intercept
 
-Noyon.hhn.DHab.Topo10.nonUx<-Noyon.hhn.DHab.Topo10.nonU
+#Noyon.hhn.DHab.Topo10.nonUx<-Noyon.hhn.DHab.Topo10.nonU
 
-Noyon.hhn.DHab.Topo10.nonU1<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.Topo10.nonU1x<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                      model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
                                      details = list(userdist = userdfn1),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
-Noyon.hhn.DHab.Topo10.nonU1x<-Noyon.hhn.DHab.Topo10.nonU1
+#Noyon.hhn.DHab.Topo10.nonU1x<-Noyon.hhn.DHab.Topo10.nonU1
 AIC(Noyon.hhn.DHab.Topo10.nonU, Noyon.hhn.DHab.Topo10.nonU1)
 
 # Model with stdGC in noneuc Water in Detection:
 # ---------------------------
-Noyon.hhn.DHab.DetW.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.DetW.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                      model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                                      details = list(userdist = userdfn1),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
-Noyon.hhn.DHab.DetW.nonUx<-Noyon.hhn.DHab.DetW.nonU
+#Noyon.hhn.DHab.DetW.nonUx<-Noyon.hhn.DHab.DetW.nonU
 coefficients(Noyon.hhn.DHab.DetW.nonUx)
 
 # Model with stdGC in noneuc Topo & Water in Detection:
 # ---------------------------
-Noyon.hhn.DHab.Topo10W.nonU<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
+Noyon.hhn.DHab.Topo10W.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                      model=list(D~stdGC, lambda0~Water+Topo, sigma~1, noneuc ~ stdGC -1), 
                                      details = list(userdist = userdfn1),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
-Noyon.hhn.DHab.Topo10W.nonUx<-Noyon.hhn.DHab.Topo10W.nonU
+#Noyon.hhn.DHab.Topo10W.nonUx<-Noyon.hhn.DHab.Topo10W.nonU
 
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
              Noyon.hhn.detTopo10x, Noyon.hhn.detTopoWaterx, Noyon.hhn.DHab.nonUx, Noyon.hhn.D.nonUx, 
              Noyon.hhn.DHab.Topo10.nonUx, Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx,
-             Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx)
+             Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx, Noyon.hhn.DHab.DetRgd10x)
 AICNoyon
 
 write.csv(AICNoyon, file = "AICNoyonx.csv")

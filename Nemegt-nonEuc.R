@@ -238,9 +238,13 @@ coefficients(Nemegt.hhn.DHab.nonU.LamWx)
 
 NemegtSurface<-predictDsurface(Nemegt.hhn.DHab.detW, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurface,asp=1,contour=FALSE,col=terrain.colors(40), add = TRUE)
+head(covariates(NemegtSurface)$D.0)
+head(NemegtSurface)
+
 
 NemegtSurfaceNU<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurfaceNU,asp=1,contour=FALSE,col=terrain.colors(40))
+
 
 NemegtSurfaceNU1<-predictDsurface(Nemegt.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(NemegtSurfaceNU1,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -518,7 +522,8 @@ Nemegt.hhn.DHab.nonU.LamTopoW2x<-secr.fit(all.data.Nemegt2x, detectfn="HHN", mas
                                          start = list(noneuc = 1)) #-1 gets rid of the intercept
 coefficients(Nemegt.hhn.DHab.nonU.LamTopoW2x)
 coefficients(Nemegt.hhn.D.nonU2x)
-
+S1<-predictDsurface(Nemegt.hhn.DHab.nonU.LamTopoW2x)
+S2<-predictDsurface(Nemegt.hhn.D.nonU2x)
 
 NemegtAIC2x=AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, 
               Nemegt.hhn.DHab.detrgd012x, Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, 
@@ -528,6 +533,10 @@ NemegtAIC2x
 write.csv(NemegtAIC2x, file = "AICNemegt2x.csv")
 
 coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
+region.N(Nemegt.hhn.DHab.nonU.LamW2x)
+
+###   David, top model coefficient for non-Euclidean is negative!
+
 region.N(Nemegt.hhn.DHab.nonU.LamW2x)
 region.N(Nemegt.hhn2x)
 
