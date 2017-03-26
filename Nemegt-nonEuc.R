@@ -6,10 +6,14 @@ source("scrplotting.r")
 #Running SECR for Nemegt 2013
 
 # Read capture file and boundary
-all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", trapfile = "./Nemegt/Nemegt2013_Cams.csv", detector="count", fmt = "trapID", trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"))
+all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", 
+                               trapfile = "./Nemegt/Nemegt2013_Cams.csv", 
+                               detector="count", fmt = "trapID", 
+                               trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
+                               binary.usage=FALSE)
 boundaryNemegt=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea.shp")
 # and plot it
-
+summary(all.data.Nemegt)
 #traps(all.data.Nemegt)<-addCovariates(traps(all.data.Nemegt), #Add a covariate of waterholes
 
 plot(boundaryNemegt)
@@ -371,11 +375,12 @@ Nemegt.cams=traps(all.data.Nemegt2x)
 
 Nemegt.hhn2x<-secr.fit(all.data.Nemegt2x, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
 Nemegt.hhn.detrgd2x<-secr.fit(all.data.Nemegt2x, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
-Nemegt.hhn.DHab2x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
-Nemegt.hhn.DHab.detrgd102x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask12x)
-Nemegt.hhn.DHab.detrgd012x<-secr.fit(all.data.Nemegt, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab2x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab.detrgd102x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask12x)
+Nemegt.hhn.DHab.detrgd012x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
 
 AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x,Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, Nemegt.hhn.DHab.detrgd012x)
+AIC(Nemegt.hhn2x, Nemegt.hhn.DHab.nonU2x)
 
 coefficients(Nemegt.hhn.DHab2x)
 coefficients(Nemegt.hhn.detrgd2x)
@@ -520,3 +525,15 @@ NemegtAIC2x=AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn
               Nemegt.hhn.DHab.nonU.GB2x, Nemegt.hhn.DHab.nonU.LamTopo2x, Nemegt.hhn.DHab.nonU.LamW2x,
               Nemegt.hhn.DHab.nonU.LamTopoW2x)
 NemegtAIC2x
+write.csv(NemegtAIC2x, file = "AICNemegt2x.csv")
+
+coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
+region.N(Nemegt.hhn.DHab.nonU.LamW2x)
+region.N(Nemegt.hhn2x)
+
+save(NemegtMask12x,Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, 
+     Nemegt.hhn.DHab.detrgd012x, Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, 
+     Nemegt.hhn.DHab.nonU.GB2x, Nemegt.hhn.DHab.nonU.LamTopo2x, Nemegt.hhn.DHab.nonU.LamW2x,
+     Nemegt.hhn.DHab.nonU.LamTopoW2x,file="./Nemegt/Nemegt-nonEuc-fit2x.RData")
+# load fitted objects:
+load("./Nemegt/Nemegt-nonEuc-fit2x.RData")

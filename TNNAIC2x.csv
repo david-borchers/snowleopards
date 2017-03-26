@@ -1,0 +1,11 @@
+"","model","detectfn","npar","logLik","AIC","AICc","dAICc","AICcwt"
+"TNN.hhn.DHab.DetTopo10.nonU","D~stdGC lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",7,-498.062247259005,1010.124,1013.324,0,1
+"TNN.hhn.DHab.S.DetTopo10.nonU","D~stdGC * sfac lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",11,-496.447107807383,1014.894,1023.41,10.086,0
+"TNN.hhn.DHab.LamTopoWat.nonU","D~stdGC lambda0~Topo + Water sigma~1 noneuc~stdGC - 1","hazard halfnormal",8,-503.500769813601,1023.002,1027.237,13.9130000000001,0
+"TNN.hhn.DHab.DetToposess.nonU","D~stdGC lambda0~Topo * sfac sigma~1 noneuc~stdGC - 1","hazard halfnormal",13,-494.38856418964,1014.777,1027.329,14.005,0
+"TNN.hhn.DHab_S.DetTopo10.nonU","D~stdGC + sfac lambda0~Topo sigma~1 noneuc~stdGC - 1","hazard halfnormal",9,-503.988795476529,1025.978,1031.432,18.1080000000001,0
+"TNN.hhn.DRgd.DetTopo10W","D~stdGC lambda0~Topo + Water sigma~1","hazard halfnormal",7,-508.631994385989,1031.264,1034.464,21.14,0
+"TNN.hhn.DRgd","D~stdGC lambda0~1 sigma~1","hazard halfnormal",4,-514.243289830652,1036.487,1037.539,24.215,0
+"TNN.hhn.DRgd.sess.DetW","D~stdGC + sfac lambda0~sfac * Water sigma~1","hazard halfnormal",11,-503.666040033131,1029.332,1037.848,24.524,0
+"TNN.hhn.nonU","D~1 lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",4,-514.695574652673,1037.391,1038.444,25.12,0
+"TNN.hhn.DHab.nonU","D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1","hazard halfnormal",5,-514.031902044156,1038.064,1039.685,26.361,0
