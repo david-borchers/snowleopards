@@ -215,9 +215,12 @@ AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetR
              Noyon.hhn.DHab.Topo10.nonUx, Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx,
              Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx, Noyon.hhn.DHab.DetRgd10x)
 AICNoyon
+coefficients(Noyon.hhn.DHab.nonU.GBx)
+region.N(Noyon.hhn.DHab.nonU.GBx)
+#Works best! no errors or concerns here
 
 write.csv(AICNoyon, file = "AICNoyonx.csv")
-
+coefficients(Noyon.hhn.DHab.nonU.GBx)
 NhatNoy.nonU.Topo10<-region.N(Noyon.hhn.DHab.nonU.GBx)
 NhatNoyNull<-region.N(Noyon.hhn)
 

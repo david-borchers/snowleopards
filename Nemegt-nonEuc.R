@@ -531,8 +531,13 @@ NemegtAIC2x=AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn
               Nemegt.hhn.DHab.nonU.LamTopoW2x)
 NemegtAIC2x
 write.csv(NemegtAIC2x, file = "AICNemegt2x.csv")
+NemegtSurface2x<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW2x)
+plot(NemegtSurface2x, asp=1,contour=FALSE)
 
 coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
+coefficients(Nemegt.hhn.DHab.nonU2x)
+coefficients(Nemegt.hhn.DHab.nonU.GB2x)
+
 region.N(Nemegt.hhn.DHab.nonU.LamW2x)
 
 ###   David, top model coefficient for non-Euclidean is negative!
