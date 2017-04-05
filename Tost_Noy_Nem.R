@@ -176,7 +176,10 @@ TNN.hhn<-secr.fit(all.data.TNN,
 TNN.hhn.DRgd<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN",
                        mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
-coefficients(TNN.hhn.DRgd)
+TNN.hhn.DRgd.DetTopo10<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN",
+                       mask = list(TostMask1, NoyonMask1, NemegtMask1))
+
+
 predict(TNN.hhn.DRgd)
 TNNSurface.DRgd<-predictDsurface(TNN.hhn.DRgd)
 # When you have sessions, you have to plot by session:
@@ -196,7 +199,7 @@ TNN.hhn.DRgd.sess.DetW<-secr.fit(all.data.TNN, model = list(D~stdGC+sfac, lambda
 
 TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
                                 mask = list(TostMask1, NoyonMask1, NemegtMask1))
-
+coefficients(TNN.hhn.DRgd.DetTopo10W)
 
 # Non-Euclidian fits
 # ==================
@@ -218,12 +221,70 @@ TNN.hhn.DHab.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, N
                             model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                             details = list(userdist = userdfn1),
                                start = list(noneuc = 1)) #-1 gets rid of the intercept
+# Model with stdGC in noneuc, Topo in Detect:
+# ---------------------------
+TNN.hhn.DHab.DetTopo10.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                            model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                            details = list(userdist = userdfn1),
+                            start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with stdGC in noneuc, Topo in Detect per session:
+# ---------------------------
+TNN.hhn.DHab.DetToposess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                      model=list(D~stdGC, lambda0~Topo*sfac, sigma~1, noneuc ~ stdGC -1), 
+                                      details = list(userdist = userdfn1),sessioncov=data.frame(sfac=sess),
+                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+coefficients(TNN.hhn.DHab.DetToposess.nonU)
+
+# Model with D->Rgd session interact, noneuc->rgd, Topo in lam0:
+# ---------------------------
+TNN.hhn.DHab.S.DetTopo10.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                      model=list(D~stdGC*sfac, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                                      details = list(userdist = userdfn1),sessioncov=data.frame(sfac=sess),
+                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with D->Rgd session add, noneuc->rgd, Topo in lam0:
+# ---------------------------
+TNN.hhn.DHab_S.DetTopo10.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                        model=list(D~stdGC+sfac, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                                        details = list(userdist = userdfn1),sessioncov=data.frame(sfac=sess),
+                                        start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+coefficients(TNN.hhn.DHab.DetTopo10.nonU)
+# Model with stdGC in noneuc, Topo+Water in Detect:
+# ---------------------------
+TNN.hhn.DHab.LamTopoWat.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                      model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                      details = list(userdist = userdfn1),
+                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+coefficients(TNN.hhn.DHab.LamTopoWat.nonU)
 
 # Model with constt D in noneuc:
 # ---------------------------
 TNN.hhn.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
                             model=list(D~1, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                             details = list(userdist = userdfn1), start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+TNNAIC2x<-AIC(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN.hhn.DRgd, 
+    TNN.hhn.DHab.nonU,TNN.hhn.DRgd.sess.DetW,TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab_S.DetTopo10.nonU,
+    TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU)
+getwd()
+
+TNNAIC2x
+
+#Very very long time to model (some models took up to 4 hours, but end results look good!)
+
+write.csv(TNNAIC2x, file = "TNNAIC2x.csv")
+coefficients(TNN.hhn.DHab.DetTopo10.nonU)
+coefficients(TNN.hhn.DRgd.sess.DetW)
+
+save(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN.hhn.DRgd, 
+     TNN.hhn.DHab.nonU,TNN.hhn.DRgd.sess.DetW,TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab_S.DetTopo10.nonU,
+     TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fits2x.RData")
+load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2x.RData")
+
 
 
 # Model with D dependent on Rgd OR session in noneuc:
@@ -265,7 +326,7 @@ TNN.hhn.DRgd.sess.D_W_sess.nonU<-secr.fit(all.data.TNN, detectfn="HHN", mask=lis
 
 TNNAIC=AIC(TNN.hhn.detTopo10, TNN.hhn.detTopo01, TNN.hhn, TNN.hhn.DRgd, TNN.hhn.DRgd.DetWater, 
     TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab.nonU, TNN.hhn.nonU, TNN.hhn.DRgd.sess.D.W.sess.nonU,TNN.hhn.DRgd.sess.D.W_sess.nonU,
-    TNN.hhn.DRgd.sess.nonU,TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU)
+    TNN.hhn.DRgd.sess.nonU,TNN.hhn.DRgd_sess.nonU, TNN.hhn.DRgd.sess.D_W_sess.nonU, TNN.hhn.DRgd.DetTopo10)
 write.csv(TNNAIC, file = "AICTNNx.csv")
 TNNAIC = read.csv("AICTNNx.csv")
 

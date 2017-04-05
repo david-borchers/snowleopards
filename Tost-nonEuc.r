@@ -220,6 +220,18 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
             Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
             Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx)
 
+AICTost
+
+coefficients(Tost.hhn.DHab.nonU.GBGCx)
+coefficients(Tost.hhn.DHab.nonU.GBx)
+coefficients(Tost.hhn.DHab.nonUx)
+
+
+region.N(Tost.hhn.DHab.nonU.GBx)
+
+
+### Top Model generating negative coefficient with Binary variable for non-Euclidean!
+
 write.csv(AICTost, file = "AICTostx.csv")
 
 save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
