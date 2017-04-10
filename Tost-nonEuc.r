@@ -35,13 +35,13 @@ summary(covariates(TostMask1))
 covariates(TostMask1)$BINCODE[is.na(covariates(TostMask1)$BINCODE)] = 0
 summary(covariates(TostMask1))
 
+head(covariates(TostMask1))
 
 # Standarize Rgd on traps (this makes fits a bit more stable)
 # -----------------------------------------------------------
 summary(covariates(traps(all.data.Tost)))
 covariates(traps(all.data.Tost))$stdRgd = scale(covariates(traps(all.data.Tost))$Rgd)
 summary(covariates(traps(all.data.Tost)))
-head(covariates(traps(all.data.Tost)))
 
 # Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
 # ------------------------------------------------------------------------
@@ -52,7 +52,7 @@ summary(covariates(TostMask1))
 names(covariates(TostMask1))
 
 
-head(covariates(TostMask1))
+tail(covariates(TostMask1))
 summary(covariates(TostMask1))
 summary(covariates(traps(all.data.Tost)))
 
@@ -63,7 +63,7 @@ head(covariates(TostMask1))
 
 Tost.cams=traps(all.data.Tost)
 
-Tost.hhnx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhnx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1, start = Tost.hhnx)
 Tost.hhn.detTopo10x<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.detWaterx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.DHabx<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
@@ -184,6 +184,7 @@ Nhat1D1.nonU
 
 # Model with stdGC and stdBC in noneuc:
 # -------------------------------------
+# Not to be RUN. GB GC to be highly autocorrelated !
 Tost.hhn.DHab.nonU.GBGCx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                              model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
                              details = list(userdist = userdfn1),
@@ -218,25 +219,25 @@ region.N(Tost.hhnx)
 #Ignoring the models with binary habitat covariate GB for ocmparison
 AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
             Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
-            Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx)
+            Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx)
 
 AICTost
 
-coefficients(Tost.hhn.DHab.nonU.GBGCx)
+#coefficients(Tost.hhn.DHab.nonU.GBGCx)   #Not running this model
 coefficients(Tost.hhn.DHab.nonU.GBx)
-coefficients(Tost.hhn.DHab.nonUx)
+coefficients(Tost.hhn.DHab.nonU.Wx)
 
 
 region.N(Tost.hhn.DHab.nonU.GBx)
-
+region.N(Tost.hhnx)
 
 ### Top Model generating negative coefficient with Binary variable for non-Euclidean!
 
 write.csv(AICTost, file = "AICTostx.csv")
 
 save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
-      Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, Tost.hhn.D.nonUx, 
-      Tost.hhn.DHab.nonU.GBGCx, Tost.hhn.DHab.nonU.GBx, file="./Tost/Tost-nonEuc-fitsx.RData")
+     Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
+     Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, file="./Tost/Tost-nonEuc-fitsx.RData")
 load("./Tost/Tost-nonEuc-fitsx.RData")
 
 Nhat1.nonU.Topo10<-region.N(Tost.hhn.DHab.nonU.Topo10)

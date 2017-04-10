@@ -43,6 +43,7 @@ summary(covariates(traps(all.data.Noyon)))
 covariates(traps(all.data.Noyon))$stdRgd = scale(covariates(traps(all.data.Noyon))$Rgd)
 summary(covariates(traps(all.data.Noyon)))
 head(covariates(traps(all.data.Noyon)))
+tail(covariates(traps(all.data.Noyon)))
 
 # Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
 # ------------------------------------------------------------------------
@@ -143,6 +144,8 @@ AIC(Noyon.hhn,Noyon.hhn.D.nonU,Noyon.hhn.DHab.nonU)
 
 # Model with stdGC and stdBC in noneuc:
 # -------------------------------------
+#Not to be run anymore! GB & GC supposed to be highly correlated
+
 Noyon.hhn.DHab.nonU.GBGCx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=NoyonMask1,
                                   model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC + stdBC-1), 
                                   details = list(userdist = userdfn1),
@@ -213,11 +216,13 @@ Noyon.hhn.DHab.Topo10W.nonUx<-secr.fit(all.data.Noyon, detectfn="HHN", mask=Noyo
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
              Noyon.hhn.detTopo10x, Noyon.hhn.detTopoWaterx, Noyon.hhn.DHab.nonUx, Noyon.hhn.D.nonUx, 
              Noyon.hhn.DHab.Topo10.nonUx, Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx,
-             Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx, Noyon.hhn.DHab.DetRgd10x)
+             Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.DetRgd10x)
 AICNoyon
+
 coefficients(Noyon.hhn.DHab.nonU.GBx)
 region.N(Noyon.hhn.DHab.nonU.GBx)
 #Works best! no errors or concerns here
+region.N(Noyon.hhnx)
 
 write.csv(AICNoyon, file = "AICNoyonx.csv")
 coefficients(Noyon.hhn.DHab.nonU.GBx)
@@ -251,12 +256,11 @@ load("./Noyon2013/Noyon-nonEuc-fits3.RData") #Second round analysis (with water 
 
 save(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
       Noyon.hhn.detTopo10x, Noyon.hhn.detTopoWaterx, Noyon.hhn.DHab.nonUx, Noyon.hhn.D.nonUx, 
-      Noyon.hhn.DHab.nonU.GBGCx, Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.Topo10.nonUx, 
-      Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx, file="./Noyon2013/Noyon-nonEuc-fitsx.RData")
+      Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.Topo10.nonUx,  Noyon.hhn.DHab.DetRgd10x,
+      Noyon.hhn.DHab.DetW.nonUx, Noyon.hhn.DHab.Topo10W.nonUx, 
+     file="./Noyon2013/Noyon-nonEuc-fitsx.RData")
 load("./Noyon2013/Noyon-nonEuc-fitsx.RData") #Final round analysis (with water and topography)
 # Compare all model AICs:
-AIC(Noyon.hhn, Noyon.hhn.detrgd,Noyon.hhn.DHab,Noyon.hhn.DHab.nonU,Noyon.hhn.D.nonU, 
-    Noyon.hhn.DHab.nonU.GBGC, Noyon.hhn.DHab.nonU.GB)
 
 
 # Best non-Euclidian
