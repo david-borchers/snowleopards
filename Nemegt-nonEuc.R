@@ -678,6 +678,12 @@ NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt
               Nemegt.hhn.DHab.nonU.LamTopoW2R)
 NemegtAIC2xR
 
+NemegtAIC2xC=AIC(Nemegt.hhn2xC, Nemegt.hhn.detrgd2xC, Nemegt.hhn.DHab2xC, Nemegt.hhn.DHab.detrgd102xC, 
+                 Nemegt.hhn.DHab.detrgd012xC, Nemegt.hhn.DHab.nonU2xC, Nemegt.hhn.D.nonU2xC,  
+                 Nemegt.hhn.DHab.nonU.GB2xC, Nemegt.hhn.DHab.nonU.LamTopoC, Nemegt.hhn.DHab.nonU.LamW2xC,
+                 Nemegt.hhn.DHab.nonU.LamTopoW2C)
+NemegtAIC2xC
+
 write.csv(NemegtAIC2x, file = "AICNemegt2x.csv")
 NemegtSurface2x<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW2x)
 plot(NemegtSurface2x, asp=1,contour=FALSE)
