@@ -299,8 +299,27 @@ TNN.hhn.DHab.DetTopo10.nonUR<-secr.fit(all.data.TNN_R, detectfn="HHN", mask=list
                                       details = list(userdist = userdfn1),
                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
 
+# Model with BC in noneuc, Topo in Detect, GC in density:
+# ---------------------------
+
+TNN.hhn.DGC.DetTopo10.nonUGBR<-secr.fit(all.data.TNN_R, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                       model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdBC -1), 
+                                       details = list(userdist = userdfn1),
+                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+# Model with GC in noneuc, Topo in Detect, GB in density:
+# ---------------------------
+
+TNN.hhn.DGB.DetTopo10.nonUR<-secr.fit(all.data.TNN_R, detectfn="HHN", mask=list(TostMask1, NoyonMask1,NemegtMask1), 
+                                        model=list(D~stdBC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
+                                        details = list(userdist = userdfn1),
+                                        start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
 coefficients(TNN.hhn.DHab.DetTopo10.nonU)
 coefficients(TNN.hhn.DHab.DetTopo10.nonUR)
+coefficients(TNN.hhn.DGC.DetTopo10.nonUGBR)
+coefficients(TNN.hhn.DGB.DetTopo10.nonUR)
 
 summary(all.data.TNN)
 summary(all.data.TNN_R)
@@ -378,13 +397,16 @@ TNNAIC2x<-AIC(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10
 TNNAIC2xR<- AIC(TNN.hhn.DRgd.sessR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.DetTopo10WR, TNN.hhn.DHab.nonUR, 
                 TNN.hhn.DHab.DetTopo10.nonUR, TNN.hhn.DHab.DetToposess.nonUR, 
                 TNN.hhn.DHab.S.DetTopo10.nonUR, TNN.hhn.DHab_S.DetTopo10.nonUR, 
-                TNN.hhn.DHab.LamTopoWat.nonUR, TNN.hhn.nonUR)
+                TNN.hhn.DHab.LamTopoWat.nonUR, TNN.hhn.nonUR,TNN.hhn.DGC.DetTopo10.nonUGBR,
+                TNN.hhn.DGB.DetTopo10.nonUR)
 TNNAIC2x
 TNNAIC2xR
 
+coefficients(TNN.hhn.DGC.DetTopo10.nonUGBR)
 coefficients(TNN.hhn.DHab.DetTopo10.nonUR)
 coefficients(TNN.hhn.DHab.LamTopoWat.nonUR)
 coefficients(TNN.hhn.DHab.DetToposess.nonUR)
+coefficients(TNN.hhn.DHab_S.DetTopo10.nonUR)
 #Very very long time to model (some models took up to 4 hours, but end results look inverse now!)
 
 write.csv(TNNAIC2x, file = "TNNAIC2x.csv")
@@ -396,8 +418,8 @@ save(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN
      TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fits2x.RData")
 save(TNN.hhn.DRgd.sessR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.DetTopo10WR, TNN.hhn.DHab.nonUR, 
          TNN.hhn.DHab.DetTopo10.nonUR, TNN.hhn.DHab.DetToposess.nonUR, TNN.hhn.DHab.S.DetTopo10.nonUR, 
-         TNN.hhn.DHab_S.DetTopo10.nonUR, TNN.hhn.DHab.LamTopoWat.nonUR, TNN.hhn.nonUR,
-     file = "./Tost_Noyon_Nemegt/TNN-nonEuc-fits2xR.RData")
+         TNN.hhn.DHab_S.DetTopo10.nonUR, TNN.hhn.DHab.LamTopoWat.nonUR, 
+        TNN.hhn.nonUR,TNN.hhn.DGC.DetTopo10.nonUGBR, file = "./Tost_Noyon_Nemegt/TNN-nonEuc-fits2xR.RData")
 
 load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2x.RData")
 
