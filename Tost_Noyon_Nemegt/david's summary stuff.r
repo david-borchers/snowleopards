@@ -25,11 +25,14 @@ coefficients(Nemegt.hhn.DHab.nonU.LamW2xR)
 #This is only where non Euc goes marginally negative!
 
 load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2xR.RData")
-TNNAIC2xR<-AIC(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN.hhn.DRgd, 
-              TNN.hhn.DHab.nonU,TNN.hhn.DRgd.sess.DetW,TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab_S.DetTopo10.nonU,
-              TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU)
+
+TNNAIC2xR<- AIC(TNN.hhn.DRgd.sessR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.DetTopo10WR, TNN.hhn.DHab.nonUR, 
+                TNN.hhn.DHab.DetTopo10.nonUR, TNN.hhn.DHab.DetToposess.nonUR, 
+                TNN.hhn.DHab.S.DetTopo10.nonUR, TNN.hhn.DHab_S.DetTopo10.nonUR, 
+                TNN.hhn.DHab.LamTopoWat.nonUR, TNN.hhn.nonUR,TNN.hhn.DGC.DetTopo10.nonUGBR,
+                TNN.hhn.DGB.DetTopo10.nonUR)
 TNNAIC2xR
-coefficients(TNN.hhn.DHab.DetTopo10.nonU)
+coefficients(TNN.hhn.DGC.DetTopo10.nonUGBR)
 
 TNN.hhn.DHabS3.nonU
 Tost.hhn.DHab.nonU.GBGCx
