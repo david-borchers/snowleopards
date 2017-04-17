@@ -1,10 +1,11 @@
 load("./Tost/Tost-nonEuc-fitsx.RData")
+
 AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
             Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
             Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx)
 
 AICTost
-coefficients(Tost.hhn.DHab.nonU.GBGCx)
+coefficients(Tost.hhn.DHab.nonU.GBx)
 
 load("./Noyon2013/Noyon-nonEuc-fitsx.RData") #Final round analysis (with water and topography)
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
@@ -14,15 +15,16 @@ AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetR
 AICNoyon
 coefficients(Noyon.hhn.DHab.nonU.GBx)
 
-load("./Nemegt/Nemegt-nonEuc-fit2x.RData")
-NemegtAIC2x=AIC(Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, 
-                Nemegt.hhn.DHab.detrgd012x, Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, 
-                Nemegt.hhn.DHab.nonU.GB2x, Nemegt.hhn.DHab.nonU.LamTopo2x, Nemegt.hhn.DHab.nonU.LamW2x,
-                Nemegt.hhn.DHab.nonU.LamTopoW2x)
-NemegtAIC2x
-coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
+load("./Nemegt/Nemegt-nonEuc-fit2xR.RData")
+NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt.hhn.DHab.detrgd102xR, 
+                 Nemegt.hhn.DHab.detrgd012xR, Nemegt.hhn.DHab.nonU2xR, Nemegt.hhn.D.nonU2xR,  
+                 Nemegt.hhn.DHab.nonU.GB2xR, Nemegt.hhn.DHab.nonU.LamTopoR, Nemegt.hhn.DHab.nonU.LamW2xR,
+                 Nemegt.hhn.DHab.nonU.LamTopoW2R)
+NemegtAIC2xR
+coefficients(Nemegt.hhn.DHab.nonU.LamW2xR)
+#This is only where non Euc goes marginally negative!
 
-load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2x.RData")
+load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2xR.RData")
 TNNAIC2x<-AIC(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN.hhn.DRgd, 
               TNN.hhn.DHab.nonU,TNN.hhn.DRgd.sess.DetW,TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab_S.DetTopo10.nonU,
               TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU)

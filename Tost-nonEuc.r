@@ -222,8 +222,8 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 
 AICTost
 
-coefficients(Tost.hhn.DHab.nonU.GBGCx)
 coefficients(Tost.hhn.DHab.nonU.GBx)
+coefficients(Tost.hhn.DHab.nonU.Wx)
 coefficients(Tost.hhn.DHab.nonUx)
 
 

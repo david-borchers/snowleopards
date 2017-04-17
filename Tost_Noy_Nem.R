@@ -416,6 +416,7 @@ coefficients(TNN.hhn.DRgd.sess.DetW)
 save(TNN.hhn.nonU, TNN.hhn.DHab.LamTopoWat.nonU, TNN.hhn.DHab.DetTopo10.nonU,TNN.hhn.DRgd, 
      TNN.hhn.DHab.nonU,TNN.hhn.DRgd.sess.DetW,TNN.hhn.DRgd.DetTopo10W, TNN.hhn.DHab_S.DetTopo10.nonU,
      TNN.hhn.DHab.S.DetTopo10.nonU, TNN.hhn.DHab.DetToposess.nonU, file="./Tost_Noyon_Nemegt/TNN-nonEuc-fits2x.RData")
+
 save(TNN.hhn.DRgd.sessR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.DetTopo10WR, TNN.hhn.DHab.nonUR, 
          TNN.hhn.DHab.DetTopo10.nonUR, TNN.hhn.DHab.DetToposess.nonUR, TNN.hhn.DHab.S.DetTopo10.nonUR, 
          TNN.hhn.DHab_S.DetTopo10.nonUR, TNN.hhn.DHab.LamTopoWat.nonUR, 
