@@ -718,3 +718,5 @@ save(NemegtMask12x,Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.
      Nemegt.hhn.DHab.nonU.LamTopoW2x,file="./Nemegt/Nemegt-nonEuc-fit2x.RData")
 # load fitted objects:
 load("./Nemegt/Nemegt-nonEuc-fit2x.RData")
+
+
