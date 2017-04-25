@@ -6,6 +6,13 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 
 AICTost
 coefficients(Tost.hhn.DHab.nonU.GBx)
+Tost_top<-region.N(Tost.hhn.DHab.nonU.GBx)
+Tost_null<-region.N(Tost.hhnx)
+Tost_Diff=(Tost_null[2,1]-Tost_top[2,1])*100/Tost_null[2,1]
+Tost_Diff
+summary(TostMask1)
+
+D_Tost<-(Tost_top*100/2116.50)
 
 load("./Noyon2013/Noyon-nonEuc-fitsx.RData") #Final round analysis (with water and topography)
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
@@ -15,6 +22,16 @@ AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetR
 AICNoyon
 coefficients(Noyon.hhn.DHab.nonU.GBx)
 
+Noyon_Null<-region.N(Noyon.hhnx)
+Noyon_top<-region.N(Noyon.hhn.DHab.nonU.GBx)
+Noyon_Diff=(Noyon_Null[2,1]-Noyon_top[2,1])*100/Noyon_Null[2,1]
+Noyon_Diff
+
+summary(NoyonMask1)
+
+D_Noyon<-(Noyon_top*100/2481.75)
+
+
 load("./Nemegt/Nemegt-nonEuc-fit2xR.RData")
 NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt.hhn.DHab.detrgd102xR, 
                  Nemegt.hhn.DHab.detrgd012xR, Nemegt.hhn.DHab.nonU2xR, Nemegt.hhn.D.nonU2xR,  
@@ -22,6 +39,18 @@ NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt
                  Nemegt.hhn.DHab.nonU.LamTopoW2R)
 NemegtAIC2xR
 coefficients(Nemegt.hhn.DHab.nonU.LamW2xR)
+Nemegt_Top<-region.N(Nemegt.hhn.DHab.nonU.LamW2xR)
+Nemegt_Null<-region.N(Nemegt.hhn2xR)
+Nemegt_Diff=(Nemegt_Null[2,1]-Nemegt_Top[2,1])*100/Nemegt_Null[2,1]
+Nemegt_Diff
+summary(NemegtMask1)
+
+D_Nemegt<-(Nemegt_Top*100/2145.50)
+
+D_Tost
+D_Noyon
+D_Nemegt
+
 #This is only where non Euc goes marginally negative!
 
 load("./Tost_Noyon_Nemegt/TNN-NonEuc-fits2xR.RData")
@@ -33,6 +62,8 @@ TNNAIC2xR<- AIC(TNN.hhn.DRgd.sessR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.DetTop
                 TNN.hhn.DGB.DetTopo10.nonUR)
 TNNAIC2xR
 coefficients(TNN.hhn.DGC.DetTopo10.nonUGBR)
+coefficients(TNN.hhn.DHab.DetTopo10.nonUR)
+coefficients(TNN.hhn.DGB.DetTopo10.nonUR)
 
 TNN.hhn.DHabS3.nonU
 Tost.hhn.DHab.nonU.GBGCx
@@ -108,5 +139,3 @@ TNN.hhn.DHabS3.nonUi = TNN.hhn.DHabS3a.nonUi
 
 coefficients(TNN.hhn.DHabS3.nonU)
 coefficients(TNN.hhn.DHabS3.nonUi)
-
-
