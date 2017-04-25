@@ -683,13 +683,6 @@ NemegtAIC2xC=AIC(Nemegt.hhn2xC, Nemegt.hhn.detrgd2xC, Nemegt.hhn.DHab2xC, Nemegt
                  Nemegt.hhn.DHab.nonU.GB2xC, Nemegt.hhn.DHab.nonU.LamTopoC, Nemegt.hhn.DHab.nonU.LamW2xC,
                  Nemegt.hhn.DHab.nonU.LamTopoW2C)
 NemegtAIC2xC
-coefficients(Nemegt.hhn.DHab.nonU.LamW2x)
-coefficients(Nemegt.hhn.DHab.nonU.LamW2xC)
-coefficients(Nemegt.hhn.DHab.nonU.LamW2xR)
-
-region.N(Nemegt.hhn.DHab.nonU.LamW2xR)
-region.N(Nemegt.hhn.DHab.nonU.LamW2xC)
-region.N(Nemegt.hhn.DHab.nonU.LamW2x)
 
 write.csv(NemegtAIC2x, file = "AICNemegt2x.csv")
 NemegtSurface2x<-predictDsurface(Nemegt.hhn.DHab.nonU.LamW2x)
@@ -702,15 +695,10 @@ coefficients(Nemegt.hhn.DHab.nonU.GB2xR)
 region.N(Nemegt.hhn.DHab.nonU.LamW2xR)
 region.N(Nemegt.hhn2x)
 
+###   David, top model coefficient for non-Euclidean is negative!
 
 region.N(Nemegt.hhn.DHab.nonU.LamW2x)
 region.N(Nemegt.hhn2x)
-
-save(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt.hhn.DHab.detrgd102xR,
-     Nemegt.hhn.DHab.detrgd012xR, Nemegt.hhn.DHab.nonU2xR, Nemegt.hhn.D.nonU2xR,
-     Nemegt.hhn.DHab.nonU.GB2xR, Nemegt.hhn.DHab.nonU.LamTopoR, Nemegt.hhn.DHab.nonU.LamW2xR,
-     Nemegt.hhn.DHab.nonU.LamTopoW2R, file="./Nemegt/Nemegt-nonEuc-fit2xR.RData")
-load("./Nemegt/Nemegt-nonEuc-fit2xR.RData")
 
 save(NemegtMask12x,Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.hhn.DHab.detrgd102x, 
      Nemegt.hhn.DHab.detrgd012x, Nemegt.hhn.DHab.nonU2x, Nemegt.hhn.D.nonU2x, Nemegt.hhn.DHab.nonU.GBGC2x, 
