@@ -307,7 +307,7 @@ DbetastdGC.z = coefficients(Tost.hhn.DHab.nonU.GBz)["D.stdGC","beta"]
 Nhat.z = sum(exp(Dbeta0.z + DbetastdGC.z*covariates(TostMask1)$stdGC))*cell.area
 Nhat.x;Nhat.y;Nhat.z
 
-# Look at conductances in space (at a point - not quite what it used)
+# Look at conductances in space (at a point - not quite what is used)
 beta.x = coefficients(Tost.hhn.DHab.nonU.GBx)["noneuc.stdBC","beta"]
 noneuc.x = exp(beta.x * covariates(TostMask1)$stdBC)
 beta.y = coefficients(Tost.hhn.DHab.nonU.GBy)["noneuc.stdBC","beta"]
@@ -317,7 +317,7 @@ noneuc.z = exp(beta.z * covariates(TostMask1)$stdBC)
 predmask = TostMask1
 covariates(predmask)$conductance.x = 1/noneuc.x
 covariates(predmask)$conductance.y = noneuc.x
-covariates(predmask)$conductance.z = noneuc.z # this is only approximate
+covariates(predmask)$conductance.z = noneuc.z # this is only approximate (`cause exponent outside mean)
 quartz(h=9,w=4)
 par(mfrow=c(3,1))
 plotcovariate(predmask,covariate="conductance.x",contour=FALSE,col=c("green","red"))
@@ -334,8 +334,15 @@ Dsurf.x = predictDsurface(Tost.hhn.DHab.nonU.GBx, se.D=TRUE, cl.D=TRUE)
 Dsurf.y = predictDsurface(Tost.hhn.DHab.nonU.GBy, se.D=TRUE, cl.D=TRUE)
 Dsurf.z = predictDsurface(Tost.hhn.DHab.nonU.GBz, se.D=TRUE, cl.D=TRUE)
 plotcovariate(Dsurf.x,covariate="D.0",contour=FALSE,asp=1)
+plot(Tost.cams,add=TRUE,detpar=list(pch=19,col="white"));plot(Tost.cams,add=TRUE)
 plotcovariate(Dsurf.y,covariate="D.0",contour=FALSE,asp=1)
+plot(Tost.cams,add=TRUE,detpar=list(pch=19,col="white"));plot(Tost.cams,add=TRUE)
 plotcovariate(Dsurf.z,covariate="D.0",contour=FALSE,asp=1)
+plot(Tost.cams,add=TRUE,detpar=list(pch=19,col="white"));plot(Tost.cams,add=TRUE)
+
+plotcovariate(TostMask1,covariate="stdBC",contour=FALSE,col=c("green","red"),asp=1)
+plot(Tost.cams,add=TRUE,detpar=list(pch=19,col="white"));plot(Tost.cams,add=TRUE)
+
 
 # Plot where the density accounting for the top X% of abudance is
 pc = 25 # Top percentage of abundance to plot
