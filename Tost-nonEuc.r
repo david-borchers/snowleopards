@@ -338,10 +338,10 @@ plotcovariate(Dsurf.y,covariate="D.0",contour=FALSE,asp=1)
 plotcovariate(Dsurf.z,covariate="D.0",contour=FALSE,asp=1)
 
 # Plot where the density accounting for the top X% of abudance is
-ppn = 0.25
-plotNpc(Dsurf.x,ppn,contour=TRUE,boundary=boundaryTost)
-plotNpc(Dsurf.y,ppn,contour=TRUE,boundary=boundaryTost)
-plotNpc(Dsurf.z,ppn,contour=TRUE,boundary=boundaryTost)
+pc = 25 # Top percentage of abundance to plot
+plotNpc(Dsurf.x,pc,contour=TRUE,boundary=boundaryTost)
+plotNpc(Dsurf.y,pc,contour=TRUE,boundary=boundaryTost)
+plotNpc(Dsurf.z,pc,contour=TRUE,boundary=boundaryTost)
 
 
 
