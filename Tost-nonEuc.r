@@ -262,17 +262,85 @@ Nhat1D1.nonU
 # Model with stdGC in D and stdBC in noneuc:
 # -------------------------------------
 Tost.hhn.DHab.nonU.GBx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
-                             model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdBC-1), 
-                             details = list(userdist = userdfn1),
-                             start = list(noneuc = 1))
+                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdBC-1), 
+                                 details = list(userdist = userdfn1),
+                                 start = list(noneuc = 1),trace=0)
+
+Tost.hhn.DHab.nonU.GBy<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                 model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdBC-1), 
+                                 details = list(userdist = userdfn2),
+                                 start = list(noneuc = 1),trace=0)
 
 Tost.hhn.DHab.nonU.GBz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                  model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdBC-1), 
                                  details = list(userdist = mydistFun),
-                                 start = list(noneuc = 1))
+                                 start = list(noneuc = 1),trace=0)
 
 coefficients(Tost.hhn.DHab.nonU.GBz)
+coefficients(Tost.hhn.DHab.nonU.GBy)
 coefficients(Tost.hhn.DHab.nonU.GBx)
+
+# Look at parameter correlations (look at that between sigma and noneuc.stdBC)
+cov2cor(Tost.hhn.DHab.nonU.GBz$beta.vcv)
+cov2cor(Tost.hhn.DHab.nonU.GBy$beta.vcv)
+cov2cor(Tost.hhn.DHab.nonU.GBx$beta.vcv)
+
+# AICs:
+AIC(Tost.hhn.DHab.nonU.GBx,Tost.hhn.DHab.nonU.GBy,Tost.hhn.DHab.nonU.GBz)
+
+# Abundances
+Nest.x = region.N(Tost.hhn.DHab.nonU.GBx)
+Nest.y = region.N(Tost.hhn.DHab.nonU.GBy)
+Nest.z = region.N(Tost.hhn.DHab.nonU.GBz)
+Nest.x;Nest.y;Nest.z
+
+# Double-check abundances manually
+cell.area = 25
+Dbeta0.x = coefficients(Tost.hhn.DHab.nonU.GBx)["D","beta"]
+DbetastdGC.x = coefficients(Tost.hhn.DHab.nonU.GBx)["D.stdGC","beta"]
+Nhat.x = sum(exp(Dbeta0.x + DbetastdGC.x*covariates(TostMask1)$stdGC))*cell.area
+Dbeta0.y = coefficients(Tost.hhn.DHab.nonU.GBy)["D","beta"]
+DbetastdGC.y = coefficients(Tost.hhn.DHab.nonU.GBy)["D.stdGC","beta"]
+Nhat.y = sum(exp(Dbeta0.y + DbetastdGC.y*covariates(TostMask1)$stdGC))*cell.area
+Dbeta0.z = coefficients(Tost.hhn.DHab.nonU.GBz)["D","beta"]
+DbetastdGC.z = coefficients(Tost.hhn.DHab.nonU.GBz)["D.stdGC","beta"]
+Nhat.z = sum(exp(Dbeta0.z + DbetastdGC.z*covariates(TostMask1)$stdGC))*cell.area
+Nhat.x;Nhat.y;Nhat.z
+
+# Look at conductances in space (at a point - not quite what it used)
+beta.x = coefficients(Tost.hhn.DHab.nonU.GBx)["noneuc.stdBC","beta"]
+noneuc.x = exp(beta.x * covariates(TostMask1)$stdBC)
+beta.y = coefficients(Tost.hhn.DHab.nonU.GBy)["noneuc.stdBC","beta"]
+noneuc.y = exp(beta.y * covariates(TostMask1)$stdBC)
+beta.z = coefficients(Tost.hhn.DHab.nonU.GBz)["noneuc.stdBC","beta"]
+noneuc.z = exp(beta.z * covariates(TostMask1)$stdBC)
+predmask = TostMask1
+covariates(predmask)$conductance.x = 1/noneuc.x
+covariates(predmask)$conductance.y = noneuc.x
+covariates(predmask)$conductance.z = noneuc.z # this is only approximate
+quartz(h=9,w=4)
+par(mfrow=c(3,1))
+plotcovariate(predmask,covariate="conductance.x",contour=FALSE,col=c("green","red"))
+plotcovariate(predmask,covariate="conductance.y",contour=FALSE,col=c("green","red"))
+plotcovariate(predmask,covariate="conductance.z",contour=FALSE,col=c("green","red"))
+quartz(h=9,w=4)
+par(mfrow=c(3,1))
+hist(covariates(predmask)$conductance.x)
+hist(covariates(predmask)$conductance.y)
+hist(covariates(predmask)$conductance.z)
+
+# Plot densit surfaces
+Dsurf.x = predictDsurface(Tost.hhn.DHab.nonU.GBx, se.D=TRUE, cl.D=TRUE)
+Dsurf.y = predictDsurface(Tost.hhn.DHab.nonU.GBy, se.D=TRUE, cl.D=TRUE)
+Dsurf.z = predictDsurface(Tost.hhn.DHab.nonU.GBz, se.D=TRUE, cl.D=TRUE)
+plotcovariate(Dsurf.x,covariate="D.0",contour=FALSE,asp=1)
+plotcovariate(Dsurf.y,covariate="D.0",contour=FALSE,asp=1)
+plotcovariate(Dsurf.z,covariate="D.0",contour=FALSE,asp=1)
+
+
+
+
+
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU.GBGC, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU.GBGC,asp=1,contour=FALSE,col=terrain.colors(40))
 plot(Tost.cams,add=TRUE)

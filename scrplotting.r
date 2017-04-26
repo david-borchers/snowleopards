@@ -320,3 +320,23 @@ add.dist.to=function(mask,covariate,distance.to,dname=NULL,overwrite=FALSE){
     return(mask)
   } else stop(paste("No covariate called",covariate,"in mask."))
 }
+
+
+# Function below plots the distribution of the top pc proportion of the population density
+# (where 0<pc<1), go give some idea of how concentrated it is in space
+plotNpc = function(Dmask,pc,boundary=NULL,binary=FALSE,...) {
+  if(!inherits(Dmask,"Dsurface")) stop ("Dmask must be of class Dsurface.")
+  pc = 1-pc
+  D = covariates(Dmask)$D.0
+  ord = order(D)
+  F = cumsum(D[ord])/sum(D)
+  keep = which(F>=pc)
+  covariates(Dmask)$Dpc = rep(NA,length(covariates(Dmask)$D.0))
+  covariates(Dmask)$Dpc[ord[keep]] = covariates(Dmask)$D.0[ord[keep]]
+  if(binary) covariates(Dmask)$Dpc[ord[keep]] = 1
+  plotcovariate(Dmask,covariate="Dpc",...)
+  if(!is.null(boundary)) plot(boundary,add=TRUE)
+}
+# Example
+# plotNpc(Dsurf.x,0.5,contour=TRUE,boundary=boundaryTost)
+
