@@ -322,21 +322,27 @@ add.dist.to=function(mask,covariate,distance.to,dname=NULL,overwrite=FALSE){
 }
 
 
-# Function below plots the distribution of the top pc proportion of the population density
-# (where 0<pc<1), go give some idea of how concentrated it is in space
-plotNpc = function(Dmask,pc,boundary=NULL,binary=FALSE,...) {
+#' @title Plot top proportion of density
+#' @param Dmask is object of class "Dsurface".
+#' @param ppn is top proporiton of the density of abundance to plot. Must be betwen 0 and 1. 
+#' For example, if ppn=0.25, the distribution of the highest density regions that account for 
+#' 25% of the total abundance is plotted.
+#' @param boundary is a SpatialPolygonsDataFrame defining the boundary of the sruvey region.
+#' @param binar is a variable, which if true, causes the top ppn to be assigned a single 
+#' density value of 1, rather than its actual density.
+plotNpc = function(Dmask,ppn,boundary=NULL,binary=FALSE,...) {
   if(!inherits(Dmask,"Dsurface")) stop ("Dmask must be of class Dsurface.")
-  pc = 1-pc
+  ppn = 1-ppn
   D = covariates(Dmask)$D.0
   ord = order(D)
   F = cumsum(D[ord])/sum(D)
-  keep = which(F>=pc)
-  covariates(Dmask)$Dpc = rep(NA,length(covariates(Dmask)$D.0))
-  covariates(Dmask)$Dpc[ord[keep]] = covariates(Dmask)$D.0[ord[keep]]
-  if(binary) covariates(Dmask)$Dpc[ord[keep]] = 1
-  plotcovariate(Dmask,covariate="Dpc",...)
+  keep = which(F>=ppn)
+  covariates(Dmask)$Dppn = rep(NA,length(covariates(Dmask)$D.0))
+  covariates(Dmask)$Dppn[ord[keep]] = covariates(Dmask)$D.0[ord[keep]]
+  if(binary) covariates(Dmask)$Dppn[ord[keep]] = 1
+  plotcovariate(Dmask,covariate="Dppn",...)
   if(!is.null(boundary)) plot(boundary,add=TRUE)
 }
 # Example
-# plotNpc(Dsurf.x,0.5,contour=TRUE,boundary=boundaryTost)
+# plotNppn(Dsurf.x,0.5,contour=TRUE,boundary=boundaryTost)
 
