@@ -329,7 +329,7 @@ hist(covariates(predmask)$conductance.x)
 hist(covariates(predmask)$conductance.y)
 hist(covariates(predmask)$conductance.z)
 
-# Plot densit surfaces
+# Plot density surfaces
 Dsurf.x = predictDsurface(Tost.hhn.DHab.nonU.GBx, se.D=TRUE, cl.D=TRUE)
 Dsurf.y = predictDsurface(Tost.hhn.DHab.nonU.GBy, se.D=TRUE, cl.D=TRUE)
 Dsurf.z = predictDsurface(Tost.hhn.DHab.nonU.GBz, se.D=TRUE, cl.D=TRUE)
@@ -337,7 +337,11 @@ plotcovariate(Dsurf.x,covariate="D.0",contour=FALSE,asp=1)
 plotcovariate(Dsurf.y,covariate="D.0",contour=FALSE,asp=1)
 plotcovariate(Dsurf.z,covariate="D.0",contour=FALSE,asp=1)
 
-
+# Plot where the density accounting for the top X% of abudance is
+ppn = 0.25
+plotNpc(Dsurf.x,ppn,contour=TRUE,boundary=boundaryTost)
+plotNpc(Dsurf.y,ppn,contour=TRUE,boundary=boundaryTost)
+plotNpc(Dsurf.z,ppn,contour=TRUE,boundary=boundaryTost)
 
 
 

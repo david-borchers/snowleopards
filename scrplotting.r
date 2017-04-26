@@ -195,12 +195,12 @@ plot.er.fit=function(scrfit,dmax,binwidth,lwd=2,xlab="x",ylab="y",
 #' @param contour is a logical, TRUE if want contour plots on image
 #' @param ... other arguments to be passed to \code{prep4image}
 #' @export
-plotcovariate=function(mask,covariate,contour=TRUE,key=TRUE, ...) {
+plotcovariate=function(mask, covariate, ...) {
   cnum=which(names(covariates(mask))==covariate)
   if(is.null(cnum)) stop(paste("No covariate(s) called",covariate))
   if(length(cnum)>1) warning("Can only plot one covariate at a time. First covariate being plotted.")
   dat=data.frame(x=mask$x,y=mask$y,z=covariates(mask)[[cnum]])
-  prep4image(dat,contour=contour,key=key,...)
+  prep4image(dat,...)
 }
 
 #' @title Plots image (and optionally contours) of density from Dsurface object
