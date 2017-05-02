@@ -153,6 +153,10 @@ Tost.hhn.DHab.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                               model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                               details = list(userdist = mydistFun),
                               start = list(noneuc = 1)) #-1 gets rid of the intercept
+Tost.hhn.DHab.a0.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                   model=list(D~stdGC, a0~1, sigma~1, noneuc ~ stdGC -1), 
+                                   details = list(userdist = mydistFun),
+                                   start = list(noneuc = 1))
 
 coefficients(Tost.hhn.DHab.nonUx)
 coefficients(Tost.hhn.DHab.nonUz)
@@ -170,6 +174,13 @@ Tost.hhn.DHab.nonU.Topo10z<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMas
                                      model=list(D~stdGC, lambda0~Topo, sigma~1, noneuc ~ stdGC -1), 
                                      details = list(userdist = mydistFun),
                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
+Tost.hhn.DHab.a0Topo.nonU<-secr.fit(all.data.Tost,detectfn="HHN", mask=TostMask1,
+                                    model=list(D~stdGC, a0~Topo, sigma~1, noneuc~stdGC -1),
+                                    details = list(userdist=mydistFun), start = list(noneuc=1))
+Tost.DHab.a0.STopo.nonU<-secr.fit(all.data.Tost,detectfn="HHN", mask=TostMask1,
+                                    model=list(D~stdGC, a0~1, sigma~Topo, noneuc~stdGC -1),
+                                    details = list(userdist=mydistFun), start = list(noneuc=1))
+
 coefficients(Tost.hhn.DHab.nonU.Topo10x)
 coefficients(Tost.hhn.DHab.nonU.Topo10z)
 
@@ -185,6 +196,16 @@ Tost.hhn.DHab.nonU.Wz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 details = list(userdist = mydistFun),
                                 start = list(noneuc = 1)) #-1 gets rid of the intercept
 
+Tost.hhn.DHab.a0W.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                model=list(D~stdGC, a0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                details = list(userdist = mydistFun),
+                                start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+Tost.hhn.DHab.a0SW.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                  model=list(D~stdGC, a0~1, sigma~Water, noneuc ~ stdGC -1), 
+                                  details = list(userdist = mydistFun),
+                                  start = list(noneuc = 1)) #-1 gets rid of the intercept
+
 coefficients(Tost.hhn.DHab.nonU.Wx)
 coefficients(Tost.hhn.DHab.nonU.Wz)
 
@@ -199,6 +220,17 @@ Tost.hhn.DHab.nonU.T01Wz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1
                                    model=list(D~stdGC, lambda0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
                                    details = list(userdist = mydistFun),
                                    start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+Tost.hhn.DHab.a0TW.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                   model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                   details = list(userdist = mydistFun),
+                                   start = list(noneuc = 1))
+
+Tost.hhn.DHab.a0ST_W.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                   model=list(D~stdGC, a0~1, sigma~Topo+Water, noneuc ~ stdGC -1), 
+                                   details = list(userdist = mydistFun),
+                                   start = list(noneuc = 1))
+
 
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -222,6 +254,11 @@ Tost.hhn.D.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                            details = list(userdist = mydistFun),
                            start = list(noneuc = 1))
 
+Tost.hhn.D.a0.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                           model=list(D~1, a0~1, sigma~1, 
+                                      noneuc ~ stdGC -1), 
+                           details = list(userdist = mydistFun),
+                           start = list(noneuc = 1))
 
 # Try with flat density, water and non-Euclidian:
 Tost.hhn.D.DetW.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
@@ -236,6 +273,19 @@ Tost.hhn.D.DetW.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 details = list(userdist = mydistFun),
                                 start = list(noneuc = 1))
 
+Tost.hhn.a0W.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                model=list(D~1, a0~Water, sigma~1, 
+                                           noneuc ~ stdGC -1), 
+                                details = list(userdist = mydistFun),
+                                start = list(noneuc = 1))
+
+Tost.hhn.a0SW.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                            model=list(D~1, a0~1, sigma~Water, 
+                                       noneuc ~ stdGC -1), 
+                            details = list(userdist = mydistFun),
+                            start = list(noneuc = 1))
+
+
 # Try with flat density, Topo and non-Euclidian:
 Tost.hhn.D.DetT10.nonUx<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                 model=list(D~1, lambda0~Topo, sigma~1, 
@@ -249,6 +299,11 @@ Tost.hhn.D.DetT10.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                   details = list(userdist = mydistFun),
                                   start = list(noneuc = 1))
 
+Tost.hhn.D.a0Topo.nonUz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                  model=list(D~1, a0~Topo, sigma~1, noneuc~stdGC -1),
+                                  details = list(userdist = mydistFun), start = list(noneuc=1))
+
+coefficients(Tost.hhn.D.a0Topo.nonUz)
 coefficients(Tost.hhn.D.nonU)
 TostSurface.D.nonU<-predictDsurface(Tost.hhn.D.nonU, se.D=TRUE, cl.D=TRUE)
 plot(TostSurface.D.nonU,asp=1,contour=FALSE,col=terrain.colors(40))
@@ -373,6 +428,25 @@ Tost.hhn.DGB.nonU.GCz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
                                  details = list(userdist = mydistFun),
                                  start = list(noneuc = 1))
 
+# Model with stdGC in nonEuc and Sigma affected by Topography
+Tost.hhn.SigTopo.DGC.nonU.GCz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                model=list(D~stdGC, lambda0~1, sigma~Topo, noneuc ~stdGC-1), 
+                                details = list(userdist = mydistFun),
+                                start = list(noneuc = 1))
+
+Tost.a0.SigTopo.DGC.nonU.GCz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                        model=list(D~stdGC, a0~1, sigma~Topo, noneuc ~stdGC-1), 
+                                        details = list(userdist = mydistFun),
+                                        start = list(noneuc = 1))
+
+Tost.a0Topo.DGC.nonU.GCz<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask1,
+                                       model=list(D~stdGC, a0~Topo, sigma~1, noneuc ~stdGC-1), 
+                                       details = list(userdist = mydistFun),
+                                       start = list(noneuc = 1))
+
+AIC(Tost.a0Topo.DGC.nonU.GCz, Tost.a0.SigTopo.DGC.nonU.GCz, Tost.hhn.SigTopo.DGC.nonU.GCz)
+coefficients(Tost.a0.SigTopo.DGC.nonU.GCz)
+
 coefficients(Tost.hhn.DGB.nonU.GCx)
 coefficients(Tost.hhn.DGB.nonU.GCz)
 TostSurface.nonU<-predictDsurface(Tost.hhn.DHab.nonU.GBGCx, se.D=TRUE, cl.D=TRUE)
@@ -392,22 +466,22 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 
 AICTostz=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUz, 
               Tost.hhn.DHab.nonU.Topo10z, Tost.hhn.DHab.nonU.Wz, Tost.hhn.DHab.nonU.T01Wz, Tost.hhn.D.nonUz, 
-              Tost.hhn.D.DetW.nonUz, Tost.hhn.D.DetT10.nonUz, Tost.hhn.DHab.nonU.GBz, Tost.hhn.DGB.nonU.GCz)
+              Tost.hhn.D.DetW.nonUz, Tost.hhn.D.DetT10.nonUz, Tost.hhn.SigTopo.DGC.nonU.GCz,
+             Tost.a0Topo.DGC.nonU.GCz, Tost.a0.SigTopo.DGC.nonU.GCz, Tost.hhn.D.a0Topo.nonUz,
+             Tost.hhn.DHab.a0.nonUz)
+
+save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUz, 
+  Tost.hhn.DHab.nonU.Topo10z, Tost.hhn.DHab.nonU.Wz, Tost.hhn.DHab.nonU.T01Wz, Tost.hhn.D.nonUz, 
+  Tost.hhn.D.DetW.nonUz, Tost.hhn.D.DetT10.nonUz, Tost.hhn.SigTopo.DGC.nonU.GCz,
+  Tost.a0Topo.DGC.nonU.GCz, Tost.a0.SigTopo.DGC.nonU.GCz, Tost.hhn.D.a0Topo.nonUz,
+  Tost.hhn.DHab.a0.nonUz, file="./Tost/Tost-nonEuc-fitsz.RData")
 
 AICTostz
 AICTost
 
-coefficients(Tost.hhn.DHab.nonU.GBx)
-coefficients(Tost.hhn.DHab.nonU.GBz)
-
-coefficients(Tost.hhn.DHab.nonU.Wx)
-coefficients(Tost.hhn.DHab.nonU.Wz)
-
-coefficients(Tost.hhn.DHab.nonUx)
-coefficients(Tost.hhn.DHab.nonUz)
-
-
-region.N(Tost.hhn.DHab.nonU.GBx)
+coefficients(Tost.hhn.D.DetT10.nonUz)
+coefficients(Tost.a0.SigTopo.DGC.nonU.GCz)
+region.N(Tost.hhn.D.DetT10.nonUz)
 region.N(Tost.hhn.DHab.nonU.GBz)
 
 write.csv(AICTost, file = "AICTostx.csv")
