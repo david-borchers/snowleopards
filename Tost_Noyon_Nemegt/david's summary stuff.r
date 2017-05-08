@@ -6,6 +6,9 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 
 AICTost
 coefficients(Tost.hhn.DHab.nonU.GBx)
+FXTost<-fx.total(Tost.hhnx)
+plot(FXTost, covariate = 'D.sum', breaks = seq(0,10e-5,1e-5), poly = FALSE)
+
 Tost_top<-region.N(Tost.hhn.DHab.nonU.GBx)
 Tost_null<-region.N(Tost.hhnx)
 Tost_Diff=(Tost_null[2,1]-Tost_top[2,1])*100/Tost_null[2,1]
