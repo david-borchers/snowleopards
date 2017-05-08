@@ -468,8 +468,11 @@ AICTostz=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx,
               Tost.hhn.DHab.nonU.Topo10z, Tost.hhn.DHab.nonU.Wz, Tost.hhn.DHab.nonU.T01Wz, Tost.hhn.D.nonUz, 
               Tost.hhn.D.DetW.nonUz, Tost.hhn.D.DetT10.nonUz, Tost.hhn.SigTopo.DGC.nonU.GCz,
              Tost.a0Topo.DGC.nonU.GCz, Tost.a0.SigTopo.DGC.nonU.GCz, Tost.hhn.D.a0Topo.nonUz,
-             Tost.hhn.DHab.a0.nonUz, criterion = "AIC")
-AICTostz(criterion = "AIC")
+             Tost.hhn.DHab.a0.nonUz, criterion = "AICc")
+AICTostz
+AICTost
+AICTostcoefficients(Tost.hhn.DHab.nonU.GBx)
+coefficients(Tost.hhn.DHab.nonU.Topo10z)
 
 save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUz, 
   Tost.hhn.DHab.nonU.Topo10z, Tost.hhn.DHab.nonU.Wz, Tost.hhn.DHab.nonU.T01Wz, Tost.hhn.D.nonUz, 
