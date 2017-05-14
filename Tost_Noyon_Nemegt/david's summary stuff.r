@@ -6,6 +6,7 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 
 AICTost
 coefficients(Tost.hhn.DHab.nonU.GBx)
+region.N(Tost.hhn.DHab.nonU.GBx)
 FXTost<-fx.total(Tost.hhnx)
 plot(FXTost, covariate = 'D.sum', breaks = seq(0,10e-5,1e-5), poly = FALSE)
 
@@ -24,6 +25,7 @@ AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetR
              Noyon.hhn.DHab.nonU.GBx, Noyon.hhn.DHab.nonU.GBGCx, Noyon.hhn.DHab.DetRgd10x)
 AICNoyon
 coefficients(Noyon.hhn.DHab.nonU.GBx)
+region.N(Noyon.hhn.DHab.nonU.GBx)
 
 Noyon_Null<-region.N(Noyon.hhnx)
 Noyon_top<-region.N(Noyon.hhn.DHab.nonU.GBx)

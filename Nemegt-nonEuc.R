@@ -634,6 +634,11 @@ Nemegt.hhn.DHab.nonU.LamW2xR<-secr.fit(all.data.Nemegt_R, detectfn="HHN", mask=N
                                       details = list(userdist = userdfn1),
                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
 
+Nemegt.hhn.DHab.nonU.GB.LamW2xR<-secr.fit(all.data.Nemegt_R, detectfn="HHN", mask=NemegtMask12x,
+                                       model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdBC -1), 
+                                       details = list(userdist = userdfn1),
+                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
 Nemegt.hhn.DHab.nonU.LamW2xC<-secr.fit(all.data.Nemegt_C, detectfn="HHN", mask=NemegtMask12x,
                                        model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                                        details = list(userdist = userdfn1),
@@ -678,6 +683,8 @@ NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt
               Nemegt.hhn.DHab.nonU.GB2xR, Nemegt.hhn.DHab.nonU.LamTopoR, Nemegt.hhn.DHab.nonU.LamW2xR,
               Nemegt.hhn.DHab.nonU.LamTopoW2R)
 NemegtAIC2xR
+coefficients(Nemegt.hhn.DHab.nonU.LamW2xR)
+region.N(Nemegt.hhn.DHab.nonU.LamW2xR)
 
 NemegtAIC2xC=AIC(Nemegt.hhn2xC, Nemegt.hhn.detrgd2xC, Nemegt.hhn.DHab2xC, Nemegt.hhn.DHab.detrgd102xC, 
                  Nemegt.hhn.DHab.detrgd012xC, Nemegt.hhn.DHab.nonU2xC, Nemegt.hhn.D.nonU2xC,  
