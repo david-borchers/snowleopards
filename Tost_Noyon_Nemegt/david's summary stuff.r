@@ -8,7 +8,26 @@ AICTost
 coefficients(Tost.hhn.DHab.nonU.GBx)
 region.N(Tost.hhn.DHab.nonU.GBx)
 FXTost<-fx.total(Tost.hhnx)
-plot(FXTost, covariate = 'D.sum', breaks = seq(0,10e-5,1e-5), poly = FALSE)
+# Plot using plot.Dsurface from secr 
+# (Note scrplotting.r also has a function called plot.Dsurface, but it has diffent arguments.)
+secr:::plot.Dsurface(FXTost, covariate = 'D.sum', breaks = seq(0,10e-5,1e-5), poly = FALSE)
+plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
+plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
+
+# Plot using plotcovariate from secrplotting.r
+plotcovariate(FXTost, covariate = 'D.sum',xaxt="n",yaxt="n",xlab="",ylab="",bty="n",contour=FALSE)
+plotMaskEdge(Tost.hhn.DHab.nonU.GBx$mask,add=TRUE)
+plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
+plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
+# Compare to density plot:
+TostDhat = predictDsurface(Tost.hhn.DHab.nonU.GBx)
+covariates(TostDhat)$logD.0 = log(covariates(TostDhat)$D.0)
+plotcovariate(TostDhat, covariate = 'logD.0',xaxt="n",yaxt="n",xlab="",ylab="",bty="n",contour=FALSE)
+plotMaskEdge(Tost.hhn.DHab.nonU.GBx$mask,add=TRUE)
+plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
+plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
+
+
 
 Tost_top<-region.N(Tost.hhn.DHab.nonU.GBx)
 Tost_null<-region.N(Tost.hhnx)

@@ -1,3 +1,184 @@
+noneucdists = function(masknu,userfn,covariate=NULL) {
+  if(!is.element("noneuc",names(covariates(masknu)))) stop("Need a mask covariate called `noneuc'.")
+  if(!is.character(covariate)) stop("Argument `covariate' must be a character.")
+  if(!is.null(covariate) & !is.element(covariate,names(covariates(masknu)))) 
+    stop(paste("No covariate called",covariate,"in the mask"))
+  f = match.fun(userfn)
+  uNU = range(covariates(masknu)$noneuc)
+  loNUind = which(covariates(masknu)$noneuc==uNU[1])[1]
+  hiNUind = which(covariates(masknu)$noneuc==uNU[2])[1]
+  lonu = covariates(masknu)$noneuc[loNUind]
+  hinu = covariates(masknu)$noneuc[hiNUind]
+  if(!is.null(covariate)) {
+    covcol = which(names(covariates(masknu))==covariate)
+    locov = covariates(masknu)[,covcol][loNUind]
+    hicov = covariates(masknu)[,covcol][hiNUind]
+  }
+  # make mask with two points, distance 2 apart
+  dets = trap.builder(frame=data.frame(x=c(-2,2),y=c(0,0)),method="all")
+  msk = make.mask(dets,buffer=2, spacing=1)
+  # calculate dists for lo-lo, lo-hi, hi-lo, hi-hi
+  covariates(msk) = data.frame(noneuc=rep(c(lonu,hinu,hinu,lonu,lonu,rep(0,dim(msk)[1]-5))))
+  alldists = f(as.matrix(msk),as.matrix(msk),msk)
+  dists = c(alldists[1,2],alldists[2,3],alldists[3,4],alldists[4,5])
+  distnames = c("Lo.noneuc-Hi.noneuc","Hi.noneuc-Hi.noneuc","Hi.noneuc-Lo.noneuc","Lo.noneuc-Lo.noneuc")
+  if(!is.null(covariate)) {
+    dists=matrix(rep(dists,5),nrow=5)
+    dists[2,] = c(lonu,hinu,hinu,lonu)
+    dists[3,] = c(hinu,hinu,lonu,lonu)
+    dists[4,] = c(locov,hicov,hicov,locov)
+    dists[5,] = c(hicov,hicov,locov,locov)
+    row.names(dists) = c("Distance","from.noneuc","to.noneuc",paste("from.",covariate,sep=""),paste("to.",covariate,sep=""))
+    colnames(dists) = distnames
+  } else {
+    dists=matrix(rep(dists,3),nrow=3)
+    dists[2,] = c(lonu,hinu,hinu,lonu)
+    dists[3,] = c(hinu,hinu,lonu,lonu)
+    row.names(dists) = c("Distance","from.noneuc","to.noneuc")
+    colnames(dists) = distnames
+  }
+  dists
+}
+
+#' @title Least-cost path plot
+#'
+#' @description
+#'  Plots 
+#'  Requires packages secr, raster, gdistance, fields, igraph
+#'  
+#' @param mask A mask with covariate `noneuc` (obtained using \code{predictDsurface})
+#' @param transitionFunction A user-defined function for calculating conductance between points 
+#' (see function \code{transition} of the \code{gdistance} package).
+#' 'userdfn1' in the \code{secr} vignette 'secr-noneuclidean.pdf', for example.)
+#' @param covariate The name (a character) of a covariate to plot as an image plot
+#' (typically because 'noneuc' depends on it).
+#' @param n number of least-cost paths to plot
+#' @param linecol color of least cost path line
+#' @param directions parameter of function \code{transition}
+#' @param symm parameter of function \code{transition}
+#' @param directed parameter of function \code{transition}
+#' @param ... arguments to function \code{plotcovariate}, which is used to plot the image.
+#' 
+#' @examples 
+#' lcpathplot(Dhat.Nemegt,"stdBC",userdfun=function(x) 1/x,n=5,contour=FALSE,col=c("orange","brown"),key=FALSE, linecol="white",xaxt="n",yaxt="n",xlab="",ylab="",bty="n",asp=1)
+
+lcpathplot = function(mask,transitionFunction,covariate="noneuc",n=1,linecol="white", 
+                      directions=16, symm=TRUE,directed=FALSE,...) {
+  
+  if(!is.element("noneuc",names(covariates(mask))))
+    stop("Must have 'noneuc' as one of the mask covariates. It is not there.")
+  if(!is.element(covariate,names(covariates(mask))))
+    stop(paste("Invalid covariate: '",covariate,"'"," is not the name of one of the mask covariates.",sep=""))
+  rastermask = raster(mask,"noneuc") # make raster with covariates(mask)$noneuc as values of pixels
+  
+  transfun=match.fun(transitionFunction)
+  
+  coords = coordinates(rastermask) # lookup table for vertex coordinates
+  # secr models conductance (sigma) with a log link. Line below assumes that $noneuc is on linear predictor scale 
+  # tr1<-transition(rastermask,transitionFunction=function(x) exp(lp(x)),directions=directions,symm=symm)
+  tr1<-transition(rastermask,transitionFunction=transfun,directions=directions,symm=symm)
+  tr1CorrC<-geoCorrection(tr1,type="c",multpl=FALSE,scl=FALSE)
+  #costs1<-costDistance(tr1CorrC,pts)
+  
+  plotcovariate(mask,covariate,...)
+  
+  dists = rep(NA,n) # to keep least-cost path distances in
+  
+  for(i in 1:n) {
+    fromind = nearesttrap(unlist(locator(1)), mask)
+    toind = nearesttrap(unlist(locator(1)), mask)
+    from = c(x=mask$x[fromind],y=mask$y[fromind])
+    to = c(x=mask$x[toind],y=mask$y[toind])
+    from=matrix(from,ncol=2)
+    to=matrix(to,ncol=2)
+    npts=dim(from)[1]
+    nptsto=dim(to)[1]
+    if(nptsto != npts) stop("Must have same number of points in 'from' as in 'to'.")
+    if(npts>1) pts = closest_coords(from[i,],to[i,],rastermask)
+    else pts = closest_coords(from,to,rastermask)
+    vpts = get_vertices(pts,rastermask)
+    
+    trmat=summary(transitionMatrix(tr1CorrC))
+    #cbind(trmat,1/trmat$x)
+    #    rel=data.frame(from=trmat$i,to=trmat$j,weight=1/trmat$x)
+    rel=data.frame(from=trmat$i,to=trmat$j,weight=trmat$x)
+    #rel
+    g = graph_from_data_frame(rel,directed=directed,vertices=NULL)
+    #    attributes(g)$noneuc=1/trmat$x
+    #    E(g)$weight=1/trmat$x
+    attributes(g)$noneuc=trmat$x
+    E(g)$weight=trmat$x
+    #vertices = as_data_frame(g, what="vertices")
+    #edges = as_data_frame(g, what="edges")
+    svert=which(names(V(g))==vpts[1])
+    evert=which(names(V(g))==vpts[2])
+    spath=as.numeric(names(shortest_paths(g,from=svert,to=evert,weights=E(g)$weight)$vpath[[1]]))
+    dists[i]=igraph:::distances(g,v=svert,to=evert,weights=attributes(g)$noneuc)
+    
+    nppts=length(spath)
+    segments(coords[spath[-nppts],1],coords[spath[-nppts],2],coords[spath[-1],1],coords[spath[-1],2],col=linecol,lwd=lwd)
+    points(coords[spath[c(1,nppts)],],pch=19,col="white",cex=1.5)
+    points(coords[spath[c(1,nppts)],],pch=19,col=c("green","red"),cex=0.75)
+  }
+  
+  invisible(dists)
+}
+
+#' @title Least-cost distance summary
+#'
+#' @description
+#'  Tabulates least-cost distance between smallest and largest `noneuc` values on mask
+#'  Requires packages secr, raster, gdistance, fields, igraph
+#'  
+#' @param masknu A mask with covariate `noneuc` (obtained using \code{predictDsurface})
+#' @param userfn A user-defined function for calculating least-cost distances (see function 
+#' 'userdfn1' in the \code{secr} vignette 'secr-noneuclidean.pdf', for example.)
+#' @param covariate The name (a character) of a covariate to summarise with the distances 
+#' (typically because 'noneuc' depends on it).
+#' 
+noneucdists = function(masknu,userfn,covariate=NULL) {
+  if(!is.element("noneuc",names(covariates(masknu)))) stop("Need a mask covariate called `noneuc'.")
+  if(!is.character(covariate)) stop("Argument `covariate' must be a character.")
+  if(!is.null(covariate) & !is.element(covariate,names(covariates(masknu)))) 
+    stop(paste("No covariate called",covariate,"in the mask"))
+  f = match.fun(userfn)
+  uNU = range(covariates(masknu)$noneuc)
+  loNUind = which(covariates(masknu)$noneuc==uNU[1])[1]
+  hiNUind = which(covariates(masknu)$noneuc==uNU[2])[1]
+  lonu = covariates(masknu)$noneuc[loNUind]
+  hinu = covariates(masknu)$noneuc[hiNUind]
+  if(!is.null(covariate)) {
+    covcol = which(names(covariates(masknu))==covariate)
+    locov = covariates(masknu)[,covcol][loNUind]
+    hicov = covariates(masknu)[,covcol][hiNUind]
+  }
+  # make mask with two points, distance 2 apart
+  dets = trap.builder(frame=data.frame(x=c(-2,2),y=c(0,0)),method="all")
+  msk = make.mask(dets,buffer=2, spacing=1)
+  # calculate dists for lo-lo, lo-hi, hi-lo, hi-hi
+  covariates(msk) = data.frame(noneuc=rep(c(lonu,hinu,hinu,lonu,lonu,rep(0,dim(msk)[1]-5))))
+  alldists = f(as.matrix(msk),as.matrix(msk),msk)
+  dists = c(alldists[1,2],alldists[2,3],alldists[3,4],alldists[4,5])
+  distnames = c("Lo.noneuc-Hi.noneuc","Hi.noneuc-Hi.noneuc","Hi.noneuc-Lo.noneuc","Lo.noneuc-Lo.noneuc")
+  if(!is.null(covariate)) {
+    dists=matrix(rep(dists,5),nrow=5)
+    dists[2,] = c(lonu,hinu,hinu,lonu)
+    dists[3,] = c(hinu,hinu,lonu,lonu)
+    dists[4,] = c(locov,hicov,hicov,locov)
+    dists[5,] = c(hicov,hicov,locov,locov)
+    row.names(dists) = c("Distance","from.noneuc","to.noneuc",paste("from.",covariate,sep=""),paste("to.",covariate,sep=""))
+    colnames(dists) = distnames
+  } else {
+    dists=matrix(rep(dists,3),nrow=3)
+    dists[2,] = c(lonu,hinu,hinu,lonu)
+    dists[3,] = c(hinu,hinu,lonu,lonu)
+    row.names(dists) = c("Distance","from.noneuc","to.noneuc")
+    colnames(dists) = distnames
+  }
+  dists
+}
+
+
 #' @title Plots least cost paths on mask
 #'
 #' @description

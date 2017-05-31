@@ -203,15 +203,15 @@ plotcovariate=function(mask, covariate, ...) {
   prep4image(dat,...)
 }
 
-#' @title Plots image (and optionally contours) of density from Dsurface object
-#' @param Dsurface is an object of class `Dsurface'
-#' @param contour is a logical, TRUE if want contour plots on image
-#' @param ... other arguments to be passed to \code{prep4image}
-#' @export
-plot.Dsurface=function(Dsurface,contour=TRUE,key=TRUE, ...) {
-  dat=data.frame(x=Dsurface$x,y=Dsurface$y,z=covariates(Dsurface)$D.0)
-  prep4image(dat,contour=contour,key=key,...)
-}
+##' @title Plots image (and optionally contours) of density from Dsurface object
+##' @param Dsurface is an object of class `Dsurface'
+##' @param contour is a logical, TRUE if want contour plots on image
+##' @param ... other arguments to be passed to \code{prep4image}
+##' @export
+#plot.Dsurface=function(Dsurface,covariate="D.0",contour=TRUE,key=TRUE, ...) {
+#  dat=data.frame(x=Dsurface$x,y=Dsurface$y,z=covariates(Dsurface)[,covariate])
+#  prep4image(dat,contour=contour,key=key,...)
+#}
 
 
 #' @title Prepares data frame for plotting with image/contour/persp.
