@@ -4,31 +4,35 @@ library(maptools)
 source("scrplotting.r")
 library(gdistance)
 
-NepalCaps<-read.csv("./Nepal Genetic/Madhu_Caps1.txt",header=TRUE)
-NepalTraps<-read.traps("./Nepal Genetic/Madhu_T1.txt", detector = "transect")
-
-make.capthist(captures=NepalCaps,traps=NepalTraps,fmt="XY")
-NepalTraps2<-read.traps("./Nepal Genetic/Madhu_T3.txt", detector = "transect")
-
-
 Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",
                           trapfile ="./Nepal Genetic/Madhu_T2.txt", detector="transect",fmt = "XY")
 
-summary(Trial.Data)
-
-Trial.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",binary.usage=FALSE,
-                          trapfile ="./Nepal Genetic/Madhu_T4.txt", detector="transect",fmt = "XY",
+Madhu.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
+                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin_NoCov.txt", detector="transect",fmt = "XY",
                           trapcovnames = c("Topography","Habitats","Altitude"))
 
-summary(Trial.Data2)
+Madhu.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
+                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin.txt", detector="transect",fmt = "XY",
+                           trapcovnames = c("Topography","Habitats","Altitude"))
 
-Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/trialCapscsv1.csv",
-                          trapfile ="./Nepal Genetic/TrialTrapscsv1.csv", detector="transect",fmt = "XY")
+boundaryMadhu=readShapeSpatial("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly1.shp")
+plot(boundaryMadhu)
 
-Trial.Data2<-read.capthist(captfile = "./Nepal Genetic/trialCapscsv1.csv",
-                          trapfile ="./Nepal Genetic/TrialTrapscsv3.csv", detector="transect",fmt = "XY")
+summary(Madhu.Data2)
+# Standarize Rgd on traps (this makes fits a bit more stable)
+# -----------------------------------------------------------
+summary(covariates(traps(Madhu.Data2)))
+covariates(traps(Madhu.Data2))$stdAlt = scale(covariates(traps(Madhu.Data2))$Altitude)
+summary(covariates(traps(Madhu.Data2)))
+head(covariates(traps(Madhu.Data2)))
 
 summary(Trial.Data1)
+
+
+
+
+
+
 
 all.data.Zoloon<-read.capthist(captfile = "./Nepal Genetic/Zoloon_caps.csv", 
                                trapfile = "./Nepal Genetic/Zoloon_traps.csv", binary.usage=FALSE,
