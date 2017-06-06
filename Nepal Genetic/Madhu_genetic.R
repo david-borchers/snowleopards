@@ -8,15 +8,26 @@ Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",
                           trapfile ="./Nepal Genetic/Madhu_T2.txt", detector="transect",fmt = "XY")
 
 Madhu.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
-                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin_NoCov.txt", detector="transect",fmt = "XY",
-                          trapcovnames = c("Topography","Habitats","Altitude"))
+                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin_NoCov.txt", detector="transect",
+                           fmt = "XY")
 
 Madhu.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
                            trapfile ="./Nepal Genetic/Madhu_Traps_Fin.txt", detector="transect",fmt = "XY",
                            trapcovnames = c("Topography","Habitats","Altitude"))
 
 boundaryMadhu=readShapeSpatial("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly1.shp")
+
 plot(boundaryMadhu)
+plot(Madhu.Data1, add=TRUE)
+
+# Make mask:
+MadhuMask=make.mask(traps(Madhu.Data1), spacing=1000, buffer = 12500, type="trapbuffer", 
+                    poly=boundaryMadhu)
+plot(MadhuMask)
+RPSV(Madhu.Data1,CC=TRUE)
+
+Madhu.hhn<-secr.fit(Madhu.Data1, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=MadhuMask)
+region.N()
 
 summary(Madhu.Data2)
 # Standarize Rgd on traps (this makes fits a bit more stable)
