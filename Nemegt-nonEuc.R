@@ -17,6 +17,7 @@ all.data.Nemegt_R<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_reduced
                                detector="count", fmt = "trapID", 
                                trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
                                binary.usage=FALSE)
+summary(all.data.Nemegt_R)
 
 #Read capture file-clubbed
 all.data.Nemegt_C<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_BC_AS_clubbed.csv", 
@@ -727,4 +728,124 @@ save(NemegtMask12x,Nemegt.hhn2x, Nemegt.hhn.detrgd2x, Nemegt.hhn.DHab2x, Nemegt.
 # load fitted objects:
 load("./Nemegt/Nemegt-nonEuc-fit2x.RData")
 
+
+########################
+#########################
+########################
+
+#Running SECR for Nemegt 2013 with 1 Additional Camera Point!!!
+#########################
+##########################
+##########################
+
+# Read capture file and boundary
+all.data.Nemegt_Rx<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_reduced.csv", 
+                                 trapfile = "./Nemegt/Nemegt2013_Cams_add1.csv", 
+                                 detector="count", fmt = "trapID", 
+                                 trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
+                                 binary.usage=FALSE)
+
+all.data.Nemegt_Rx2<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_reduced2.csv", 
+                                  trapfile = "./Nemegt/Nemegt2013_Cams_add1.csv", 
+                                  detector="count", fmt = "trapID", 
+                                  trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
+                                  binary.usage=FALSE)
+
+
+boundaryNemegt2x=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea2.shp")
+# and plot it
+summary(all.data.Nemegt_Rx)
+
+plot(boundaryNemegt2x)
+plot(x=all.data.Nemegt_Rx, add=TRUE, tracks=TRUE)
+text(traps(all.data.Nemegt_Rx),labels=as.character(1:40),cex=0.75)
+
+# Make mask:
+NemegtMask=make.mask(traps(all.data.Nemegt_Rx), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNemegt2x)
+
+# Read ruggedness covariate and put it into mask covariate GRIDCODE
+SLCost.Nemegt<-readShapePoly("./Nemegt//Habitat/Nemegt_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
+NemegtMask1<-addCovariates(NemegtMask, SLCost.Nemegt)
+
+# Read binary habitat suitability code into mask covariate ...
+SLCostBINARY.Nemegt<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
+#plot(SLCostBINARY.Nemegt, add=TRUE)
+
+NemegtMask1<-addCovariates(NemegtMask1, SLCostBINARY.Nemegt)
+head(covariates(NemegtMask1))
+names(covariates(NemegtMask1))[3:4] = c("binaryID","BINCODE") #Rename headers
+summary(covariates(NemegtMask1))
+# make NAs in BINCODE zeros:
+covariates(NemegtMask1)$BINCODE[is.na(covariates(NemegtMask1)$BINCODE)] = 0
+summary(covariates(NemegtMask1))
+
+
+# Standarize Rgd on traps (this makes fits a bit more stable)
+# -----------------------------------------------------------
+summary(covariates(traps(all.data.Nemegt_Rx)))
+covariates(traps(all.data.Nemegt_Rx))$stdRgd = scale(covariates(traps(all.data.Nemegt_Rx))$Rgd)
+summary(covariates(traps(all.data.Nemegt_Rx)))
+head(covariates(traps(all.data.Nemegt_Rx)))
+
+summary(covariates(traps(all.data.Nemegt_Rx2)))
+covariates(traps(all.data.Nemegt_Rx2))$stdRgd = scale(covariates(traps(all.data.Nemegt_Rx2))$Rgd)
+summary(covariates(traps(all.data.Nemegt_Rx2)))
+head(covariates(traps(all.data.Nemegt_Rx2)))
+
+
+# Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
+# ------------------------------------------------------------------------
+summary(covariates(NemegtMask1))
+covariates(NemegtMask1)$stdGC = scale(covariates(NemegtMask1)$GRIDCODE)
+covariates(NemegtMask1)$stdBC = scale(covariates(NemegtMask1)$BINCODE)
+summary(covariates(NemegtMask1))
+names(covariates(NemegtMask1))
+
+
+head(covariates(NemegtMask1))
+summary(covariates(NemegtMask1))
+summary(covariates(traps(all.data.Nemegt_Rx)))
+
+plot(NemegtMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(10), legend = FALSE)
+head(covariates(traps(all.data.Nemegt_Rx)))
+head(covariates(NemegtMask1))
+
+
+Nemegt.camsRx=traps(all.data.Nemegt_Rx)
+
+#Run SECR models
+Nemegt.hhnRx<-secr.fit(all.data.Nemegt_Rx, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
+
+Nemegt.hhn.detrgdRx<-secr.fit(all.data.Nemegt_Rx, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHabRx<-secr.fit(all.data.Nemegt_Rx, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detrgd10Rx<-secr.fit(all.data.Nemegt_Rx, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask1)
+Nemegt.hhn.DHab.detrgd01Rx<-secr.fit(all.data.Nemegt_Rx, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask1)
+
+Nemegt.hhn.DHab.nonU.LamWRx<-secr.fit(all.data.Nemegt_Rx, detectfn="HHN", mask=NemegtMask1,
+                                       model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                                       details = list(userdist = userdfn1),
+                                       start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+Nemegt.hhn.DHab.nonUBC.LamWRx<-secr.fit(all.data.Nemegt_Rx, detectfn="HHN", mask=NemegtMask1,
+                                      model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdBC -1), 
+                                      details = list(userdist = userdfn1),
+                                      start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+Nemegt.hhn.DHab.nonUBC.LamWRx2<-secr.fit(all.data.Nemegt_Rx2, detectfn="HHN", mask=NemegtMask1,
+                                        model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdBC -1), 
+                                        details = list(userdist = userdfn1),
+                                        start = list(noneuc = 1)) #-1 gets rid of the intercept
+
+
+AIXRx<-AIC(Nemegt.hhnRx, Nemegt.hhn.DHabRx, Nemegt.hhn.DHab.detrgd10Rx,
+    Nemegt.hhn.DHab.detrgd01Rx, Nemegt.hhn.DHab.nonU.LamWRx, Nemegt.hhn.DHab.nonUBC.LamWRx)
+
+coefficients(Nemegt.hhn.DHab.nonUBC.LamWRx)
+coefficients(Nemegt.hhn.DHab.nonU.LamWRx)
+
+coefficients(Nemegt.hhn.DHab.nonUBC.LamWRx2)
+region.N(Nemegt.hhn.DHab.nonUBC.LamWRx2)
+
+region.N(Nemegt.hhn.DHab.nonU.LamWRx)
+region.N(Nemegt.hhn.DHab.nonUBC.LamWRx)
 
