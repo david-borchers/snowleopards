@@ -252,6 +252,10 @@ TNN.hhn.DRgd.DetTopo10W<-secr.fit(all.data.TNN, model = list(D~stdGC, lambda0~To
 TNN.hhn.DRgd.DetTopo10WR<-secr.fit(all.data.TNN_R, model = list(D~stdGC, lambda0~Topo+Water, sigma~1), detectfn="HHN",
                                   mask = list(TostMask1, NoyonMask1, NemegtMask1))
 
+TNN.hhn.DRgd.sess_interact<-secr.fit(all.data.TNN, model = list(D~stdGC*sfac, lambda0~1, sigma~1), detectfn="HHN",
+                            mask = list(TostMask1, NoyonMask1, NemegtMask1),sessioncov=data.frame(sfac=sess))
+
+
 AIC(TNN.hhn.DRgd.DetTopo10WR, TNN.hhn.DRgd.sess.DetWR, TNN.hhn.DRgd.sessR, TNN.hhnR)
 
 coefficients(TNN.hhn.DRgd.DetTopo10WR)

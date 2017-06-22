@@ -32,6 +32,7 @@ summary(covariates(traps(all.data.Noyon)))
 
 plot(NoyonMask1, covariate="GRIDCODE", contour=FALSE, col=terrain.colors(15), legend = FALSE)
 
+
 # Standarize Rgd (this makes fits a bit more stable)
 # --------------------------------------------------
 summary(covariates(traps(all.data.Noyon)))

@@ -4,31 +4,46 @@ library(maptools)
 source("scrplotting.r")
 library(gdistance)
 
-NepalCaps<-read.csv("./Nepal Genetic/Madhu_Caps1.txt",header=TRUE)
-NepalTraps<-read.traps("./Nepal Genetic/Madhu_T1.txt", detector = "transect")
-
-make.capthist(captures=NepalCaps,traps=NepalTraps,fmt="XY")
-NepalTraps2<-read.traps("./Nepal Genetic/Madhu_T3.txt", detector = "transect")
-
-
 Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",
                           trapfile ="./Nepal Genetic/Madhu_T2.txt", detector="transect",fmt = "XY")
 
-summary(Trial.Data)
+Madhu.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
+                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin_NoCov.txt", detector="transect",
+                           fmt = "XY")
 
-Trial.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",binary.usage=FALSE,
-                          trapfile ="./Nepal Genetic/Madhu_T4.txt", detector="transect",fmt = "XY",
-                          trapcovnames = c("Topography","Habitats","Altitude"))
+Madhu.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", binary.usage=FALSE,
+                           trapfile ="./Nepal Genetic/Madhu_Traps_Fin.txt", detector="transect",fmt = "XY",
+                           trapcovnames = c("Topography","Habitats","Altitude"))
 
-summary(Trial.Data2)
+boundaryMadhu=readShapeSpatial("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly1.shp")
 
-Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/trialCapscsv1.csv",
-                          trapfile ="./Nepal Genetic/TrialTrapscsv1.csv", detector="transect",fmt = "XY")
+plot(boundaryMadhu)
+plot(Madhu.Data1, add=TRUE)
 
-Trial.Data2<-read.capthist(captfile = "./Nepal Genetic/trialCapscsv1.csv",
-                          trapfile ="./Nepal Genetic/TrialTrapscsv3.csv", detector="transect",fmt = "XY")
+# Make mask:
+MadhuMask=make.mask(traps(Madhu.Data1), spacing=1000, buffer = 12500, type="trapbuffer", 
+                    poly=boundaryMadhu)
+plot(MadhuMask)
+RPSV(Madhu.Data1,CC=TRUE)
+
+Madhu.hhn<-secr.fit(Madhu.Data1, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=MadhuMask)
+region.N()
+
+summary(Madhu.Data2)
+# Standarize Rgd on traps (this makes fits a bit more stable)
+# -----------------------------------------------------------
+summary(covariates(traps(Madhu.Data2)))
+covariates(traps(Madhu.Data2))$stdAlt = scale(covariates(traps(Madhu.Data2))$Altitude)
+summary(covariates(traps(Madhu.Data2)))
+head(covariates(traps(Madhu.Data2)))
 
 summary(Trial.Data1)
+
+
+
+
+
+
 
 all.data.Zoloon<-read.capthist(captfile = "./Nepal Genetic/Zoloon_caps.csv", 
                                trapfile = "./Nepal Genetic/Zoloon_traps.csv", binary.usage=FALSE,

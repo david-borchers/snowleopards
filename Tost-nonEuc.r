@@ -68,9 +68,11 @@ Tost.hhnx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~1, sigma~1), detectfn
 Tost.hhn.detTopo10x<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.detWaterx<-secr.fit(all.data.Tost, model=list(D~1, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 Tost.hhn.DHabx<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.DHab.LamTopox<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~Topo, sigma~1), detectfn="HHN", mask=TostMask1)
+Tost.hhn.DHabx.LamWatx<-secr.fit(all.data.Tost, model=list(D~stdGC, lambda0~Water, sigma~1), detectfn="HHN", mask=TostMask1)
 
-
-AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx)
+AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
+    Tost.hhn.DHab.LamTopox, Tost.hhn.DHabx.LamWatx)
 Null.Abundance = region.N(Tost.hhnx) 
 #AIC(Tost.hhn,Tost.hhn1)
 #Tost.hhn.Dx<-secr.fit(all.data.Tost, model=list(D~x, lambda0~1, sigma~1), detectfn="HHN", mask=TostMask1)
@@ -462,7 +464,8 @@ region.N(Tost.hhnx)
 #Ignoring the models with binary habitat covariate GB for ocmparison
 AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
             Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, 
-            Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx)
+            Tost.hhn.D.nonUx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.nonU.GBGCx,
+            Tost.hhn.DHab.LamTopox, Tost.hhn.DHabx.LamWatx)
 
 AICTostz=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUz, 
               Tost.hhn.DHab.nonU.Topo10z, Tost.hhn.DHab.nonU.Wz, Tost.hhn.DHab.nonU.T01Wz, Tost.hhn.D.nonUz, 
@@ -493,7 +496,8 @@ AICTostx
 
 save(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, Tost.hhn.DHab.nonUx, 
       Tost.hhn.DHab.nonU.Topo10x,Tost.hhn.DHab.nonU.Wx, Tost.hhn.DHab.nonU.T01Wx, Tost.hhn.D.nonUx, 
-      Tost.hhn.DHab.nonU.GBGCx, Tost.hhn.DHab.nonU.GBx, file="./Tost/Tost-nonEuc-fitsx.RData")
+      Tost.hhn.DHab.nonU.GBGCx, Tost.hhn.DHab.nonU.GBx, Tost.hhn.DHab.LamTopox, Tost.hhn.DHabx.LamWatx,
+     file="./Tost/Tost-nonEuc-fitsx.RData")
 load("./Tost/Tost-nonEuc-fitsx.RData")
 
 Nhat1.nonU.Topo10<-region.N(Tost.hhn.DHab.nonU.Topo10)
