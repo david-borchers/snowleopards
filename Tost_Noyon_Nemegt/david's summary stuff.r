@@ -7,6 +7,7 @@ AICTost=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, 
 AICTost
 coefficients(Tost.hhn.DHab.nonU.GBx)
 FXTost<-fx.total(Tost.hhnx)
+FXTost<-fx.total(Tost.hhn.DHab.nonU.GBx)
 # Plot using plot.Dsurface from secr 
 # (Note scrplotting.r also has a function called plot.Dsurface, but it has diffent arguments.)
 secr:::plot.Dsurface(FXTost, covariate = 'D.sum', breaks = seq(0,10e-5,1e-5), poly = FALSE)
@@ -14,14 +15,18 @@ plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
 plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
 
 # Plot using plotcovariate from secrplotting.r
-plotcovariate(FXTost, covariate = 'D.sum',xaxt="n",yaxt="n",xlab="",ylab="",bty="n",contour=FALSE)
+plotcovariate(FXTost, covariate = 'D.sum',xaxt="n",yaxt="n",xlab="",ylab="",
+              bty="n",contour=FALSE,asp=1)
 plotMaskEdge(Tost.hhn.DHab.nonU.GBx$mask,add=TRUE)
 plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
 plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
-# Compare to density plot:
+# Compare to density or log(density) plot:
 TostDhat = predictDsurface(Tost.hhn.DHab.nonU.GBx)
 covariates(TostDhat)$logD.0 = log(covariates(TostDhat)$D.0)
-plotcovariate(TostDhat, covariate = 'logD.0',xaxt="n",yaxt="n",xlab="",ylab="",bty="n",contour=FALSE)
+plotcovariate(TostDhat, covariate = 'D.0',xaxt="n",yaxt="n",xlab="",ylab="",
+              bty="n",contour=FALSE,asp=1)
+plotcovariate(TostDhat, covariate = 'logD.0',xaxt="n",yaxt="n",xlab="",ylab="",
+              bty="n",contour=FALSE,asp=1)
 plotMaskEdge(Tost.hhn.DHab.nonU.GBx$mask,add=TRUE)
 plot(Tost.hhn.DHab.nonU.GBx$capthist,add=TRUE,tracks=TRUE)
 plot(traps(Tost.hhn.DHab.nonU.GBx$capthist),add=TRUE)
@@ -35,6 +40,10 @@ Tost_Diff
 summary(TostMask1)
 
 D_Tost<-(Tost_top*100/2116.50)
+
+# Mean density Tost:
+Tostarea = dim(Tost.hhn.DHab.nonU.GBx$mask)[1]* summary(Tost.hhn.DHab.nonU.GBx$mask)$cellarea
+TostmeanD = Tost_top["R.N",]/Tostarea
 
 load("./Noyon2013/Noyon-nonEuc-fitsx.RData") #Final round analysis (with water and topography)
 AICNoyon=AIC(Noyon.hhnx, Noyon.hhn.detrgdx, Noyon.hhn.DHabx, Noyon.hhn.DHab.DetRgd01x, Noyon.hhn.detWaterx, 
@@ -53,6 +62,10 @@ summary(NoyonMask1)
 
 D_Noyon<-(Noyon_top*100/2481.75)
 
+# Mean density Noyon:
+Noyarea = dim(Noyon.hhn.DHab.nonU.GBx$mask)[1]* summary(Noyon.hhn.DHab.nonU.GBx$mask)$cellarea
+NoyonmeanD = Noyon_top["R.N",]/Noyarea
+
 
 load("./Nemegt/Nemegt-nonEuc-fit2xR.RData")
 NemegtAIC2xR=AIC(Nemegt.hhn2xR, Nemegt.hhn.detrgd2xR, Nemegt.hhn.DHab2xR, Nemegt.hhn.DHab.detrgd102xR, 
@@ -68,6 +81,29 @@ Nemegt_Diff
 summary(NemegtMask1)
 
 D_Nemegt<-(Nemegt_Top*100/2145.50)
+
+
+# Mean density Nemegt:
+Nemarea = dim(Nemegt.hhn.DHab.nonU.LamW2xR$mask)[1]* summary(Nemegt.hhn.DHab.nonU.LamW2xR$mask)$cellarea
+NemegtmeanD = Nemegt_Top["R.N",]/Nemarea
+
+# Average densities:
+meanD = rbind(TostmeanD,NoyonmeanD,NemegtmeanD)
+row.names(meanD) = c("Tost","Noyon","Nemegt")
+meanD[,1:4] = meanD[,1:4]*10^4
+meanD
+ylim=range(meanD[,c("estimate","lcl","ucl")])
+plot(as.factor(row.names(meanD)),meanD$estimate,ylim=ylim,ylab=expression(hat(D)))
+arrows(3:1,meanD$lcl,3:1,meanD$ucl,angle=90,code=3)
+plot(as.factor(row.names(meanD)),log(meanD$estimate),ylim=log(ylim),ylab=expression(log(hat(D))))
+arrows(3:1,log(meanD$lcl),3:1,log(meanD$ucl),angle=90,code=3)
+
+pdf("Dhats.pdf",w=8,h=3.5)
+par(mar=c(3, 5, 2, 2) + 0.1)
+plot(as.factor(row.names(meanD)),log(meanD$estimate),ylim=log(ylim),ylab=expression(log(hat(D))))
+arrows(3:1,log(meanD$lcl),3:1,log(meanD$ucl),angle=90,code=3)
+dev.off()
+
 
 D_Tost
 D_Noyon
