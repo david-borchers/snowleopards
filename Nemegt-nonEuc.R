@@ -425,6 +425,9 @@ Nemegt.hhn.DHab2x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~1, si
 Nemegt.hhn.DHab.detrgd102x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~stdRgd, sigma~1), detectfn="HHN", mask=NemegtMask12x)
 Nemegt.hhn.DHab.detrgd012x<-secr.fit(all.data.Nemegt2x, model=list(D~stdGC, lambda0~1, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
 
+derived(Nemegt.hhn.detrgd2x)
+predictDsurface(Nemegt.hhn.detrgd2x)
+
 # Same analysis as above, with reduced Dataset
 Nemegt.hhn2xR<-secr.fit(all.data.Nemegt_R, model=list(D~1, lambda0~1, sigma~1), detectfn="HHN", mask=NemegtMask12x)
 Nemegt.hhn.detrgd2xR<-secr.fit(all.data.Nemegt_R, model=list(D~1, lambda0~stdRgd, sigma~stdRgd), detectfn="HHN", mask=NemegtMask12x)
@@ -849,3 +852,5 @@ region.N(Nemegt.hhn.DHab.nonUBC.LamWRx2)
 region.N(Nemegt.hhn.DHab.nonU.LamWRx)
 region.N(Nemegt.hhn.DHab.nonUBC.LamWRx)
 
+coefficients(Nemegt.hhn.DHab.nonU.LamWRx)
+fitted(Nemegt.hhn.DHAb.nonU.LamWRx)

@@ -26,7 +26,7 @@ TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trap
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
 SLCost.Tost<-readShapePoly("./Tost//Habitat/Tost_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
 TostMask1<-addCovariates(TostMask, SLCost.Tost)
-
+summary(TostMask1)
 # Read binary habitat suitability code into mask covariate ...
 SLCostBINARY.Tost<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #ruggedness pixels averaged over 500m radius
 TostMask1<-addCovariates(TostMask1, SLCostBINARY.Tost)
@@ -533,6 +533,18 @@ save(Tost.cams,TostMask1,TostSurface,TostSurface.nonU,TostSurface.D.nonU,Tost.hh
      Tost.hhn.detTopo10, Tost.hhn, Tost.hhn.DHab.nonU.W, Tost.hhn.DHab.nonU.T01W, Tost.hhn.DHab.nonU.Topo10, 
      Tost.hhn.DHab.nonU, file="./Tost/Tost-nonEuc-fits3.RData")
 load("./Tost/Tost-nonEuc-fits3.RData") #second round analysis, using nonU, water, topo as det covs
+
+esa(derived(Tost.hhn.DHab.nonU))
+esa.plot(Tost.hhn.DHab, xlim = c(0,500), ylim = c(0,10))
+abline(v = 4 * 25.6, col = "red", lty = 2)
+(region.N(Tost.hhn.DHab.nonU)*100/211650)
+DRange<-predictDsurface(Tost.hhn.DHab, cl.D=TRUE, alpha=0.05)
+covariates(DRange)[which(covariates(DRange)$D.0==(max(covariates(DRange)$D.0))),]
+covariates(DRange)[which(covariates(DRange)$D.0==(min(covariates(DRange)$D.0))),]
+
+max(covariates(DRange)$lcl)
+Dlim=range(covariates(DRange)$D.0)
+
 
 
 # Compare AICs:
