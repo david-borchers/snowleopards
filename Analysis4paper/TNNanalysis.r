@@ -109,7 +109,6 @@ Nest.Nemegt.NUrmeanGCdev = region.N(Nemegt.NUrmeanGCdev)
 Nest.Nemegt.NUstdGC;Nest.Nemegt.NUrmeanGCdev # Slightly different SEs & CIs: must be lack of asymptotics
 AIC(Nemegt.NUstdGC,Nemegt.NUrmeanGCdev)
 
-
 # replace noneuc(stdGC) with noneuc(BC)
 Nemegt.NUBC<-secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
                       model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ BC -1), 
@@ -117,31 +116,79 @@ Nemegt.NUBC<-secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
                       start = list(noneuc = 1))
 AIC(Nemegt.NUBC,Nemegt.NUstdGC)
 
+# Try without lambda0~Water
+Nemegt.NUstdGC.W<-secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
+                         model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                         details = list(userdist = userdfn1),
+                         start = list(noneuc = 1))
+AIC(Nemegt.NUBC,Nemegt.NUstdGC,Nemegt.NUstdGC.W)
+
+
 # Noyon: D(GC); noneuc(BC):
 # ---------------------------
 Noyon.NUBC<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
                      model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ BC -1), 
                      details = list(userdist = userdfn1),
                      start = list(noneuc = 1))
+# Cannot get Tost.NUBC to converge!
+Noyon.NUBC<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                     model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ BC -1), 
+                     details = list(userdist = userdfn1),
+                     start = Noyon.NUBC)
 # replace noneuc(BC) with noneuc(stdGC)
 Noyon.NUstdGC<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
                         model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                         details = list(userdist = userdfn1),
                         start = list(noneuc = 1))
-AIC(Noyon.NUBC,Noyon.NUstdGC)
+Noyon.NUstdGC<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                        model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
+                        details = list(userdist = userdfn1),
+                        start = Noyon.NUstdGC)
+# With water in lambda0
+Noyon.NUstdGC.W<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                        model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                        details = list(userdist = userdfn1),
+                        start = Noyon.NUstdGC)
+AIC(Noyon.NUstdGC,Noyon.NUstdGC.W)
 
 # Tost: D(GC); noneuc(BC):
 # ---------------------------
-Tost.NUBC<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask,
+Tost.NUBC<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
                     model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ BC -1), 
                     details = list(userdist = userdfn1),
                     start = list(noneuc = 1))
+Tost.NUBC<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                    model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ BC -1), 
+                    details = list(userdist = userdfn1),
+                    start = Tost.NUBC)
 # replace noneuc(BC) with noneuc(stdGC)
-Tost.NUstdGC<-secr.fit(all.data.Tost, detectfn="HHN", mask=TostMask,
+Tost.NUstdGC<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
                        model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                        details = list(userdist = userdfn1),
                        start = list(noneuc = 1))
-AIC(Tost.NUBC,Tost.NUstdGC)
+Tost.NUstdGC.W<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                       model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                       details = list(userdist = userdfn1),
+                       start = list(noneuc = 1))
+AIC(Tost.NUBC,Tost.NUstdGC,Tost.NUstdGC.W)
+
+# Conclusion so far: model: D~stdGC in all regions
+#                           lambda0~1 for Tost & Noyon; lambda0~Water for Nemegt
+#                           sigma~1 # for all regions
+#                           noneuc ~ stdGC -1 # for  all regions
+
+# Fit (almost) the same model simultaneously to all, but with log-linear relationship between the 
+# density model intercepts across the regions:
+
+TNN.GCmean_dev.WW <- secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                           model=list(D~rmeanGC+rmeanGCdev, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC -1), 
+                           details = list(userdist = userdfn1),
+                           start = list(noneuc = 1))
+#save(TNN.GCmean_dev,file="TNN.GCmean_dev.RData")
+aics = AIC(Nemegt.NUstdGC,Noyon.NUstdGC,Tost.NUstdGC)
+sum(aics$AIC)
+AIC(TNN.GCmean_dev.WW)$AIC
+
 
 
 

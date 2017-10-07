@@ -32,6 +32,40 @@ Nemegt_ch<-read.capthist(captfile = "./Analysis4paper/Data/Nemegt_capthist.csv",
                          trapfile = TNN.trapfiles[3], 
                          detector="count", binary.usage=FALSE, fmt = "trapID", 
                          trapcovnames = c("Rgd", "Topo", "Water", "Winter"))
+
+# Standarize Rgd on traps across all regions
+# ------------------------------------------
+TNN.cams=traps(TNN_ch)
+# look at covariates for each session:
+lapply(covariates(TNN.cams),summary)
+# To standardise in same way over all sessions, need to combine, standarise and then separate:
+Rgds = c(covariates(TNN.cams[[1]])$Rgd,
+         covariates(TNN.cams[[2]])$Rgd,
+         covariates(TNN.cams[[3]])$Rgd)
+stdRgd = scale(Rgds)
+n1 = dim(TNN.cams[[1]])[1]
+n2 = dim(TNN.cams[[2]])[1]
+n3 = dim(TNN.cams[[3]])[1]
+covariates(TNN.cams[[1]])$stdRgd = stdRgd[1:n1]
+covariates(TNN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
+covariates(TNN.cams[[3]])$stdRgd = stdRgd[(n1+n2+1):(n1+n2+n3)]
+
+# Put trap covariates stdRgd into individual capture history files
+covariates(traps(Tost_ch))$stdRgd = covariates(TNN.cams[[1]])$stdRgd
+covariates(traps(Noyon_ch))$stdRgd = covariates(TNN.cams[[2]])$stdRgd
+covariates(traps(Nemegt_ch))$stdRgd = covariates(TNN.cams[[3]])$stdRgd
+
+# look at covariates for each session again:
+lapply(covariates(TNN.cams),summary)
+
+# put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
+traps(TNN_ch[[1]]) = TNN.cams[[1]]
+traps(TNN_ch[[2]]) = TNN.cams[[2]]
+traps(TNN_ch[[3]]) = TNN.cams[[3]]
+
+summary(covariates(traps(TNN_ch))[[1]])
+summary(covariates(traps(TNN_ch))[[2]])
+summary(covariates(traps(TNN_ch))[[3]])
 # -------------------- End Capture Histories --------------------------
 
 
@@ -78,41 +112,6 @@ NemegtMask<-addCovariates(NemegtMask, SLCostBINARY)
 names(covariates(NemegtMask))[3:4] = c("binaryID","BINCODE") #Rename headers
 covariates(NemegtMask)$BINCODE[is.na(covariates(NemegtMask)$BINCODE)] = 0 # make NAs in BINCODE zeros
 summary(covariates(NemegtMask))
-
-
-# Standarize Rgd on traps (this makes fits a bit more stable)
-# -----------------------------------------------------------
-TNN.cams=traps(TNN_ch)
-# look at covariates for each session:
-lapply(covariates(TNN.cams),summary)
-# To standardise in same way over all sessions, need to combine, standarise and then separate:
-Rgds = c(covariates(TNN.cams[[1]])$Rgd,
-         covariates(TNN.cams[[2]])$Rgd,
-         covariates(TNN.cams[[3]])$Rgd)
-stdRgd = scale(Rgds)
-n1 = dim(TNN.cams[[1]])[1]
-n2 = dim(TNN.cams[[2]])[1]
-n3 = dim(TNN.cams[[3]])[1]
-covariates(TNN.cams[[1]])$stdRgd = stdRgd[1:n1]
-covariates(TNN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
-covariates(TNN.cams[[3]])$stdRgd = stdRgd[(n1+n2+1):(n1+n2+n3)]
-
-# Put trap covariates stdRgd into individual capture history files
-covariates(traps(Tost_ch))$stdRgd = covariates(TNN.cams[[1]])$stdRgd
-covariates(traps(Noyon_ch))$stdRgd = covariates(TNN.cams[[2]])$stdRgd
-covariates(traps(Nemegt_ch))$stdRgd = covariates(TNN.cams[[3]])$stdRgd
-
-# look at covariates for each session again:
-lapply(covariates(TNN.cams),summary)
-
-# put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
-traps(TNN_ch[[1]]) = TNN.cams[[1]]
-traps(TNN_ch[[2]]) = TNN.cams[[2]]
-traps(TNN_ch[[3]]) = TNN.cams[[3]]
-
-summary(covariates(traps(TNN_ch))[[1]])
-summary(covariates(traps(TNN_ch))[[2]])
-summary(covariates(traps(TNN_ch))[[3]])
 
 # Standarize GRIDCODE (in stdGC) ACROSS ALL REGIONS
 # (BINCODE could be factor but then getting region mean is awkward.)
