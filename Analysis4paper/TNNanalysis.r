@@ -72,7 +72,27 @@ text(730000,4805000,labels="Noyon")
 text(600000,4798000,labels="Tost")
 #dev.off()
 
+# Plot Nemegt data with ADDITOINAL traps added:
+plotcovariate(NemegtMask, covariate="GC", contour = FALSE, col = terrain.colors(16), zlim=zlim,asp=1)
+NemegtADDITIONAL_ch<-read.capthist(captfile = "./Analysis4paper/Data/Nemegt_capthist.csv", 
+                            trapfile = "./Analysis4paper/Data/Nemegt_ADDITIONALcams.csv", 
+                            detector="count", binary.usage=FALSE, fmt = "trapID", 
+                            trapcovnames = c("Rgd", "Topo", "Water", "Winter"))
+plot(traps(NemegtADDITIONAL_ch),add=TRUE)
+plot(NemegtADDITIONAL_ch,tracks=TRUE,add=TRUE)
+
+
 # -------------------------- End of Plotting ---------------------------------
+
+
+
+# ----------------------- Base-case simple models for individual regions ---------------------------
+Nemegt.basic<-secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
+                         model=list(D~1, lambda0~Water, sigma~1))
+Noyon.basic<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                     model=list(D~1, lambda0~1, sigma~1))
+Tost.basic<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                   model=list(D~1, lambda0~1, sigma~1))
 
 
 
@@ -122,6 +142,14 @@ Nemegt.NUstdGC.W<-secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
                          details = list(userdist = userdfn1),
                          start = list(noneuc = 1))
 AIC(Nemegt.NUBC,Nemegt.NUstdGC,Nemegt.NUstdGC.W)
+
+
+# Try Nemegt with best model but with ADDITIONAL traps in Steppe:
+NemegtADD.NUstdGC<-secr.fit(NemegtADDITIONAL_ch, detectfn="HHN", mask=NemegtMask,
+                         model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
+                         details = list(userdist = userdfn1),
+                         start = list(noneuc = 1))
+
 
 
 # Noyon: D(GC); noneuc(BC):
@@ -177,17 +205,143 @@ AIC(Tost.NUBC,Tost.NUstdGC,Tost.NUstdGC.W)
 #                           sigma~1 # for all regions
 #                           noneuc ~ stdGC -1 # for  all regions
 
+
+# ----------------------- Combined region models ---------------------------
 # Fit (almost) the same model simultaneously to all, but with log-linear relationship between the 
 # density model intercepts across the regions:
-
-TNN.GCmean_dev.WW <- secr.fit(all.data.TNN, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+TNN.GCmean_dev.WW <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
                            model=list(D~rmeanGC+rmeanGCdev, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC -1), 
                            details = list(userdist = userdfn1),
                            start = list(noneuc = 1))
-#save(TNN.GCmean_dev,file="TNN.GCmean_dev.RData")
-aics = AIC(Nemegt.NUstdGC,Noyon.NUstdGC,Tost.NUstdGC)
-sum(aics$AIC)
+region.aics = AIC(Nemegt.NUstdGC,Noyon.NUstdGC,Tost.NUstdGC)
+sum(region.aics$AIC)
 AIC(TNN.GCmean_dev.WW)$AIC
+AIC(TNN.GCmean_dev.WW)$AIC - sum(region.aics$AIC)
+coefficients(Nemegt.NUstdGC)
+coefficients(Noyon.NUstdGC)
+coefficients(Tost.NUstdGC)
+coefficients(TNN.GCmean_dev.WW)
+
+# Conclusion so far:
+# 1. Nemegt has stdGC REDUCING density and INCREASING conductance; also lambda0~Water
+# 2. Tost and Noyon have the opposite effects, and no lambda0 effect
+# 3. Combined model, which requires stdGC effects to be the same in all regions, is worse by 39 AIC units
+# 
+save(Tost.NUBC,Tost.NUstdGC,Tost.NUstdGC.W,
+     Noyon.NUstdGC,Noyon.NUstdGC.W,
+     Nemegt.NUBC,Nemegt.NUstdGC,Nemegt.NUstdGC.W,
+     TNN.GCmean_dev.WW,
+     file="./Analysis4paper/Fits1.RData")
+
+# Try with region interaction with stdGC in Density and noneuc:
+TNN.GCmean_dev.WW.session <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                              model=list(D~rmeanGC+rmeanGCdev:session, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC:session -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1))
+TNN.GCmean_dev.WW.session <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                      model=list(D~rmeanGC+rmeanGCdev:session, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC:session -1), 
+                                      details = list(userdist = userdfn1),
+                                      start = TNN.GCmean_dev.WW.session)
+
+# Try with region interaction with stdGC in Density and noneuc and sigma:
+TNN.GCmean_dev.WW.session.sigma <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                      model=list(D~rmeanGC+rmeanGCdev:session, lambda0~Water:Winter, sigma~session, noneuc ~ stdGC:session -1), 
+                                      details = list(userdist = userdfn1),
+                                      start = list(noneuc = 1))
+save(TNN.GCmean_dev.WW.session,file="./Analysis4paper/tempTNN.GCmean_dev.WW.session.sigma.RData")
+TNN.GCmean_dev.WW.session.sigma <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                            model=list(D~rmeanGC+rmeanGCdev:session, lambda0~Water:Winter, sigma~session, noneuc ~ stdGC:session -1), 
+                                            details = list(userdist = userdfn1),
+                                            start = TNN.GCmean_dev.WW.session.sigma)
+save(TNN.GCmean_dev.WW.session.sigma,
+     TNN.GCmean_dev.WW.session,
+     TNN.GCmean_dev.WW,
+     file="./Analysis4paper/TNNFits1.RData")
+
+AIC(TNN.GCmean_dev.WW.session.sigma,TNN.GCmean_dev.WW.session,TNN.GCmean_dev.WW)
+AIC(TNN.GCmean_dev.WW)$AIC - sum(aics$AIC)
+AIC(TNN.GCmean_dev.WW.session)$AIC - sum(aics$AIC)
+AIC(TNN.GCmean_dev.WW.session.sigma)$AIC - sum(aics$AIC)
+coefficients(Nemegt.NUstdGC)
+coefficients(Noyon.NUstdGC)
+coefficients(Tost.NUstdGC)
+coefficients(TNN.GCmean_dev.WW)
+coefficients(TNN.GCmean_dev.WW.session)
+coefficients(TNN.GCmean_dev.WW.session.sigma)
+
+region.N(TNN.GCmean_dev.WW.session.sigma)
+region.N(TNN.GCmean_dev.WW.session)
+
+# Best individual area spatial model estiamtes:
+Nhat.Nemegt = region.N(Nemegt.NUstdGC)
+Nhat.Noyon = region.N(Noyon.NUstdGC)
+Nhat.Tost = region.N(Tost.NUstdGC)
+Nhats = data.frame(
+  Nhat=c(Nhat.Tost["R.N","estimate"],
+         Nhat.Noyon["R.N","estimate"],
+         Nhat.Nemegt["R.N","estimate"]),
+  lower=c(Nhat.Tost["R.N","lcl"],
+         Nhat.Noyon["R.N","lcl"],
+         Nhat.Nemegt["R.N","lcl"]),
+  upper=c(Nhat.Tost["R.N","ucl"],
+         Nhat.Noyon["R.N","ucl"],
+         Nhat.Nemegt["R.N","ucl"])
+)
+row.names(Nhats)=c("Tost","Noyon","Nemegt")
+logNhats = log(Nhats)
+
+
+# Basic model estiamtes:
+Basic.Nemegt = region.N(Nemegt.basic)
+Basic.Noyon = region.N(Noyon.basic)
+Basic.Tost = region.N(Tost.basic)
+Basics = data.frame(
+  Nhat=c(Basic.Tost["R.N","estimate"],
+         Basic.Noyon["R.N","estimate"],
+         Basic.Nemegt["R.N","estimate"]),
+  lower=c(Basic.Tost["R.N","lcl"],
+          Basic.Noyon["R.N","lcl"],
+          Basic.Nemegt["R.N","lcl"]),
+  upper=c(Basic.Tost["R.N","ucl"],
+          Basic.Noyon["R.N","ucl"],
+          Basic.Nemegt["R.N","ucl"])
+)
+row.names(Basics)=c("Tost","Noyon","Nemegt")
+logBasics = log(Basics)
+
+# Do some plots
+meanGC = c(unique(covariates(TostMask)$rmeanGC),
+           unique(covariates(NoyonMask)$rmeanGC),
+           unique(covariates(NemegtMask)$rmeanGC))
+names(meanGC) = c("Tost","Noyon","Nemegt")
+# Estimates on natrual scale:
+ylim = range(Nhats,Basics)
+plot(meanGC,Nhats$Nhat,pch=19,ylim=ylim)
+lines(meanGC,Nhats$Nhat,lty=2)
+segments(meanGC,Nhats$lower,meanGC,Nhats$upper)
+offset=0.1
+points(meanGC+offset,Basics$Nhat,pch=19,ylim=ylim,col="gray")
+lines(meanGC+offset,Basics$Nhat,lty=2,col="gray")
+segments(meanGC+offset,Basics$lower,meanGC+offset,Basics$upper,col="gray")
+# Estimates on log scale:
+ylim = range(logNhats,logBasics)
+plot(meanGC,logNhats$Nhat,pch=19,ylim=ylim)
+lines(meanGC,logNhats$Nhat,lty=2)
+segments(meanGC,logNhats$lower,meanGC,logNhats$upper)
+offset=0.1
+points(meanGC+offset,logBasics$Nhat,pch=19,ylim=ylim,col="gray")
+lines(meanGC+offset,logBasics$Nhat,lty=2,col="gray")
+segments(meanGC+offset,logBasics$lower,meanGC+offset,logBasics$upper,col="gray")
+
+
+
+
+
+
+
+
+
+
 
 
 
