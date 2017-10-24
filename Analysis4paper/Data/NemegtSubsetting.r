@@ -1,3 +1,8 @@
+library(secr)
+library(fields)
+library(maptools)
+source("scrplotting.r")
+
 NemegtADDITIONAL_ch<-read.capthist(captfile = "./Analysis4paper/Data/Nemegt_capthist.csv", 
                                    trapfile = "./Analysis4paper/Data/Nemegt_ADDITIONALcams.csv", 
                                    detector="count", binary.usage=FALSE, fmt = "trapID", 
@@ -54,7 +59,7 @@ text(acams$x,acams$y,labels=Ncap)
 bigcapstrap = which(trapN==max(trapN))
 NemegtADDITIONAL_ch[,1,bigcapstrap]
 
-# Plot of Scrawny's capture history
+# Plot of various individual's capture histories in east (maybe they are to blame for odd estimates)
 cats = c("IdereGerle","Pundit","Scrawny","Sumbe")
 quartz(h=8,w=8)
 par(mfrow=c(2,2))
@@ -186,7 +191,8 @@ quartz(h=8,w=8)
 par(mfrow=c(2,1))
 plotcovariate(DhatADDa,covariate="D.0",asp=1,main="Density",contour=FALSE)
 plotcovariate(NEhatADDa,covariate="noneuc.0",asp=1,main="noneuc",contour=FALSE)
-# Hoorayyyyy - that seems to work !!!
+# If you remove "link = list(noneuc="identity")" it seems to work !!!
+# But that is an odd noneuc form
 # Try without the artificial cameras:
 NemegtALLa<-secr.fit(NemegtALL_ch, detectfn="HHN", mask=NemegtMask,
                      model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
