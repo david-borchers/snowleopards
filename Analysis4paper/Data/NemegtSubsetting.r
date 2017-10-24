@@ -155,11 +155,13 @@ myLCdistfun <- function (xy1, xy2, mask) {
 NemegtADDwest2a<-secr.fit(NemegtADDwest2_ch, detectfn="HHN", mask=NemegtMask,
                          model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                          details = list(userdist = myLCdistfun),
-                         start = list(noneuc = 1))
+                         start = list(noneuc = 1),
+                         link = list(noneuc="identity"))
 NemegtADDeast2a<-secr.fit(NemegtADDeast2_ch, detectfn="HHN", mask=NemegtMask,
                          model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                          details = list(userdist = myLCdistfun),
-                         start = list(noneuc = 1))
+                         start = list(noneuc = 1),
+                         link = list(noneuc="identity"))
 DhatADDwest2a = predictDsurface(NemegtADDwest2a,parameter="D")
 NEhatADDwest2a = predictDsurface(NemegtADDwest2a,parameter="noneuc")
 DhatADDeast2a = predictDsurface(NemegtADDeast2a,parameter="D")
@@ -176,7 +178,8 @@ plotcovariate(NEhatADDeast2a,covariate="noneuc.0",asp=1,main="noneuc",contour=FA
 NemegtADDa<-secr.fit(NemegtADDITIONAL_ch, detectfn="HHN", mask=NemegtMask,
                           model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                           details = list(userdist = myLCdistfun),
-                          start = list(noneuc = 1))
+                          start = list(noneuc = 1),
+                     link = list(noneuc="identity"))
 DhatADDa = predictDsurface(NemegtADDa,parameter="D")
 NEhatADDa = predictDsurface(NemegtADDa,parameter="noneuc")
 quartz(h=8,w=8)
@@ -188,7 +191,8 @@ plotcovariate(NEhatADDa,covariate="noneuc.0",asp=1,main="noneuc",contour=FALSE)
 NemegtALLa<-secr.fit(NemegtALL_ch, detectfn="HHN", mask=NemegtMask,
                      model=list(D~stdGC, lambda0~Water, sigma~1, noneuc ~ stdGC -1), 
                      details = list(userdist = myLCdistfun),
-                     start = list(noneuc = 1))
+                     start = list(noneuc = 1),
+                     link = list(noneuc="identity"))
 NemegtDhatALLa = predictDsurface(NemegtALLa,parameter="D")
 NemegtNEhatALLa = predictDsurface(NemegtALLa,parameter="noneuc")
 #quartz(h=8,w=8)
@@ -202,16 +206,19 @@ dev.off()
 Noyon.NUstdGCa<-secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
                         model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                         details = list(userdist = myLCdistfun),
-                        start = list(noneuc = 1))
+                        start = list(noneuc = 1),
+                        link = list(noneuc="identity"))
 Tost.NUstdGCa<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
                        model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                        details = list(userdist = myLCdistfun),
-                       start = list(noneuc = 1))
+                       start = list(noneuc = 1),
+                       link = list(noneuc="identity"))
 # Did not converge, so try again starting where left off
 Tost.NUstdGCa<-secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
                         model=list(D~stdGC, lambda0~1, sigma~1, noneuc ~ stdGC -1), 
                         details = list(userdist = myLCdistfun),
-                        start = Tost.NUstdGCa)
+                        start = Tost.NUstdGCa,
+                        link = list(noneuc="identity"))
 
 NoyonDhatALLa = predictDsurface(Noyon.NUstdGCa,parameter="D")
 NoyonNEhatALLa = predictDsurface(Noyon.NUstdGCa,parameter="noneuc")
