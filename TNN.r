@@ -81,6 +81,11 @@ plot(boundaryTost,add=TRUE,border=1)
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
                              trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
                              fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
+all.data.Nemegt_Rx2<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_reduced2.csv", 
+                                   trapfile = "./Nemegt/Nemegt2013_Cams_add1.csv", 
+                                   detector="count", fmt = "trapID", 
+                                   trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
+                                   binary.usage=FALSE)
 all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", 
                                trapfile = "./Nemegt/Nemegt2013_Cams.csv", 
                                detector="count", fmt = "trapID", 
