@@ -84,6 +84,13 @@ text(730000,4805000,labels="Noyon")
 text(600000,4798000,labels="Tost")
 dev.off()
 
+quartz(h=6,w=3)
+par(mfrow=c(3,1))
+hist(covariates(NemegtMask)$stdGC)
+hist(covariates(NoyonMask)$stdGC)
+hist(covariates(TostMask)$stdGC)
+par(mfrow=c(1,1))
+
 
 zlim = range(covariates(NoyonMask)$GC,
              covariates(TostMask)$GC)
@@ -233,4 +240,50 @@ AIC(TNNfit.rmeanGC.sess,TNNfit.rmeanGC)
 # Save the fits:
 save(TN.Tost.stdGCmean,TN.Noyon.stdGCmean,TN.Nemegt.stdGCmean,TNfit,TNNfit,TNNfit.rmeanGC.sess,TNNfit.rmeanGC,file="./Analysis4paper/TNNnoNEfits.RData")
 
+# Predict density surface from best combined model:
+predD = predictDsurface(TNNfit.rmeanGC)
+covariates(TostMask)$Dhat = covariates(predD[[1]])$D.0
+covariates(NoyonMask)$Dhat = covariates(predD[[2]])$D.0
+covariates(NemegtMask)$Dhat = covariates(predD[[3]])$D.0
+
+# Plot Density estimates
+pdf("./ANalysis4paper/Plots/TNNDhats.pdf",h=5,w=10)
+zlim = range(covariates(NemegtMask)$Dhat,
+             covariates(NoyonMask)$Dhat,
+             covariates(TostMask)$Dhat)
+plot(xlim,ylim,xlim=xlim,ylim=ylim,type="n",asp=1,bty="n",xlab="Easting",ylab="Northing") 
+plotcovariate(NemegtMask,covariate="Dhat",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(NoyonMask,covariate="Dhat",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(TostMask,covariate="Dhat",add=TRUE,zlim=zlim,contour=FALSE)
+# add cameras
+#plot(TNN.cams,detpar=list(col="red",cex=0.5),add=TRUE)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+dev.off()
+
+
+
+# Predict density surface from separate models:
+covariates(TostMask)$Dhat.ind = covariates(predictDsurface(TN.Tost.stdGCmean))$D.0
+covariates(NoyonMask)$Dhat.ind = covariates(predictDsurface(TN.Noyon.stdGCmean))$D.0
+covariates(NemegtMask)$Dhat.ind = covariates(predictDsurface(TN.Nemegt.stdGCmean))$D.0
+
+# Plot Density estimates
+pdf("./ANalysis4paper/Plots/TNNDhatsIndividModels.pdf",h=5,w=10)
+zlim = range(covariates(NemegtMask)$Dhat.ind,
+             covariates(NoyonMask)$Dhat.ind,
+             covariates(TostMask)$Dhat.ind)
+plot(xlim,ylim,xlim=xlim,ylim=ylim,type="n",asp=1,bty="n",xlab="Easting",ylab="Northing") 
+plotcovariate(NemegtMask,covariate="Dhat.ind",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(NoyonMask,covariate="Dhat.ind",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(TostMask,covariate="Dhat.ind",add=TRUE,zlim=zlim,contour=FALSE)
+# add cameras
+#plot(TNN.cams,detpar=list(col="red",cex=0.5),add=TRUE)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+dev.off()
 
