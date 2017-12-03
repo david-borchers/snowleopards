@@ -19,6 +19,17 @@ TNN_ch<-read.capthist(captfile = "./Analysis4paper/Data/TNN_capthist.csv",
                       trapcovnames = c("Rgd","Topo", "Water", "Winter"))
 summary(TNN_ch)
 
+# Tost and Noyon
+TN.trapfiles = c(
+  "./Analysis4paper/Data/Tost_cams.csv",
+  "./Analysis4paper/Data/Noyon_cams.csv"
+)
+TN_ch<-read.capthist(captfile = "./Analysis4paper/Data/TN_capthist.csv", 
+                      binary.usage = FALSE, trapfile = TN.trapfiles, 
+                      detector="count", fmt = "trapID", 
+                      trapcovnames = c("Rgd","Topo", "Water", "Winter"))
+summary(TN_ch)
+
 # Individual regions
 Tost_ch<-read.capthist(captfile = "./Analysis4paper/Data/Tost_capthist.csv",   
                        trapfile = TNN.trapfiles[1], 
@@ -33,40 +44,75 @@ Nemegt_ch<-read.capthist(captfile = "./Analysis4paper/Data/Nemegt_capthist.csv",
                          detector="count", binary.usage=FALSE, fmt = "trapID", 
                          trapcovnames = c("Rgd", "Topo", "Water", "Winter"))
 
-# Standarize Rgd on traps across all regions
-# ------------------------------------------
-TNN.cams=traps(TNN_ch)
-# look at covariates for each session:
-lapply(covariates(TNN.cams),summary)
-# To standardise in same way over all sessions, need to combine, standarise and then separate:
-Rgds = c(covariates(TNN.cams[[1]])$Rgd,
-         covariates(TNN.cams[[2]])$Rgd,
-         covariates(TNN.cams[[3]])$Rgd)
-stdRgd = scale(Rgds)
-n1 = dim(TNN.cams[[1]])[1]
-n2 = dim(TNN.cams[[2]])[1]
-n3 = dim(TNN.cams[[3]])[1]
-covariates(TNN.cams[[1]])$stdRgd = stdRgd[1:n1]
-covariates(TNN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
-covariates(TNN.cams[[3]])$stdRgd = stdRgd[(n1+n2+1):(n1+n2+n3)]
-
-# Put trap covariates stdRgd into individual capture history files
-covariates(traps(Tost_ch))$stdRgd = covariates(TNN.cams[[1]])$stdRgd
-covariates(traps(Noyon_ch))$stdRgd = covariates(TNN.cams[[2]])$stdRgd
-covariates(traps(Nemegt_ch))$stdRgd = covariates(TNN.cams[[3]])$stdRgd
-
-# look at covariates for each session again:
-lapply(covariates(TNN.cams),summary)
-
-# put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
-traps(TNN_ch[[1]]) = TNN.cams[[1]]
-traps(TNN_ch[[2]]) = TNN.cams[[2]]
-traps(TNN_ch[[3]]) = TNN.cams[[3]]
-
-summary(covariates(traps(TNN_ch))[[1]])
-summary(covariates(traps(TNN_ch))[[2]])
-summary(covariates(traps(TNN_ch))[[3]])
-# -------------------- End Capture Histories --------------------------
+# # Standarize Rgd on traps across all regions
+# # ====
+# # # NOTE: This is now redundant - replaced by code for covariates after dealing with mask covariates
+# ====
+# # ------------------------------------------
+# TNN.cams=traps(TNN_ch)
+# # look at covariates for each session:
+# lapply(covariates(TNN.cams),summary)
+# # To standardise in same way over all sessions, need to combine, standarise and then separate:
+# Rgds = c(covariates(TNN.cams[[1]])$Rgd,
+#          covariates(TNN.cams[[2]])$Rgd,
+#          covariates(TNN.cams[[3]])$Rgd)
+# stdRgd = scale(Rgds)
+# n1 = dim(TNN.cams[[1]])[1]
+# n2 = dim(TNN.cams[[2]])[1]
+# n3 = dim(TNN.cams[[3]])[1]
+# covariates(TNN.cams[[1]])$stdRgd = stdRgd[1:n1]
+# covariates(TNN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
+# covariates(TNN.cams[[3]])$stdRgd = stdRgd[(n1+n2+1):(n1+n2+n3)]
+# 
+# # Put trap covariates stdRgd into individual capture history files
+# covariates(traps(Tost_ch))$stdRgd = covariates(TNN.cams[[1]])$stdRgd
+# covariates(traps(Noyon_ch))$stdRgd = covariates(TNN.cams[[2]])$stdRgd
+# covariates(traps(Nemegt_ch))$stdRgd = covariates(TNN.cams[[3]])$stdRgd
+# 
+# # look at covariates for each session again:
+# lapply(covariates(TNN.cams),summary)
+# 
+# # put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
+# traps(TNN_ch[[1]]) = TNN.cams[[1]]
+# traps(TNN_ch[[2]]) = TNN.cams[[2]]
+# traps(TNN_ch[[3]]) = TNN.cams[[3]]
+# 
+# summary(covariates(traps(TNN_ch))[[1]])
+# summary(covariates(traps(TNN_ch))[[2]])
+# summary(covariates(traps(TNN_ch))[[3]])
+# 
+# 
+# # Standarize Rgd on traps across Tost and Noyon
+# # ====
+# # NOTE: This is now redundant - replaced by code for covariates after dealing with mask covariates
+# # ====
+# # ---------------------------------------------
+# TN.cams=traps(TN_ch)
+# # look at covariates for each session:
+# lapply(covariates(TN.cams),summary)
+# # To standardise in same way over all sessions, need to combine, standarise and then separate:
+# Rgds = c(covariates(TN.cams[[1]])$Rgd,
+#          covariates(TN.cams[[2]])$Rgd)
+# stdRgd = scale(Rgds)
+# n1 = dim(TN.cams[[1]])[1]
+# n2 = dim(TN.cams[[2]])[1]
+# covariates(TN.cams[[1]])$stdRgd = stdRgd[1:n1]
+# covariates(TN.cams[[2]])$stdRgd = stdRgd[(n1+1):(n1+n2)]
+# 
+# # Put trap covariates stdRgd into individual capture history files
+# covariates(traps(Tost_ch))$stdRgd = covariates(TN.cams[[1]])$stdRgd
+# covariates(traps(Noyon_ch))$stdRgd = covariates(TN.cams[[2]])$stdRgd
+# 
+# # look at covariates for each session again:
+# lapply(covariates(TN.cams),summary)
+# 
+# # put traps back into capthist (if don't put back by list elements, all.data.TN becomes a 'traps' object!)
+# traps(TN_ch[[1]]) = TN.cams[[1]]
+# traps(TN_ch[[2]]) = TN.cams[[2]]
+# 
+# summary(covariates(traps(TN_ch))[[1]])
+# summary(covariates(traps(TN_ch))[[2]])
+# # -------------------- End Capture Histories --------------------------
 
 
 # -------------------- Start Boundary Files  --------------------------
@@ -140,27 +186,42 @@ sdBC = sqrt(var(BC))
 # Standardize BC
 stdBC = scale(BC)
 
-# Create region, mean GC and BC variables
+# Create region, mean GC and BC, and total GC and BC variables
 in.Tos = 1:nTos
 in.Noy = (nTos+1):(nTos+nNoy)
 in.Nem = (nTos+nNoy+1):(nTos+nNoy+nNem)
 #region = c(rep("Nemegt",nNem),rep("Noyon",nNoy),rep("Tost",nTos))
-rmeanGCdev = rmeanBCdev = rmeanGC = rmeanBC = rep(NA,(nTos+nNoy+nNem))
+rsumGC = rsumBC = rmeanGCdev = rmeanBCdev = rmeanGC = rmeanBC = rep(NA,(nTos+nNoy+nNem))
 # create region-specific mean covariates
-rmeanGC[in.Tos] = mean(GC[in.Tos])
-rmeanBC[in.Tos] = mean(BC[in.Tos])
-rmeanGC[in.Noy] = mean(GC[in.Noy])
-rmeanBC[in.Noy] = mean(BC[in.Noy])
-rmeanGC[in.Nem] = mean(GC[in.Nem])
-rmeanBC[in.Nem] = mean(BC[in.Nem])
+rmeanGC[in.Tos] = mean(stdGC[in.Tos])
+rmeanBC[in.Tos] = mean(stdBC[in.Tos])
+rmeanGC[in.Noy] = mean(stdGC[in.Noy])
+rmeanBC[in.Noy] = mean(stdBC[in.Noy])
+rmeanGC[in.Nem] = mean(stdGC[in.Nem])
+rmeanBC[in.Nem] = mean(stdBC[in.Nem])
 # create region-specific deviation-from-mean covariates
-rmeanGCdev[in.Tos] = GC[in.Tos] - rmeanGC[in.Tos]
-rmeanBCdev[in.Tos] = GC[in.Tos] - rmeanBC[in.Tos]
-rmeanGCdev[in.Noy] = GC[in.Noy] - rmeanGC[in.Noy]
-rmeanBCdev[in.Noy] = GC[in.Noy] - rmeanBC[in.Noy]
-rmeanGCdev[in.Nem] = GC[in.Nem] - rmeanGC[in.Nem]
-rmeanBCdev[in.Nem] = GC[in.Nem] - rmeanBC[in.Nem]
-
+rmeanGCdev[in.Tos] = stdGC[in.Tos] - rmeanGC[in.Tos]
+rmeanBCdev[in.Tos] = stdGC[in.Tos] - rmeanBC[in.Tos]
+rmeanGCdev[in.Noy] = stdGC[in.Noy] - rmeanGC[in.Noy]
+rmeanBCdev[in.Noy] = stdGC[in.Noy] - rmeanBC[in.Noy]
+rmeanGCdev[in.Nem] = stdGC[in.Nem] - rmeanGC[in.Nem]
+rmeanBCdev[in.Nem] = stdGC[in.Nem] - rmeanBC[in.Nem]
+# create region-specific sum covariates
+rsumGC[in.Tos] = sum(stdGC[in.Tos])
+rsumBC[in.Tos] = sum(stdBC[in.Tos])
+rsumGC[in.Noy] = sum(stdGC[in.Noy])
+rsumBC[in.Noy] = sum(stdBC[in.Noy])
+rsumGC[in.Nem] = sum(stdGC[in.Nem])
+rsumBC[in.Nem] = sum(stdBC[in.Nem])
+# scale the three sums:
+scaledsumGC = scale(c(rsumGC[in.Tos][1],rsumGC[in.Noy][1],rsumGC[in.Nem][1]))
+scaledsumBC = scale(c(rsumBC[in.Tos][1],rsumBC[in.Noy][1],rsumBC[in.Nem][1]))
+rsumGC[in.Tos]=scaledsumBC[1]
+rsumGC[in.Noy]=scaledsumBC[2]
+rsumGC[in.Nem]=scaledsumBC[3]
+rsumBC[in.Tos]=scaledsumBC[1]
+rsumBC[in.Noy]=scaledsumBC[2]
+rsumBC[in.Nem]=scaledsumBC[3]
 # Put variables back in masks
 covariates(NemegtMask)$stdGC = stdGC[in.Nem]
 covariates(NemegtMask)$stdBC = stdBC[in.Nem]
@@ -170,6 +231,8 @@ covariates(NemegtMask)$rmeanGC = rmeanGC[in.Nem]
 covariates(NemegtMask)$rmeanBC = rmeanBC[in.Nem]
 covariates(NemegtMask)$rmeanGCdev = rmeanGCdev[in.Nem]
 covariates(NemegtMask)$rmeanBCdev = rmeanBCdev[in.Nem]
+covariates(NemegtMask)$rsumGC = rsumGC[in.Nem]
+covariates(NemegtMask)$rsumBC = rsumBC[in.Nem]
 
 covariates(NoyonMask)$stdGC = stdGC[in.Noy]
 covariates(NoyonMask)$stdBC = stdBC[in.Noy]
@@ -179,6 +242,8 @@ covariates(NoyonMask)$rmeanGC = rmeanGC[in.Noy]
 covariates(NoyonMask)$rmeanBC = rmeanBC[in.Noy]
 covariates(NoyonMask)$rmeanGCdev = rmeanGCdev[in.Noy]
 covariates(NoyonMask)$rmeanBCdev = rmeanBCdev[in.Noy]
+covariates(NoyonMask)$rsumGC = rsumGC[in.Noy]
+covariates(NoyonMask)$rsumBC = rsumBC[in.Noy]
 
 covariates(TostMask)$stdGC = stdGC[in.Tos]
 covariates(TostMask)$stdBC = stdBC[in.Tos]
@@ -188,9 +253,34 @@ covariates(TostMask)$rmeanGC = rmeanGC[in.Tos]
 covariates(TostMask)$rmeanBC = rmeanBC[in.Tos]
 covariates(TostMask)$rmeanGCdev = rmeanGCdev[in.Tos]
 covariates(TostMask)$rmeanBCdev = rmeanBCdev[in.Tos]
+covariates(TostMask)$rsumGC = rsumGC[in.Tos]
+covariates(TostMask)$rsumBC = rsumBC[in.Tos]
 
 # -------------------- End Masks --------------------------
+TNN.cams=traps(TNN_ch)
+# look at covariates for each session:
+lapply(covariates(TNN.cams),summary)
 
+# Put mask covariates into individual trap files
+covnames = c("GRIDCODE","BINCODE","stdGC","stdBC","GC","BC","rmeanGC","rmeanBC","rmeanGCdev","rsumGC","rsumBC")
+TNN.cams[[1]] = addCovariates(TNN.cams[[1]],TostMask,columns=covnames,replace=TRUE)
+TNN.cams[[2]] = addCovariates(TNN.cams[[2]],NoyonMask,columns=covnames,replace=TRUE)
+TNN.cams[[3]] = addCovariates(TNN.cams[[3]],NemegtMask,columns=covnames,replace=TRUE)
+
+# look at covariates for each session again:
+lapply(covariates(TNN.cams),summary)
+
+# put traps back into capthist (if don't put back by list elements, all.data.TNN becomes a 'traps' object!)
+traps(TNN_ch[[1]]) = TNN.cams[[1]]
+traps(TNN_ch[[2]]) = TNN.cams[[2]]
+traps(TNN_ch[[3]]) = TNN.cams[[3]]
+Tost_ch = TNN_ch[[1]]
+Noyon_ch = TNN_ch[[2]]
+Nemegt_ch = TNN_ch[[3]]
+# -------------------- Put all mask covariates into traps --------------------------
+
+
+# ----------------- END of put all mask covariates into traps ----------------------
 
 # -------------------- Start RData Save --------------------------
 Tostboundary = boundaryTost
@@ -199,4 +289,5 @@ Nemegtboundary = boundaryNemegt
 save(Tostboundary,Noyonboundary,Nemegtboundary,file="./Analysis4paper/TNN_boundaries.RData")
 save(TostMask,NoyonMask,NemegtMask,file="./Analysis4paper/TNN_masks.RData")
 save(Tost_ch,Noyon_ch,Nemegt_ch,TNN_ch,file="./Analysis4paper/TNN_caphists.RData")
+#save(Tost_ch,Noyon_ch,TN_ch,file="./Analysis4paper/TN_caphists.RData")
 # -------------------- End RData Save --------------------------
