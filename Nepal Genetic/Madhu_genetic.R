@@ -15,8 +15,8 @@ Madhu.Data2<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps_Fin.txt", bina
                            trapfile ="./Nepal Genetic/Madhu_Traps_Fin.txt", detector="transect",fmt = "XY",
                            trapcovnames = c("Topography","Habitats","Altitude"))
 
-boundaryMadhu=readShapeSpatial("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly1.shp")
-boundaryMadhu2=readShapeSpatial("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly_clip.shp")
+boundaryMadhu=readShapeSpatial("C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly1.shp")
+boundaryMadhu2=readShapeSpatial("C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Madhu_poly_clip.shp")
 
 plot(boundaryMadhu)
 plot(boundaryMadhu2)
@@ -34,6 +34,7 @@ MadhuMask2=make.mask(traps(Madhu.Data2), spacing=1000, buffer = 35000, type="tra
 ?make.mask
 
 plot(MadhuMask2)
+write.csv(MadhuMask2, file = "./MadhuMask2.csv") #Save mask as CSV, to open and add covariates in ArcGIS. Much faster!
 RPSV(Madhu.Data2,CC=TRUE)
 summary(Madhu.Data2)
 
@@ -41,6 +42,7 @@ Madhu.hhn<-secr.fit(Madhu.Data2, model=list(D~1, lambda0~1, sigma~1), detectfn="
 region.N(Madhu.hhn)
 
 summary(Madhu.Data2)
+
 # Standarize Rgd on traps (this makes fits a bit more stable)
 # -----------------------------------------------------------
 summary(covariates(traps(Madhu.Data2)))
@@ -49,9 +51,28 @@ summary(covariates(traps(Madhu.Data2)))
 head(covariates(traps(Madhu.Data2)))
 
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
-SLRgd.Madhu<-readShapePoly("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Rugged_1000shp.shp")  #ruggedness pixels averaged over 500m radius
-SLAlt.Madhu<-readShapePoly("C:/Users/Koustubh/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Altitude.shp")
+# -----------------------------------------------------------
+#SLRgd.Madhu<-readShapePoly("C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Rugged_1000shp.shp")  #ruggedness pixels averaged over 500m radius
+
+#SLAlt.Madhu<-readShapePoly("C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Nepal/Altitude.shp")
 # using focal statistics tool
+
+#Create covariates in ArcGIS by adding columns to the exported CSV file
+MadhuMask2a <- read.mask (file = "C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/Madhu_MaskCovs.csv", 
+                        spacing = 1000, header = TRUE)
+
+summary(covariates(MadhuMask2a))
+covariates(MadhuMask2a)$StdRgd = scale(covariates(MadhuMask2a)$Rgd)
+covariates(MadhuMask2a)$StdAlt = scale(covariates(MadhuMask2a)$Alt)
+summary(covariates(MadhuMask2a))
+names(covariates(MadhuMask2a))
+
+
+plotcovariate(MadhuMask2a, covariate = "StdRgd")
+plotcovariate(MadhuMask2a, covariate = "StdAlt")
+
+summary(covariates(MadhuMask2a))
+
 
 MadhuMask2a<-addCovariates(MadhuMask2, SLRgd.Madhu)
 MadhuMask2a<-addCovariates(MadhuMask2a, SLAlt.Madhu)

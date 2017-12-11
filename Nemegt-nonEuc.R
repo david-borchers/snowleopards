@@ -757,7 +757,8 @@ all.data.Nemegt_Rx2<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture_reduc
 
 boundaryNemegt2x=readShapeSpatial("./Nemegt//Habitat/Nemegt_StudyArea2.shp")
 # and plot it
-summary(all.data.Nemegt_Rx)
+summary(all.data.Nemegt_Rx2)
+plot(all.data.Nemegt_Rx2)
 
 plot(boundaryNemegt2x)
 plot(x=all.data.Nemegt_Rx, add=TRUE, tracks=TRUE)
