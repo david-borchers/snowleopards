@@ -17,7 +17,14 @@ TNN_ch<-read.capthist(captfile = "./Analysis4paper/Data/TNN_capthist.csv",
                       binary.usage = FALSE, trapfile = TNN.trapfiles, 
                       detector="count", fmt = "trapID", 
                       trapcovnames = c("Rgd","Topo", "Water", "Winter"))
+
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
+                             trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
+                             fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
+
 summary(TNN_ch)
+summary(covariates(traps(TNN_ch)))
+names(covariates(traps(TNN_ch)))
 
 # Tost and Noyon
 TN.trapfiles = c(
