@@ -26,7 +26,7 @@ all.data.TNN<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv",
                             binary.usage = FALSE, trapfile = TNN.trapfiles, 
                             detector="count", fmt = "trapID", 
                             trapcovnames = c("Rgd","Topo", "Water", "Winter"))
-summary(all.data.TNN)
+summary(covariates(traps(all.data.TNN)))
 
 head(TNN.trapfiles)
 

@@ -8,21 +8,24 @@ library(gdistance)
 #Running SECR for Tost 2012
 
 # Read capture file and boundary
+setwd("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards")
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
 trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
 fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
 
 #all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
-
-boundaryTost=readShapeSpatial("./Tost//Habitat/TostStudy_Area.shp")
+plot(all.data.Tost)
+plot(traps(all.data.Tost))
+getwd()
+boundaryTost=readShapeSpatial("./Tost/Habitat/TostStudy_Area.shp")
 # and plot it
-plot(boundaryTost)
+plot(boundaryTost, add = TRUE)
 plot(x=all.data.Tost, add=TRUE)
 summary(all.data.Tost)
 
 # Make mask:
 TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryTost)
-
+plot(TostMask)
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
 SLCost.Tost<-readShapePoly("./Tost//Habitat/Tost_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
 TostMask1<-addCovariates(TostMask, SLCost.Tost)
@@ -472,6 +475,8 @@ AICTostz=AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx,
               Tost.hhn.D.DetW.nonUz, Tost.hhn.D.DetT10.nonUz, Tost.hhn.SigTopo.DGC.nonU.GCz,
              Tost.a0Topo.DGC.nonU.GCz, Tost.a0.SigTopo.DGC.nonU.GCz, Tost.hhn.D.a0Topo.nonUz,
              Tost.hhn.DHab.a0.nonUz, criterion = "AICc")
+
+AIC(Tost.hhnx, Tost.hhn.detTopo10x, Tost.hhn.detWaterx, Tost.hhn.DHabx, criterion = "AICc")
 AICTostz
 AICTost
 AICTostcoefficients(Tost.hhn.DHab.nonU.GBx)

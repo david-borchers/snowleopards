@@ -3,6 +3,7 @@ library(fields)
 library(maptools)
 source("scrplotting.r")
 library(gdistance)
+library(raster)
 
 Trial.Data1<-read.capthist(captfile = "./Nepal Genetic/Madhu_Caps2.txt",
                            trapfile ="./Nepal Genetic/Madhu_T2.txt", detector="transect",fmt = "XY")
@@ -93,6 +94,46 @@ Madhu.hhn.lam_Habitat<-secr.fit(Madhu.Data2, model=list(D~1, lambda0~"Topography
 
 skMadhu.hhn.D_alt<-secr.fit(Madhu.Data2, model=list(D~"StdAltitude", lambda0~"Topography", sigma~1), 
                             detectfn="HHN", mask=MadhuMask)
+
+
+load("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/Madhu_FirstSet.RData")
+AIC(Madhu.hhn, Madhu.hhn.lam_Topo, Madhu.hhn.lam_Alt, Madhu.hhn.lam_Habitat, skMadhu.hhn.D_alt, 
+    skMadhu.hhn.D_alt.lam_Topo, skMadhu.hhn.D_rgd.lam_Topo, skMadhu.hhn.D_AltRgd.lam_Topo, skMadhu.hhn.D_Alt2.lam_Topo, criterion = "AIC")
+
+coefficients(skMadhu.hhn.D_Alt2.lam_Topo)
+MadhuTop<-predictDsurface(skMadhu.hhn.D_Alt2.lam_Topo)
+getwd()
+
+plot(MadhuTop,contour=FALSE)
+head(covariates(MadhuTop))
+
+write.csv(MadhuTop, file = "./MadhuPlot.csv") #Save top model surface as CSV, to open in ArcGIS!
+write.csv(covariates(MadhuTop), file = "./MadhuPlot_Covs.csv") #Save top model surface as CSV, to open in ArcGIS!
+
+
+model.average(skMadhu.hhn.D_Alt2.lam_Topo, skMadhu.hhn.D_alt.lam_Topo, Madhu.hhn.lam_Topo, skMadhu.hhn.D_AltRgd.lam_Topo,
+              skMadhu.hhn.D_rgd.lam_Topo, Madhu.hhn.lam_Alt, realnames = "D")
+predict(skMadhu.hhn.D_Alt2.lam_Topo)
+coefficients(skMadhu.hhn.D_Alt2.lam_Topo)
+coefficients(skMadhu.hhn.D_alt.lam_Topo)
+coefficients(Madhu.hhn.lam_Topo)
+coefficients(skMadhu.hhn.D_AltRgd.lam_Topo)
+coefficients(skMadhu.hhn.D_rgd.lam_Topo)
+coefficients(Madhu.hhn.lam_Alt)
+
+
+ModAv_Pop<-(region.N(skMadhu.hhn.D_Alt2.lam_Topo)*0.33)+(region.N(skMadhu.hhn.D_alt.lam_Topo)*0.2599)+(region.N(Madhu.hhn.lam_Topo)*0.2246)+
+                                                                                                         (region.N(skMadhu.hhn.D_AltRgd.lam_Topo)*.0977)+
+                                                                                                         (region.N(skMadhu.hhn.D_rgd.lam_Topo)*0.0827)
+ModAv_Pop
+#Estimate max and min density from top model per 100 sq km
+max(covariates(MadhuTop)$D.0)*10000
+min(covariates(MadhuTop)$D.0)*10000
+TopAbund<-region.N(skMadhu.hhn.D_Alt2.lam_Topo)
+summary(MadhuMask)
+D_ModAv<-ModAv_Pop*100/15233
+D_ModAv
+
 
 
 all.data.Zoloon<-read.capthist(captfile = "./Nepal Genetic/Zoloon_caps.csv", 

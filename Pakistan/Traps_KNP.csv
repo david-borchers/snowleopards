@@ -1,0 +1,11 @@
+#Poly ID,X,Y,Usage,/,Camera,Lure,LureType,Habitat,Terrain
+1,503193,4080537,30,/,Reconyx,yes,fish_skunk,Scrub,draw
+2,502713,4079509,30,/,Reconyx,no,none,Forest,draw
+3,526535,4077758,29,/,Reconyx,no,none,barren,draw
+4,525628,4076249,29,/,Reconyx,yes,fish_castor,Pasture,ridge
+5,496405,4080444,28,/,Reconyx,no,none,Pasture,ridge
+6,499893,4079738,28,/,Cam_Trekker,yes,fish_castor,Forest,draw
+7,496357,4082381,28,/,Reconyx,no,none,Pasture,draw
+8,502858,4079081,27,/,Cam_Trekker,yes,fish_skunk,Pasture,ridge
+9,511947,4079969,27,/,Cam_Trekker,no,none,Pasture,ridge
+10,514878,4081707,27,/,Cam_Trekker,yes,none,Scrub,draw

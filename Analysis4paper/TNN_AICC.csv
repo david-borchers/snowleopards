@@ -1,0 +1,23 @@
+"","model","detectfn","npar","logLik","AIC","AICc","dAICc","AICcwt"
+"TNNfit.DGrid.a0Waterxsess_topo.sig1","D~stdGC a0~Topo + Water * session sigma~1","hazard halfnormal",11,-490.266673586071,1002.533,1011.637,0,0.6772
+"TNNfit.DGrid.a0Waterxsess.sig1","D~stdGC a0~Water * session sigma~1","hazard halfnormal",9,-494.721348150916,1007.443,1013.249,1.61200000000008,0.3025
+"TNNfit.DGrid.a0Topo.sig1","D~stdGC a0~Topo sigma~1","hazard halfnormal",6,-502.449262092322,1016.899,1019.369,7.73200000000008,0.0142
+"TNNfit.DGrid.a0Water_topo.sig1","D~stdGC a0~Water + Topo sigma~1","hazard halfnormal",7,-501.824551141554,1017.649,1021.043,9.40600000000006,0.0061
+"TNNfit.DGrid.a0Topo_sess.sig1","D~stdGC a0~Topo + session sigma~1","hazard halfnormal",8,-500.751500697137,1017.503,1022.003,10.3660000000001,0
+"TNNfit.DGrid.a0Water.sig1","D~stdGC a0~Water sigma~1","hazard halfnormal",5,-506.668890488074,1023.338,1025.052,13.415,0
+"TNNfit.DGrid_Sess.a0Topo.sig1","D~stdGC + session a0~Topo sigma~1","hazard halfnormal",8,-502.437685634539,1020.875,1025.375,13.7380000000001,0
+"TNNfit.D1.LamSess.sig1","D~1 lambda0~session sigma~1","hazard halfnormal",5,-507.923506680728,1025.847,1027.561,15.924,0
+"TNNfit.D1.Lam1s.sig1","D~1 lambda0~1 sigma~1","hazard halfnormal",3,-511.177451819496,1028.355,1029.004,17.367,0
+"TNNfit.DGridxSess.a0Topo.sig1","D~stdGC * session a0~Topo sigma~1","hazard halfnormal",10,-502.420086483542,1024.84,1032.174,20.537,0
+"TNNfit.Dsess.Lamsess.sigsess","D~session lambda0~session sigma~session","hazard halfnormal",9,-504.829275000907,1027.659,1033.465,21.828,0
+"TNN.DGrid.LamTopo.Sig1","D~rmeanGC + rmeanGCdev:session + session lambda0~Topo sigma~1","hazard halfnormal",11,-502.420086481524,1026.84,1035.944,24.307,0
+"TNNfit.DGrid.a0TopoSess.sig1","D~stdGC a0~Topo * session sigma~1","hazard halfnormal",12,-500.430842590981,1024.862,1036.005,24.3680000000002,0
+"TNNfit.DGrid_Sess.a0Sess.sigsess","D~stdGC + session a0~session sigma~session","hazard halfnormal",10,-504.403963592981,1028.808,1036.141,24.5040000000001,0
+"TNNfit.DGrid.a0TopoSess.sigsess","D~stdGC a0~Topo * session sigma~session","hazard halfnormal",14,-497.828397233859,1023.657,1039.811,28.174,0
+"TNNfit.DGridXSess.a0Sess.sigsess","D~stdGC * session a0~session sigma~session","hazard halfnormal",12,-504.393066124797,1032.786,1043.929,32.2920000000001,0
+"TNNfit.DSess.a0TopoSess.sigSess","D~session a0~Topo * session sigma~session","hazard halfnormal",15,-497.772078360844,1025.544,1044.744,33.107,0
+"TNNfit.DGridSess.lamSess.SigSess","D~rmeanGC + rmeanGCdev:session + session lambda0~session sigma~session","hazard halfnormal",13,-504.39306612013,1034.786,1048.268,36.6310000000001,0
+"TNNfit.DGrid_Sess.a0TopoXSess.sigsess","D~stdGC + session a0~Topo * session sigma~session","hazard halfnormal",16,-497.744517654992,1027.489,1050.156,38.519,0
+"TNNfit.DGrid_Sess.a0Topo.Sess.sigsess","D~stdGC + session a0~Topo * session sigma~session","hazard halfnormal",16,-497.744517652372,1027.489,1050.156,38.519,0
+"TNN.DGridXsess.LamTopoXsess","D~rmeanGCdev * session lambda0~Topo * session sigma~1","hazard halfnormal",16,-500.320727256894,1032.641,1055.308,43.671,0
+"TNN.DGridXsess.DetTopoXsess","D~rmeanGCdev * session lambda0~Topo * session sigma~session","hazard halfnormal",18,-497.473665028601,1030.947,1062.038,50.4010000000001,0
