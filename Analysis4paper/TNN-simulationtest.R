@@ -6,13 +6,55 @@ library(maptools)
 library(gdistance) 
 
 
+if(.Platform$OS.type=="windows") { # this to make the command quartz( ) work on windows machines
+  quartz<-function() windows()
+}
+
 # Get some user functions for using noneuc in secr:
 # ================================================
 source("./Analysis4paper/noneuc-utils.R")
 
 # Get the Tost, Noyon and Nemegt data
 # ===================================
+#----------------------- Load the RData objects made by Make_TNN_RData.r --------------------------
+load("./Analysis4paper/TNN_boundaries.RData") # Tostboundary,Noyonboundary,Nemegtboundary
+load("./Analysis4paper/TNN_masks.RData") # TostMask,NoyonMask,NemegtMask
+load("./Analysis4paper/TNN_caphists.RData") # Tost_ch,Noyon_ch,Nemegt_sh,TNN_ch)
+#----------------------- ----------------------------------------------- --------------------------
+## Bundle them together in a single Rds file for convenience:
+#Tost = list(capthist=Tost_ch,mask=TostMask,boundary=Tostboundary)
+#Noyon = list(capthist=Noyon_ch,mask=NoyonMask,boundary=Noyonboundary)
+#Nemegt = list(capthist=Nemegt_ch,mask=NemegtMask,boundary=Nemegtboundary)
+#saveRDS(list(Tost=Tost,Noyon=Noyon,Nemegt=Nemegt),file="./Analysis4paper/TNN.Rds")
 dat = readRDS(TNNdat, file="./Analysis4paper/TNN.Rds")
+Tost = dat$Tost
+Nemegt = dat$Nemegt
+Noyon = dat$Noyon
+
+# Some plotting of data:
+# Find extent of bounding boxes of boundarys:
+bbox.Nemegt = bbox(Nemegt$boundary)
+bbox.Noyon = bbox(Noyon$boundary)
+bbox.Tost = bbox(Tost$boundary)
+bbxlim = range(bbox.Noyon["x",],bbox.Tost["x",],bbox.Nemegt["x",]) #Set plot limit for all 3 areas together
+bbylim = range(bbox.Noyon["y",],bbox.Tost["y",],bbox.Nemegt["y",])
+dxlim = diff(bbxlim)
+xlim = c(bbxlim[1],bbxlim[2]+0.15*dxlim)
+ylim = bbylim
+# Plot the 3 regions 
+quartz(w=10,h=6)
+plot(xlim,ylim,xlim=xlim,ylim=ylim,type="n",asp=1,bty="n",xlab="Easting",ylab="Northing") 
+plotcovariate(Tost$mask,covariate="stdGC",what="image",add=TRUE,col=terrain.colors(30))
+plotcovariate(Noyon$mask,covariate="stdGC",what="image",add=TRUE,col=terrain.colors(30))
+plotcovariate(Nemegt$mask,covariate="stdGC",what="image",add=TRUE,col=terrain.colors(30))
+plot(traps(Tost$capthist),add=TRUE)
+plot(traps(Noyon$capthist),add=TRUE)
+plot(traps(Nemegt$capthist),add=TRUE)
+plot(Tost$capthist, tracks=TRUE, add=TRUE,cappar=list(cex=0.5),varycol=FALSE)
+plot(Noyon$capthist, tracks=TRUE, add=TRUE,cappar=list(cex=0.5),varycol=FALSE)
+plot(Nemegt$capthist, tracks=TRUE, add=TRUE,cappar=list(cex=0.5),varycol=FALSE)
+
+
 
 # Consider Tost data
 # ==================
