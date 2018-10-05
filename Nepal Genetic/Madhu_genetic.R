@@ -67,7 +67,8 @@ covariates(MadhuMask2a)$StdRgd = scale(covariates(MadhuMask2a)$Rgd)
 covariates(MadhuMask2a)$StdAlt = scale(covariates(MadhuMask2a)$Alt)
 summary(covariates(MadhuMask2a))
 names(covariates(MadhuMask2a))
-
+MadhuMask<-MadhuMask2a
+names(covariates(MadhuMask))
 
 plotcovariate(MadhuMask2a, covariate = "StdRgd")
 plotcovariate(MadhuMask2a, covariate = "StdAlt")
@@ -95,6 +96,7 @@ Madhu.hhn.lam_Habitat<-secr.fit(Madhu.Data2, model=list(D~1, lambda0~"Topography
 skMadhu.hhn.D_alt<-secr.fit(Madhu.Data2, model=list(D~"StdAltitude", lambda0~"Topography", sigma~1), 
                             detectfn="HHN", mask=MadhuMask)
 
+covariates(MadhuMask)
 
 load("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/Madhu_FirstSet.RData")
 AIC(Madhu.hhn, Madhu.hhn.lam_Topo, Madhu.hhn.lam_Alt, Madhu.hhn.lam_Habitat, skMadhu.hhn.D_alt, 
@@ -113,6 +115,9 @@ write.csv(covariates(MadhuTop), file = "./MadhuPlot_Covs.csv") #Save top model s
 
 model.average(skMadhu.hhn.D_Alt2.lam_Topo, skMadhu.hhn.D_alt.lam_Topo, Madhu.hhn.lam_Topo, skMadhu.hhn.D_AltRgd.lam_Topo,
               skMadhu.hhn.D_rgd.lam_Topo, Madhu.hhn.lam_Alt, realnames = "D")
+
+model.average(region.N(skMadhu.hhn.D_Alt2.lam_Topo), region.N(skMadhu.hhn.D_alt.lam_Topo))
+
 predict(skMadhu.hhn.D_Alt2.lam_Topo)
 coefficients(skMadhu.hhn.D_Alt2.lam_Topo)
 coefficients(skMadhu.hhn.D_alt.lam_Topo)
@@ -134,8 +139,56 @@ summary(MadhuMask)
 D_ModAv<-ModAv_Pop*100/15233
 D_ModAv
 
+CentralNepal_SL=readShapeSpatial("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/CentralNepal_SL.shp")
+Manaslu_SL=readShapeSpatial("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/Manaslu_SL.shp")
+ACA_SL=readShapeSpatial("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/ACA_SL.shp")
 
+names(covariates(MadhuMask2a))
+CentralNepal_SLMask=make.mask(MadhuMask2a, poly=CentralNepal_SL)
+names(CentralNepal_SLMask)
+CentralNepal_SLMask1<-addCovariates(CentralNepal_SLMask, covariates(MadhuMask2a))
+covariates(CentralNepal_SLMask)
 
+CentralNepal_SLMask <- read.mask (file = "C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/CN_SLMask1.csv", 
+                          spacing = 1000, header = TRUE)
+summary(CentralNepal_SLMask)
+
+ACA_SLMask<- read.mask(file = "C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/ACA_SL_mask1.csv", 
+              spacing = 1000, header = TRUE)
+summary(ACA_SLMask)
+
+Manaslu_SLMask<- read.mask(file = "C:/Users/Koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards/Nepal Genetic/Manaslu_SL_mask1.csv", 
+                       spacing = 1000, header = TRUE)
+summary(Manaslu_SLMask)
+
+summary(covariates(CentralNepal_SLMask))
+
+region.N(skMadhu.hhn.D_Alt2.lam_Topo, region=CentralNepal_SLMask)
+
+names(covariates(Manaslu_SLMask))
+
+ModAv_Pop_CNepal<-(region.N(skMadhu.hhn.D_Alt2.lam_Topo, region = CentralNepal_SLMask)*0.33)+
+  (region.N(skMadhu.hhn.D_alt.lam_Topo, region = CentralNepal_SLMask)*0.2599)+(region.N(Madhu.hhn.lam_Topo, region = CentralNepal_SLMask)*0.2246)+
+  (region.N(skMadhu.hhn.D_AltRgd.lam_Topo, region = CentralNepal_SLMask)*.0977)+
+  (region.N(skMadhu.hhn.D_rgd.lam_Topo, region = CentralNepal_SLMask)*0.0827)
+model.average()
+
+ModAv_Pop_CNepal/87.07
+
+ModAv_Pop_ACA<-(region.N(skMadhu.hhn.D_Alt2.lam_Topo, region = ACA_SLMask)*0.33)+
+  (region.N(skMadhu.hhn.D_alt.lam_Topo, region = ACA_SLMask)*0.2599)+(region.N(Madhu.hhn.lam_Topo, region = ACA_SLMask)*0.2246)+
+  (region.N(skMadhu.hhn.D_AltRgd.lam_Topo, region = ACA_SLMask)*.0977)+
+  (region.N(skMadhu.hhn.D_rgd.lam_Topo, region = ACA_SLMask)*0.0827)
+ModAv_Pop_ACA/50.40
+
+ModAv_Pop_Manaslu<-(region.N(skMadhu.hhn.D_Alt2.lam_Topo, region = Manaslu_SLMask)*0.33)+
+  (region.N(skMadhu.hhn.D_alt.lam_Topo, region = Manaslu_SLMask)*0.2599)+(region.N(Madhu.hhn.lam_Topo, region = Manaslu_SLMask)*0.2246)+
+  (region.N(skMadhu.hhn.D_AltRgd.lam_Topo, region = Manaslu_SLMask)*.0977)+
+  (region.N(skMadhu.hhn.D_rgd.lam_Topo, region = Manaslu_SLMask)*0.0827)
+ModAv_Pop_Manaslu/14.16
+
+#~~~~#~~~~#~~~~#
+  
 all.data.Zoloon<-read.capthist(captfile = "./Nepal Genetic/Zoloon_caps.csv", 
                                trapfile = "./Nepal Genetic/Zoloon_traps.csv", binary.usage=FALSE,
                                detector="count", fmt = "trapID", 

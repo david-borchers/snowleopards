@@ -16,10 +16,16 @@ fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
 #all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", fmt = "trapID", trapcovnames = c("Effort",	"Topo",	"Altidute",	"Rgd", "Water"))
 plot(all.data.Tost)
 plot(traps(all.data.Tost))
+catlocs<-readShapePoints("C:/Users/koust/Dropbox (Snow Leopard Trust)/GIS/Gobi/Zonation files/Allcat_locations_clean47.shp")
+
+
 getwd()
 boundaryTost=readShapeSpatial("./Tost/Habitat/TostStudy_Area.shp")
 # and plot it
-plot(boundaryTost, add = TRUE)
+plot(boundaryTost)#, add = TRUE)
+plot(TostMask1, covariate="stdGC", contour=FALSE, col=terrain.colors(10), legend = FALSE)
+plot(catlocs, add = TRUE, pch=1, col = "RED")
+
 plot(x=all.data.Tost, add=TRUE)
 summary(all.data.Tost)
 

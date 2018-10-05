@@ -12,6 +12,7 @@ all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv
                               fmt = "trapID", 
                               trapcovnames = c("Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 boundaryNoyon=readShapeSpatial("./Noyon2013/Habitat/NoyonStudy_Area.shp")
+summary(all.data.Noyon)
 # and plot it
 plot(boundaryNoyon)
 plot(x=all.data.Noyon, add=TRUE)
