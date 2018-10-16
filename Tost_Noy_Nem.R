@@ -2,6 +2,7 @@ library(secr)
 library(fields)
 library(maptools)
 source("scrplotting.r")
+setwd("C:/Users/koust/Dropbox (Snow Leopard Trust)/CREEM/Analyses/snowleopards")
 
 # Testing reading traps as .csv or .txt (the former does not work)
 #test = read.csv("./Tost_Noyon_Nemegt/Tost_Traps.csv");head(test)

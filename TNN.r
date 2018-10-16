@@ -36,6 +36,7 @@ all.data.TNN_R<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture_R.csv"
                             detector="count", fmt = "trapID", 
                             trapcovnames = c("Rgd","Topo", "Water", "Winter"))
 summary(all.data.TNN_R)
+Caphistory<-capthist(all.data.TNN_R)
 
 #binary.usage=FALSE to be inserted in the trap file read command. ID X Y USage / <covariates>
 # old command has all traps in a single file, not by session:
@@ -75,7 +76,7 @@ plot(bbxlim,bbylim,xlim=bbxlim,ylim=bbylim,type="n")
 plot(boundaryNemegt,add=TRUE,border=3)
 plot(boundaryNoyon,add=TRUE,border=2)
 plot(boundaryTost,add=TRUE,border=1)
-
+plot(all.data.TNN_R, tracks=TRUE, add = TRUE)
 
 # Make 3 masks after reading capture files
 all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
