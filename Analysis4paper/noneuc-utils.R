@@ -34,8 +34,27 @@ arithLCdist <- function (xy1, xy2, mask) {
   costDistance(trans, as.matrix(xy1), as.matrix(xy2))
 }
 
+expmax = function(x) exp(max(x))
 
-lcusageplot = function(fit,n=512,mask=NULL,base="noneuc.0",lcdfun="geomLCdist",...) {
+expmaxLCdist <- function (xy1, xy2, mask) {
+  if (missing(xy1)) return('noneuc') # required by secr
+  require(gdistance) # to load transition and geoCorrection functions
+  if(is.element("noneuc",names(covariates(mask)))) {
+    Sraster <- raster(mask, 'noneuc') # Make raster from mesh with covariate 'noneuc'
+  } else if(is.element("noneuc.0",names(covariates(mask)))) {
+    Sraster <- raster(mask, 'noneuc.0') # Make raster from mesh with covariate 'noneuc'
+  } else stop("Got to have covariate named `noneuc` or `noneuc.0` on mask.")  
+  # Calculate all the conductances, using mytransfun
+  trans <- transition(Sraster, transitionFunction = expmax, directions = 16)
+  # Adjust for distance difference between square and diagonal neighbours
+  trans <- geoCorrection(trans)
+  # calculate the least-cost distance (trans must be conductances)
+  costDistance(trans, as.matrix(xy1), as.matrix(xy2))
+}
+
+lcusageplot = function(fit,n=512,mask=NULL,base="noneuc.0",lcdfun="geomLCdist",maskcol=parula(40),...) {
+  require(pals)
+  
   if(is.null(mask)) mask = fit$mask
   
   lcd.fun = match.fun(lcdfun)
@@ -48,7 +67,7 @@ lcusageplot = function(fit,n=512,mask=NULL,base="noneuc.0",lcdfun="geomLCdist",.
   covariates(mask)$base = covariates(mask)$noneuc.0
   
   for(i in 1:n){
-    plotcovariate(mask,"base",col=parula(40),what="image")
+    plotcovariate(mask,"base",col=maskcol,what="image")
     fromind = nearesttrap(unlist(locator(1)), mask)
     from = c(x=mask$x[fromind],y=mask$y[fromind])
     from=matrix(from,ncol=2)
@@ -275,6 +294,63 @@ make_igraph = function(mask,costname,costfun="mean",directed=FALSE,symm=TRUE) {
 }
 
 
+
+
+plot.eland.detprob = function(fit,mask=NULL,occ="all",...) {
+  cams = traps(fit$capthist)
+  ch = fit$capthist
+  if(is.null(mask)) mask = fit$mask
+  
+  betas = coefficients(fit) # beta paameters
+  
+  # Make linear predictor and calculate g0
+  g0s = which(substr(row.names(betas),1,2)=="g0")
+  beta.g0 = betas$beta[g0s]
+  X.g0 = model.matrix(fit$model$g0,data=elandmask)
+  masklp.g0 = X.g0%*%beta.g0
+  maskg0.hat=invlogit(masklp.g0)[,1]
+  
+  # Make linear predictor and calculate sigma
+  sigmas = which(substr(row.names(betas),1,5)=="sigma")
+  beta.sigma = betas$beta[sigmas]
+  X.sigma = model.matrix(fit$model$sigma,data=elandmask)
+  masklp.sigma = X.sigma%*%beta.sigma
+  masksigma.hat=exp(masklp.sigma)[,1]
+  
+  #function to calculate Halfnormal dectection function:
+  pdet = function(d,g0,sigma,nocc) {
+    npar = length(g0)
+    ncam = dim(d)[1]
+    p = matrix(rep(NA,npar*ncam),nrow=ncam)
+    for(i in 1:ncam) p[i,] = 1 - (1-g0*exp(-d[i,]^2/(2*sigma^2)))^nocc
+    return(p)
+  }
+  # Function to combine across independen detect probs
+  combdet = function(ps) 1 - prod(1-ps)
+  
+  ncam = dim(cams)[1]
+  nmask = dim(elandmask)[1]
+  dists = matrix(rep(NA,nmask*ncam),nrow=ncam)
+  for(i in 1:ncam) {
+    dists[i,] = distancetotrap(mask,cams[i,])
+  }
+  nocc = dim(ch)[2]
+  #  pest = rbind(pest,pestot)
+  
+  if(occ=="all") {
+    pest = pdet(dists,maskg0.hat,masksigma.hat,nocc=nocc)
+    pestot = apply(pest,2,combdet)
+  } else if(occ=="single") {
+    pest = pdet(dists,maskg0.hat,masksigma.hat,nocc=1)
+    pestot = apply(pest,2,combdet)
+  } else stop("Invalid occ passed")
+  
+  covariates(mask)$p = pestot
+  plotcovariate(mask,"p",...)
+  
+}
+
+
 plotcovariate = function(mask,covariate, ...) {
   require(sp)
   
@@ -288,3 +364,62 @@ plotcovariate = function(mask,covariate, ...) {
   
   invisible(spdf)
 }
+
+
+# Plot encounter rate in 3D
+plotER3d = function(capthist, mask=NULL, occasions=1, 
+                    add.points=TRUE,add.text=FALSE, add.maskedge=FALSE,add.mask=TRUE, add.traps=TRUE) {
+  require(rgl)
+  require(pals)
+  
+  if(length(session)>1) stop("Only one session at a time: capthist must be a matrix, not a list.")
+  if(max(occasions)>dim(capthist)[2]) stop("occasion bigger than number of occasions in cpature history.")
+  if(min(occasions)<1) stop("occasion must be greater than zero.")
+  
+  occasions = as.integer(occasions)
+  
+  dets = traps(capthist)
+  asp= c(1,diff(range(dets$y))/diff(range(dets$x)),1)
+  effort = usage(dets)[,occasions]
+  ndets = apply(capthist[,occasions,],2,"sum")
+  er = ndets/effort
+  zlim=range(0,er)
+  if(!is.null(mask)){
+    xlim = range(mask$x)
+    ylim = range(mask$y)
+    plot3d(dets$x,dets$y,er, size=10,type="h",lwd=1,xlim=xlim,ylim=ylim,zlim=zlim,
+           xlab="Easting",ylab="Northing",zlab="Encounter Rate",aspect=asp)
+  } else {
+    plot3d(dets$x,dets$y,er, size=10,type="h",lwd=1,zlim=zlim,
+           xlab="Easting",ylab="Northing",zlab="Encounter Rate",aspect=asp)
+  }
+  rgl.bbox(xlen = 0, ylen = 0, zlen = 0, color = 'white')
+  if(add.points) {
+    pointcolr = parula(max(ndets[er>0])+1)[ndets[er>0]+1]
+    points3d(dets$x[er>0],dets$y[er>0],er[er>0],col=pointcolr,size=10,add=TRUE)
+  }
+  if(add.text) {
+    textcolr = parula(max(ndets)+1)[ndets+1]
+    text3d(dets$x,dets$y,1.05*er, texts=signif(er,2),col=textcolr,add=TRUE, cex=0.75)
+  }
+  
+  if(!is.null(mask)){
+    if(!add.maskedge & !add.mask) add.mask=TRUE # if pass mask, plot it!
+    # add mask edge if asked to
+    if(add.maskedge) {
+      edge = plotMaskEdge(mask,plt=FALSE,add=TRUE)
+      xedge = edge[c(1,3),]
+      yedge = edge[c(2,4),]
+      segments3d(xedge,yedge,z=-0.01*diff(zlim))
+    }
+    
+    # add mask if asked to
+    if(add.mask) {
+      points3d(mask$x,mask$y,z=-0.01*diff(zlim),col="gray")
+    }
+  }
+  # add traps
+  if(add.traps) points3d(dets$x,dets$y,z=0,pch=1,col="red")
+  
+}
+

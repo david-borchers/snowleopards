@@ -16,17 +16,17 @@ source("./Analysis4paper/noneuc-utils.R")
 
 # Get the Tost, Noyon and Nemegt data
 # ===================================
-#----------------------- Load the RData objects made by Make_TNN_RData.r --------------------------
-load("./Analysis4paper/TNN_boundaries.RData") # Tostboundary,Noyonboundary,Nemegtboundary
-load("./Analysis4paper/TNN_masks.RData") # TostMask,NoyonMask,NemegtMask
-load("./Analysis4paper/TNN_caphists.RData") # Tost_ch,Noyon_ch,Nemegt_sh,TNN_ch)
-#----------------------- ----------------------------------------------- --------------------------
+##----------------------- Load the RData objects made by Make_TNN_RData.r --------------------------
+#load("./Analysis4paper/TNN_boundaries.RData") # Tostboundary,Noyonboundary,Nemegtboundary
+#load("./Analysis4paper/TNN_masks.RData") # TostMask,NoyonMask,NemegtMask
+#load("./Analysis4paper/TNN_caphists.RData") # Tost_ch,Noyon_ch,Nemegt_sh,TNN_ch)
+##----------------------- ----------------------------------------------- --------------------------
 ## Bundle them together in a single Rds file for convenience:
 #Tost = list(capthist=Tost_ch,mask=TostMask,boundary=Tostboundary)
 #Noyon = list(capthist=Noyon_ch,mask=NoyonMask,boundary=Noyonboundary)
 #Nemegt = list(capthist=Nemegt_ch,mask=NemegtMask,boundary=Nemegtboundary)
 #saveRDS(list(Tost=Tost,Noyon=Noyon,Nemegt=Nemegt),file="./Analysis4paper/TNN.Rds")
-dat = readRDS(TNNdat, file="./Analysis4paper/TNN.Rds")
+dat = readRDS("./Analysis4paper/TNN.Rds")
 Tost = dat$Tost
 Nemegt = dat$Nemegt
 Noyon = dat$Noyon
@@ -63,32 +63,42 @@ mask = dat$Tost$mask
 boundary = dat$Tost$boundary
 cams = traps(ch)
 
-# Fit a LC distance model with flat D:
-# ===================================
-# (startvals from previous fit)
-startvals = list(D=exp(-9.4515904),lambda0=exp(-4.2505931),sigma=exp(8.6914951),noneuc=0.3314881)
-sl.ne <-secr.fit(ch, detectfn="HHN", mask=mask,
-                 model=list(D~1, lambda0~1, sigma~1, noneuc~stdGC-1), 
-                 details = list(userdist = geomLCdist),
-                 start=startvals,
-                 link = list(noneuc="identity"))
-# Also fit a Euclidian distance model with varying D
-# ==================================================
-# (startvals from previous fit)
-startvals = list(D=exp(-9.5227750),lambda0=exp(-4.4012107),sigma=exp(8.8538228))
-sl.nuD <-secr.fit(ch, detectfn="HHN", mask=mask, start=startvals,
-                  model=list(D~stdGC, lambda0~1, sigma~1))
+## Fit a LC distance model with flat D:
+## ===================================
+## (startvals from previous fit)
+#startvals = list(D=exp(-9.4515904),lambda0=exp(-4.2505931),sigma=exp(8.6914951),noneuc=0.3314881)
+#sl.ne <-secr.fit(ch, detectfn="HHN", mask=mask,
+#                 model=list(D~1, lambda0~1, sigma~1, noneuc~stdGC-1), 
+#                 details = list(userdist = geomLCdist),
+#                 start=startvals,
+#                 link = list(noneuc="identity"))
+## Also fit a Euclidian distance model with varying D
+## ==================================================
+## (startvals from previous fit)
+#startvals = list(D=exp(-9.5227750),lambda0=exp(-4.4012107),sigma=exp(8.8538228))
+#sl.nuD <-secr.fit(ch, detectfn="HHN", mask=mask, start=startvals,
+#                  model=list(D~stdGC, lambda0~1, sigma~1))
+#nuD = predictDsurface(sl.nuD)
+#plotcovariate(nuD,"D.0",col=parula(40))
+#region.N(sl.nuD)
+##estimate SE.estimate       lcl      ucl  n
+##E.N 15.48028    4.158663  9.227452 25.97025 14
+##R.N 15.48035    1.346921 14.323074 20.78309 14
+## Save these two density surfaces
+#saveRDS(sl.nuD,file="sl.nuD.Rds")
+#saveRDS(sl.ne,file="sl.ne.Rds")
+
+# Load these two density surfaces
+sl.nuD = readRDS("sl.nuD.Rds")
+sl.ne = readRDS("sl.ne.Rds")
+
+# get the predictd density surface
 nuD = predictDsurface(sl.nuD)
-plotcovariate(nuD,"D.0",col=parula(40))
-region.N(sl.nuD)
-#estimate SE.estimate       lcl      ucl  n
-#E.N 15.48028    4.158663  9.227452 25.97025 14
-#R.N 15.48035    1.346921 14.323074 20.78309 14
 
 # Simulate a population using above density surface from sl.nuD
 # =============================================================
 E.N=45 # Set the expected number of snow leopards in the region
-scale = N/region.N(sl.nuD)["R.N","estimate"]
+scale = E.N/region.N(sl.nuD)["R.N","estimate"]
 # Plot the density
 simD = covariates(nuD)$"D.0" * scale
 # Simulate a population:
@@ -100,7 +110,8 @@ dim(pop)[1]
 
 # Set noneuc and detection prarameters to give stronger/weaker dependince on stdGC.
 # (Parameter sl.fudge$fit$par[4] is the \alpha_2 parameter of Sutherland et al (2015).)
-# (Fiddle with sl.fudge$fit$par[2] and sl.fudge$fit$par[3] to give right sort of sample size:)
+# (Fiddle with sl.fudge$fit$par[2] (lambda_0) and sl.fudge$fit$par[3] (sigma) 
+# to give right sort of sample size:)
 # ============================================================================================
 sl.ne$fit$par
 sl.fudge = sl.ne
@@ -110,11 +121,15 @@ sl.fudge$fit$par[2] = sl.ne$fit$par[2] - log(15)
 # Plot to see if you have the kind of habitat use that you're happy with:
 ne.fudge = predictDsurface(sl.fudge,parameter="noneuc")
 par(mfrow=c(1,1))
-lcusageplot(sl.ne,mask=ne,col=parula(15))
+# Note: lcusageplot requires you to click on a point to create an activity centre; click again to reset plot
+# Do this repeatedly; hit esc when you have had enough (you get an error message - have not figured out how to exit more elegantly yet)
+lcusageplot(sl.ne,mask=ne.fudge,col=parula(15))
+# Note: lcusageplot requires you to click on two points to create start and end points
+# Do this repeatedly; hit esc when you have had enough (you get an error message - have not figured out how to exit more elegantly yet)
 lcpathplot(mask=ne.fudge,"geommean",col=parula(20),main="noneuc",what="image")
 
 
-# Simulate capture historise
+# Simulate capture histories
 # ==========================
 udist = geomLCdist(cams,pop,ne.fudge) # first set least-cost distances
 covariates(ne.fudge)$noneuc = covariates(ne.fudge)$noneuc.0 # create the noneuc variable needed for LC dist
@@ -128,70 +143,193 @@ summary(ch)
 
 # Now fit some models and look at AICs and N estimates:
 
-# Fit constant density model:
-sl.ne.fit <-secr.fit(ch, detectfn="HHN", mask=mask,
-                     model=list(D~1, lambda0~1, sigma~1, noneuc~stdGC-1), 
-                     details = list(userdist = geomLCdist),
-                     start=list(lambda0=exp(sl.fudge$fit$par[2]),
-                                sigma=exp(sl.fudge$fit$par[3]),
-                                noneuc=sl.fudge$fit$par[4]),
-                     link = list(noneuc="identity"))
-sl.noneuc = predictDsurface(sl.ne.fit,parameter="noneuc")
-# Look at some usage and least-cost paths:
-par(mfrow=c(1,1))
-lcusageplot(sl.ne.fit,mask=sl.noneuc,col=parula(15))
-lcpathplot(mask=sl.noneuc,"geommean",col=parula(20),main="noneuc",what="image")
+## Fit constant density model with LC distance:
+#sl.ne.fit <-secr.fit(ch, detectfn="HHN", mask=mask,
+#                     model=list(D~1, lambda0~1, sigma~1, noneuc~stdGC-1), 
+#                     details = list(userdist = geomLCdist),
+#                     start=list(lambda0=exp(sl.fudge$fit$par[2]),
+#                                sigma=exp(sl.fudge$fit$par[3]),
+#                                noneuc=sl.fudge$fit$par[4]),
+#                     link = list(noneuc="identity"))
+#sl.noneuc = predictDsurface(sl.ne.fit,parameter="noneuc")
+## Look at some usage and least-cost paths:
+#par(mfrow=c(1,1))
+#lcusageplot(sl.ne.fit,mask=sl.noneuc,col=parula(15))
+#lcpathplot(mask=sl.noneuc,"geommean",col=parula(20),main="noneuc",what="image")
 
-# Fit varying density model with LC distance:
-sl.ne.fit.D <-secr.fit(ch, detectfn="HHN", mask=mask,
-                       model=list(D~stdGC, lambda0~1, sigma~1, noneuc~stdGC-1), 
-                       details = list(userdist = geomLCdist),
-                       start=list(lambda0=exp(sl.fudge$fit$par[2]),
-                                  sigma=exp(sl.fudge$fit$par[3]),
-                                  noneuc=sl.fudge$fit$par[4]),
-                       link = list(noneuc="identity"))
-sl.noneuc.D = predictDsurface(sl.ne.fit.D)
-plotcovariate(sl.noneuc.D,"D.0",col=parula(40))
-sl.noneuc.D = predictDsurface(sl.ne.fit,parameter="noneuc")
-# Look at some usage and least-cost paths:
-par(mfrow=c(1,1))
-lcpathplot(mask=sl.noneuc.D,"geommean",col=parula(20),main="noneuc",what="image")
-lcusageplot(sl.ne.fi.Dt,mask=sl.noneuc.D,col=parula(15))
+## Fit varying density model with LC distance:
+#sl.ne.fit.D <-secr.fit(ch, detectfn="HHN", mask=mask,
+#                       model=list(D~stdGC, lambda0~1, sigma~1, noneuc~stdGC-1), 
+#                       details = list(userdist = geomLCdist),
+#                       start=list(lambda0=exp(sl.fudge$fit$par[2]),
+#                                  sigma=exp(sl.fudge$fit$par[3]),
+#                                  noneuc=sl.fudge$fit$par[4]),
+#                       link = list(noneuc="identity"))
+#sl.noneuc.D = predictDsurface(sl.ne.fit.D)
+#plotcovariate(sl.noneuc.D,"D.0",col=parula(40))
+#sl.noneuc.D = predictDsurface(sl.ne.fit,parameter="noneuc")
+## Look at some usage and least-cost paths:
+#par(mfrow=c(1,1))
+#lcpathplot(mask=sl.noneuc.D,"geommean",col=parula(20),main="noneuc",what="image")
+#lcusageplot(sl.ne.fit.D,mask=sl.noneuc.D,col=parula(15))
 
-# Fit a null model:
-sl.ne.0 <-secr.fit(ch, detectfn="HHN", mask=mask,
-                   model=list(D~1, lambda0~1, sigma~1))
+## Fit a null model:
+#sl.ne.0 <-secr.fit(ch, detectfn="HHN", mask=mask,
+#                   model=list(D~1, lambda0~1, sigma~1))
 
+## Fit varying density model with Euclidian distance:
+#sl.fit.D <-secr.fit(dat$Tost$capthist, detectfn="HHN", mask=dat$Tost$mask,
+#                    model=list(D~stdGC, lambda0~1, sigma~1))
+#sl.D = predictDsurface(sl.fit.D)
+#plotcovariate(sl.D,"D.0",col=parula(40))
 
-# Fit varying density model with Euclidian distance:
-sl.fit.D <-secr.fit(sl.ch, detectfn="HHN", mask=sl.mask,
-                    model=list(D~stdGC, lambda0~1, sigma~1))
-sl.D = predictDsurface(sl.fit.D)
-plotcovariate(sl.noneuc.D,"D.0",col=parula(40))
+## Save these fits
+#saveRDS(sl.ne.fit,file="sl.ne.fit")
+#saveRDS(sl.ne.fit.D,file="sl.ne.fit.D")
+#saveRDS(sl.ne.0,file="sl.ne.0")
+#saveRDS(sl.fit.D,file="sl.fit.D")
+# Read these fits
+sl.ne.fit = readRDS("sl.ne.fit")
+sl.ne.fit.D = readRDS("sl.ne.fit.D")
+sl.ne.0 = readRDS("sl.ne.0")
+sl.fit.D = readRDS("sl.fit.D")
 
 # Compare AICs:
 AIC(sl.ne.0,sl.ne.fit,sl.ne.fit.D,sl.fit.D)
-# model          detectfn npar    logLik     AIC    AICc  dAICc AICcwt
-# sl.ne.fit       D~1 lambda0~1 sigma~1 noneuc~stdGC - 1 hazard halfnormal    4 -136.8904 281.781 284.003  0.000 0.8323
-# sl.ne.fit.D D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1 hazard halfnormal    5 -136.8387 283.677 287.207  3.204 0.1677
-# sl.fit.D                     D~stdGC lambda0~1 sigma~1 hazard halfnormal    4 -143.4723 294.945 297.167 13.164 0.0000
-# sl.ne.0                          D~1 lambda0~1 sigma~1 hazard halfnormal    3 -145.4336 296.867 298.130 14.127 0.0000
-
+#> AIC(sl.ne.0,sl.ne.fit,sl.ne.fit.D,sl.fit.D)
+#model          detectfn npar    logLik     AIC    AICc   dAICc AICcwt
+#sl.ne.fit       D~1 lambda0~1 sigma~1 noneuc~stdGC - 1 hazard halfnormal    4 -145.1693 298.339 300.692   0.000 0.8424
+#sl.ne.fit.D D~stdGC lambda0~1 sigma~1 noneuc~stdGC - 1 hazard halfnormal    5 -145.1472 300.294 304.044   3.352 0.1576
+#sl.ne.0                          D~1 lambda0~1 sigma~1 hazard halfnormal    3 -152.7691 311.538 312.871  12.179 0.0000
+#sl.fit.D                     D~stdGC lambda0~1 sigma~1 hazard halfnormal    4 -210.1210 428.242 432.686 131.994 0.0000
 
 region.N(sl.ne.fit)
-# estimate SE.estimate      lcl      ucl  n
-# E.N 52.80341    13.46921 32.28109 86.37253 23
-# R.N 45.78204    11.34091 32.05916 80.29244 23
 region.N(sl.ne.0)
-# estimate SE.estimate      lcl      ucl  n
-# E.N 28.55434    6.512775 18.36467 44.39775 23
-# R.N 28.55443    3.723157 24.68312 41.33008 23
 region.N(sl.ne.fit.D)
-# estimate SE.estimate      lcl      ucl  n
-# E.N 44.07274    23.20644 16.71454 116.2105 23
-# R.N 39.29320    22.23659 25.18305 144.6044 23
 region.N(sl.fit.D)
-# estimate SE.estimate      lcl      ucl  n
-# E.N 27.25502    5.919049 17.89428 41.51247 23
-# R.N 27.25503    2.789288 24.31818 36.73504 23
+
+
+### ===========================================================================================================
+### Ian: The stuff below here I did quite a while ago - can't really remember what it was or how finished it is
+###      Might be worth looking at - I am not sure
+### ===========================================================================================================
+
+
+# Do a bunch of simulations with flat density surface and Euclidian distance:
+require(tcltk)
+
+# TOST Non-uniform density, alpha=4, N=45
+E.N=45 # Set the expected number of snow leopards in the region
+scale = E.N/region.N(sl.nuD)["R.N","estimate"]
+# Plot the density
+simD = covariates(nuD)$"D.0" * scale
+nsim=100
+Nest = cover = rep(NA,nsim)
+# create progress bar
+pb <- tkProgressBar(title="progress bar", min=0, max=nsim, width=300)
+seed=31 # for repeatability of this one population
+for(i in 1:nsim) {
+  if(i==1) pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed",seed=seed)
+  else   pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed")
+  udist = geomLCdist(cams,pop,ne.fudge) # first set least-cost distances
+  covariates(ne.fudge)$noneuc = covariates(ne.fudge)$noneuc.0 # create the noneuc variable needed for LC dist
+  ch = sim.capthist(cams,pop,detectfn="HHN",detectpar=detectpar(sl.fudge),noccasions=1,userdist=udist)
+  simfit.0 <-secr.fit(ch, detectfn="HHN", mask=mask,  model=list(D~1, lambda0~1, sigma~1),trace=0)
+  Nest.0 = region.N(simfit.0)
+  Nest[i] = Nest.0["R.N","estimate"]
+  cover[i] = (Nest.0["R.N","lcl"]<=E.N & E.N<=Nest.0["R.N","ucl"])
+  setTkProgressBar(pb, i, title=paste( round(i/nsim*100, 0),"% done"))
+}
+close(pb)
+hist(Nest,nclass=30)
+mean(Nest)
+sum(cover)/nsim
+sim100_N45_alpha4 = list(Nest=Nest,cover=cover,trueD=ne.fudge,seed=seed)
+saveRDS(sim100_N45_alpha4,file="./Analysis4paper/sims/Tost_sim100_N45_alpha4.Rds")
+
+
+# TOST Non-uniform density, alpha=0, N=16
+# Fit varying density model with Euclidian distance:
+sl.fit.D <-secr.fit(dat$Tost$capthist, detectfn="HHN", mask=dat$Tost$mask,
+                    model=list(D~stdGC, lambda0~1, sigma~1))
+detpars = detectpar(sl.fit.D)
+sl.D = predictDsurface(sl.fit.D)
+meanD = mean(covariates(sl.D)$D.0)
+plotcovariate(sl.D,"D.0",col=parula(40))
+E.N=ceiling(region.N(sl.nuD)["R.N","estimate"]) 
+# Set the expected number of snow leopards in the region
+scale = E.N/region.N(sl.nuD)["R.N","estimate"]
+# Plot the density
+simD = covariates(sl.D)$"D.0" * scale
+meanD = mean(covariates(sl.D)$"D.0")
+nsim=100
+Nest = cover = rep(NA,nsim)
+# create progress bar
+pb <- tkProgressBar(title="progress bar", min=0, max=nsim, width=300)
+seed=31 # for repeatability of this one population
+for(i in 1:nsim) {
+  if(i==1) pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed",seed=seed)
+  else   pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed")
+#  udist = geomLCdist(cams,pop,ne.fudge) # first set least-cost distances
+#  covariates(ne.fudge)$noneuc = covariates(ne.fudge)$noneuc.0 # create the noneuc variable needed for LC dist
+  ch = sim.capthist(cams,pop,detectfn="HHN",detectpar=detpars,noccasions=1)
+  simfit.0 <-secr.fit(ch, detectfn="HHN", mask=mask,  model=list(D~1, lambda0~1, sigma~1), 
+                      start=list(D=meanD, lambda=detpars$lambda0, sigma~detpars$sigma), trace=0)
+  Nest.0 = region.N(simfit.0)
+  Nest[i] = Nest.0["R.N","estimate"]
+  cover[i] = (Nest.0["R.N","lcl"]<=E.N & E.N<=Nest.0["R.N","ucl"])
+  setTkProgressBar(pb, i, title=paste( round(i/nsim*100, 0),"% done"))
+}
+close(pb)
+hist(Nest,nclass=30)
+100*(mean(Nest)-E.N)/E.N
+sum(cover)/nsim
+sim100_N16_alpha0 = list(Nest=Nest,cover=cover,trueD=simD,seed=seed)
+saveRDS(sim100_N16_alpha0,file="./Analysis4paper/sims/Tost_sim100_N16_alpha0.Rds")
+
+
+
+# ALL 3 REGIONS  -- still only partially coded !!!
+TNN.ch<-read.capthist(captfile = "./Tost_Noyon_Nemegt/TNN_Capture.csv", 
+                            binary.usage = FALSE, trapfile = TNN.trapfiles, 
+                            detector="count", fmt = "trapID", 
+                            trapcovnames = c("Rgd","Topo", "Water", "Winter"))
+mask=list(dat$Tost$mask, dat$Noyon$mask, dat$Nemegt$mask)
+TNN.GCmean <- secr.fit(TNN.ch, detectfn="HHN", mask=mask, model=list(D~rmeanGC, lambda0~Water, sigma~1))
+
+detpars = detectpar(TNN.GCmean)
+TNN.GC.D = predictDsurface(TNN.GCmean)
+estceiling = function(x) x["R.N","estimate"]
+E.N=lapply(region.N(TNN.GCmean),estceiling) 
+# Set the expected number of snow leopards in the region
+scale = 1 # amoun by which to multiply sample size
+scalefn = function(x,scale) x*scale
+simD = lapply(TNN.GC.D,scalefn,scale=scale)
+Dmean = function(x) mean(covariates(x)$D.0)
+meanD = lapply(simD,Dmean)
+nsim=100
+Nest = cover = list(Tost=rep(NA,nsim), Noyon=rep(NA,nsim),Nemegt=rep(NA,nsim))
+# create progress bar
+pb <- tkProgressBar(title="progress bar", min=0, max=nsim, width=300)
+seed=31 # for repeatability of this one population
+for(i in 1:nsim) {
+  if(i==1) {
+    pop1 = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed",seed=seed)
+  else   pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed")
+  #  udist = geomLCdist(cams,pop,ne.fudge) # first set least-cost distances
+  #  covariates(ne.fudge)$noneuc = covariates(ne.fudge)$noneuc.0 # create the noneuc variable needed for LC dist
+  ch = sim.capthist(cams,pop,detectfn="HHN",detectpar=detpars,noccasions=1)
+  simfit.0 <-secr.fit(ch, detectfn="HHN", mask=mask,  model=list(D~1, lambda0~1, sigma~1), 
+                      start=list(D=meanD, lambda=detpars$lambda0, sigma~detpars$sigma), trace=0)
+  Nest.0 = region.N(simfit.0)
+  Nest[i] = Nest.0["R.N","estimate"]
+  cover[i] = (Nest.0["R.N","lcl"]<=E.N & E.N<=Nest.0["R.N","ucl"])
+  setTkProgressBar(pb, i, title=paste( round(i/nsim*100, 0),"% done"))
+}
+close(pb)
+hist(Nest,nclass=30)
+100*(mean(Nest)-E.N)/E.N
+sum(cover)/nsim
+sim100_N16_alpha0 = list(Nest=Nest,cover=cover,trueD=simD,seed=seed)
+saveRDS(sim100_N16_alpha0,file="./Analysis4paper/sims/Tost_sim100_N16_alpha0.Rds")
 
