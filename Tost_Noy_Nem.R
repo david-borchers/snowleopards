@@ -69,11 +69,22 @@ plot(boundaryNoyon,add=TRUE,border=2)
 plot(boundaryTost,add=TRUE,border=1)
 
 
-# Make 3 masks
+# Make 3 masks after reading capture files
+all.data.Tost<-read.capthist(captfile = "./Tost/Tost_capthist2012.csv", binary.usage = FALSE,  
+                             trapfile = "./Tost/Tost_cams_rugged2012.csv", detector="count", 
+                             fmt = "trapID", trapcovnames = c("Rgd", "Topo",	"Altidute",	"Water"))
+all.data.Nemegt<-read.capthist(captfile = "./Nemegt/Nemegt2013_Capture.csv", 
+                               trapfile = "./Nemegt/Nemegt2013_Cams.csv", 
+                               detector="count", fmt = "trapID", 
+                               trapcovnames = c("Topo",	"Brokenness",	"Grass", "Rgd", "Water"),
+                               binary.usage=FALSE)
+all.data.Noyon<-read.capthist(captfile = "./Noyon2013/Noyon_capthist2013secr.csv", 
+                              trapfile = "./Noyon2013/Noyon_trap2013secr.csv", 
+                              detector="count", binary.usage=FALSE,
+                              fmt = "trapID", 
+                              trapcovnames = c("Topo",	"Substrate",	"Brokenness", "Rgd", "Water"))
 NemegtMask=make.mask(traps(all.data.Nemegt), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNemegt)
-
 NoyonMask=make.mask(traps(all.data.Noyon), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryNoyon)
-
 TostMask=make.mask(traps(all.data.Tost), spacing=500, buffer = 25000, type="trapbuffer", poly=boundaryTost)
 
 summary(NemegtMask) #To get the total area of the mask
@@ -82,36 +93,31 @@ summary(TostMask)
 
 # Read ruggedness covariate and put it into mask covariate GRIDCODE
 SLCost.Nemegt<-readShapePoly("./Nemegt/Habitat/Nemegt_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
-NemegtMask1<-addCovariates(NemegtMask, SLCost.Nemegt)
-
 SLCost.Noyon<-readShapePoly("./Noyon2013/Habitat/Noyon_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
-NoyonMask1<-addCovariates(NoyonMask, SLCost.Noyon)
-
 SLCost.Tost<-readShapePoly("./Tost/Habitat/Tost_Rgd500m.shp")  #ruggedness pixels averaged over 500m radius
-TostMask1<-addCovariates(TostMask, SLCost.Tost)
 
 
 # Read binary habitat suitability code into mask covariate ...
 SLCostBINARY.Nemegt<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
+SLCostBINARY.Noyon<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
+SLCostBINARY.Tost<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #ruggedness pixels averaged over 500m radius
+
+# Add covariates to masks
+NemegtMask1<-addCovariates(NemegtMask, SLCost.Nemegt)
+NoyonMask1<-addCovariates(NoyonMask, SLCost.Noyon)
+TostMask1<-addCovariates(TostMask, SLCost.Tost)
 NemegtMask1<-addCovariates(NemegtMask1, SLCostBINARY.Nemegt)
 names(covariates(NemegtMask1))[3:4] = c("binaryID","BINCODE") #Rename headers
-
-
-SLCostBINARY.Noyon<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #Logistic binary SL habitat created using telemetry data
 NoyonMask1<-addCovariates(NoyonMask1, SLCostBINARY.Noyon)
 names(covariates(NoyonMask1))[3:4] = c("binaryID","BINCODE") #Rename headers
-
-SLCostBINARY.Tost<-readShapePoly("./Tost//Habitat/tost_sl.shp")  #ruggedness pixels averaged over 500m radius
 TostMask1<-addCovariates(TostMask1, SLCostBINARY.Tost)
 names(covariates(TostMask1))[3:4] = c("binaryID","BINCODE") #Rename headers
 
 # make NAs in BINCODE zeros:
 covariates(NemegtMask1)$BINCODE[is.na(covariates(NemegtMask1)$BINCODE)] = 0
 summary(covariates(NemegtMask1))
-
 covariates(NoyonMask1)$BINCODE[is.na(covariates(NoyonMask1)$BINCODE)] = 0
 summary(covariates(NoyonMask1))
-
 covariates(TostMask1)$BINCODE[is.na(covariates(TostMask1)$BINCODE)] = 0
 summary(covariates(TostMask1))
 
@@ -162,6 +168,115 @@ traps(all.data.TNN_R[[1]]) = TNN.camsR[[1]]
 traps(all.data.TNN_R[[2]]) = TNN.camsR[[2]]
 traps(all.data.TNN_R[[3]]) = TNN.camsR[[3]]
 covariates(traps(all.data.TNN_R))
+
+# Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) ACROSS ALL REGIONS
+# ------------------------------------------------------------------------
+NemGC = covariates(NemegtMask1)$GRIDCODE
+NemBC = covariates(NemegtMask1)$BINCODE
+NoyGC = covariates(NoyonMask1)$GRIDCODE
+NoyBC = covariates(NoyonMask1)$BINCODE
+TosGC = covariates(TostMask1)$GRIDCODE
+TosBC = covariates(TostMask1)$BINCODE
+nNem = length(NemGC)
+nNoy = length(NoyGC)
+nTos = length(TosGC)
+# put all GC together and standardize
+GC = scale(c(NemGC,NoyGC,TosGC))
+# put all BC together (binary so no need to standardize)
+BC = c(NemBC,NoyBC,TosBC)
+in.Nem = 1:nNem
+in.Noy = (nNem+1):(nNem+nNoy)
+in.Tos = (nNem+nNoy+1):(nNem+nNoy+nTos)
+region = c(rep("Nemegt",nNem),rep("Noyon",nNoy),rep("Tost",nTos))
+rmeanGCdev = rmeanBCdev = rmeanGC = rmeanBC = rep(NA,(nNem+nNoy+nTos))
+# create region-specific mean covariates
+rmeanGC[in.Nem] = mean(GC[in.Nem])
+rmeanBC[in.Nem] = mean(BC[in.Nem])
+rmeanGC[in.Noy] = mean(GC[in.Noy])
+rmeanBC[in.Noy] = mean(BC[in.Noy])
+rmeanGC[in.Tos] = mean(GC[in.Tos])
+rmeanBC[in.Tos] = mean(BC[in.Tos])
+# create region-specific deviation-from-mean covariates
+rmeanGCdev[in.Nem] = GC[in.Nem] - rmeanGC[in.Nem]
+rmeanGCdev[in.Noy] = GC[in.Noy] - rmeanGC[in.Noy]
+rmeanGCdev[in.Tos] = GC[in.Tos] - rmeanGC[in.Tos]
+rmeanBCdev[in.Nem] = GC[in.Nem] - rmeanBC[in.Nem]
+rmeanBCdev[in.Noy] = GC[in.Noy] - rmeanBC[in.Noy]
+rmeanBCdev[in.Tos] = GC[in.Tos] - rmeanBC[in.Tos]
+
+
+# Put variables back in masks
+covariates(NemegtMask1)$rmeanGC = rmeanGC[in.Nem]
+covariates(NemegtMask1)$rmeanBC = rmeanBC[in.Nem]
+covariates(NemegtMask1)$rmeanGCdev = rmeanGCdev[in.Nem]
+covariates(NemegtMask1)$rmeanBCdev = rmeanBCdev[in.Nem]
+covariates(NemegtMask1)$region = region[in.Nem]
+
+covariates(NoyonMask1)$rmeanGC = rmeanGC[in.Noy]
+covariates(NoyonMask1)$rmeanBC = rmeanBC[in.Noy]
+covariates(NoyonMask1)$rmeanGCdev = rmeanGCdev[in.Noy]
+covariates(NoyonMask1)$rmeanBCdev = rmeanBCdev[in.Noy]
+covariates(NoyonMask1)$region = region[in.Noy]
+
+covariates(TostMask1)$rmeanGC = rmeanGC[in.Tos]
+covariates(TostMask1)$rmeanBC = rmeanBC[in.Tos]
+covariates(TostMask1)$rmeanGCdev = rmeanGCdev[in.Tos]
+covariates(TostMask1)$rmeanBCdev = rmeanBCdev[in.Tos]
+covariates(TostMask1)$region = region[in.Tos]
+
+
+dxlim = diff(bbxlim)
+xlim = c(bbxlim[1],bbxlim[2]+0.15*dxlim)
+ylim = bbylim
+zlim = range(rmeanGCdev)
+quartz(w=8,h=4)
+plot(xlim,ylim,xlim=xlim,ylim=ylim,type="n",asp=1,bty="n",xlab="Easting",ylab="Northing") 
+plotcovariate(NemegtMask1,covariate="rmeanGCdev",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(NoyonMask1,covariate="rmeanGCdev",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(TostMask1,covariate="rmeanGCdev",add=TRUE,zlim=zlim,contour=FALSE)
+
+zlim = range(rmeanGC)
+plot(xlim,ylim,xlim=xlim,ylim=ylim,type="n",asp=1,bty="n",xlab="Easting",ylab="Northing") 
+plotcovariate(NemegtMask1,covariate="rmeanGC",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(NoyonMask1,covariate="rmeanGC",add=TRUE,zlim=zlim,contour=FALSE)
+plotcovariate(TostMask1,covariate="rmeanGC",add=TRUE,zlim=zlim,contour=FALSE)
+
+
+# Test a few models
+GC.TNN.hhn<-secr.fit(all.data.TNN, 
+                  model=list(D~rmeanGC, lambda0~1, sigma~1), detectfn="HHN", 
+                  mask=list(TostMask1, NoyonMask1, NemegtMask1))
+save(GC.TNN.hhn,file="./Tost_Noyon_Nemegt/GC.TNN.hhn.RData")
+
+GC.dev.TNN.hhn<-secr.fit(all.data.TNN, 
+                     model=list(D~rmeanGC+rmeanGCdev, lambda0~1, sigma~1), detectfn="HHN", 
+                     mask=list(TostMask1, NoyonMask1, NemegtMask1))
+save(GC.dev.TNN.hhn,file="./Tost_Noyon_Nemegt/GC.dev.TNN.hhn.RData")
+
+GC.dev_region.TNN.hhn<-secr.fit(all.data.TNN, 
+                         model=list(D~rmeanGC+rmeanGCdev+rmeanGCdev:region, lambda0~1, sigma~1), detectfn="HHN", 
+                         mask=list(TostMask1, NoyonMask1, NemegtMask1))
+save(GC.dev_region.TNN.hhn,file="./Tost_Noyon_Nemegt/GC.dev_region.TNN.hhn.RData")
+
+region.GC.dev_region.TNN.hhn<-secr.fit(all.data.TNN, 
+                                       model=list(D~region+rmeanGC+rmeanGCdev+rmeanGCdev:region, lambda0~1, sigma~1), detectfn="HHN", 
+                                       mask=list(TostMask1, NoyonMask1, NemegtMask1))
+save(region.GC.dev_region.TNN.hhn,file="./Tost_Noyon_Nemegt/region.GC.dev_region.TNN.hhn.RData")
+
+region.GC.dev.region.TNN.hhn<-secr.fit(all.data.TNN, 
+                                model=list(D~region+rmeanGC+rmeanGCdev, lambda0~1, sigma~1), detectfn="HHN", 
+                                mask=list(TostMask1, NoyonMask1, NemegtMask1))
+save(region.GC.dev.region.TNN.hhn,file="./Tost_Noyon_Nemegt/region.GC.dev.region.TNN.hhn")
+
+AIC(
+  GC.TNN.hhn,
+  GC.dev.TNN.hhn,
+  GC.dev_region.TNN.hhn,
+  region.GC.dev.region.TNN.hhn,
+  region.GC.dev_region.TNN.hhn
+  )
+
+
 
 # Standarize GRIDCODE (in stdGC) and BINCODE (in stdBC) on mask
 # ------------------------------------------------------------------------
