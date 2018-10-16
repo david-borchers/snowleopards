@@ -184,15 +184,15 @@ summary(ch)
 #plotcovariate(sl.D,"D.0",col=parula(40))
 
 ## Save these fits
-#saveRDS(sl.ne.fit,file="sl.ne.fit")
-#saveRDS(sl.ne.fit.D,file="sl.ne.fit.D")
-#saveRDS(sl.ne.0,file="sl.ne.0")
-#saveRDS(sl.fit.D,file="sl.fit.D")
+#saveRDS(sl.ne.fit,file="sl.ne.fit.Rds")
+#saveRDS(sl.ne.fit.D,file="sl.ne.fit.D.Rds")
+#saveRDS(sl.ne.0,file="sl.ne.0.Rds")
+#saveRDS(sl.fit.D,file="sl.fit.D.Rds")
 # Read these fits
-sl.ne.fit = readRDS("sl.ne.fit")
-sl.ne.fit.D = readRDS("sl.ne.fit.D")
-sl.ne.0 = readRDS("sl.ne.0")
-sl.fit.D = readRDS("sl.fit.D")
+sl.ne.fit = readRDS("sl.ne.fit.Rds")
+sl.ne.fit.D = readRDS("sl.ne.fit.D.Rds")
+sl.ne.0 = readRDS("sl.ne.0.Rds")
+sl.fit.D = readRDS("sl.fit.D.Rds")
 
 # Compare AICs:
 AIC(sl.ne.0,sl.ne.fit,sl.ne.fit.D,sl.fit.D)
