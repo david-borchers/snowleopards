@@ -26,7 +26,7 @@ load("./Analysis4paper/TNN_caphists.RData") # Tost_ch,Noyon_ch,Nemegt_sh,TNN_ch)
 #Noyon = list(capthist=Noyon_ch,mask=NoyonMask,boundary=Noyonboundary)
 #Nemegt = list(capthist=Nemegt_ch,mask=NemegtMask,boundary=Nemegtboundary)
 #saveRDS(list(Tost=Tost,Noyon=Noyon,Nemegt=Nemegt),file="./Analysis4paper/TNN.Rds")
-dat = readRDS(TNNdat, file="./Analysis4paper/TNN.Rds")
+dat = readRDS(file="./Analysis4paper/TNN.Rds")
 Tost = dat$Tost
 Nemegt = dat$Nemegt
 Noyon = dat$Noyon
@@ -65,7 +65,7 @@ cams = traps(ch)
 
 # Fit a LC distance model with flat D:
 # ===================================
-# (startvals from previous fit)
+# (startvals from a previous fit)
 startvals = list(D=exp(-9.4515904),lambda0=exp(-4.2505931),sigma=exp(8.6914951),noneuc=0.3314881)
 sl.ne <-secr.fit(ch, detectfn="HHN", mask=mask,
                  model=list(D~1, lambda0~1, sigma~1, noneuc~stdGC-1), 
@@ -88,12 +88,13 @@ region.N(sl.nuD)
 # Simulate a population using above density surface from sl.nuD
 # =============================================================
 E.N=45 # Set the expected number of snow leopards in the region
-scale = N/region.N(sl.nuD)["R.N","estimate"]
+scale = E.N/region.N(sl.nuD)["R.N","estimate"]
 # Plot the density
 simD = covariates(nuD)$"D.0" * scale
 # Simulate a population:
 seed=31 # for repeatability of this one population
 pop = sim.popn(simD,core=mask,poly=boundary,model2D="IHP",Ndbn="fixed",seed=seed)
+par(mfrow=c(1,1))
 plot(boundary)
 plot(pop,add=TRUE,pch="+")
 dim(pop)[1]
@@ -110,7 +111,7 @@ sl.fudge$fit$par[2] = sl.ne$fit$par[2] - log(15)
 # Plot to see if you have the kind of habitat use that you're happy with:
 ne.fudge = predictDsurface(sl.fudge,parameter="noneuc")
 par(mfrow=c(1,1))
-lcusageplot(sl.ne,mask=ne,col=parula(15))
+lcusageplot(sl.ne,mask=nuD,col=parula(15))
 lcpathplot(mask=ne.fudge,"geommean",col=parula(20),main="noneuc",what="image")
 
 

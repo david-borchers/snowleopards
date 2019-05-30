@@ -40,8 +40,10 @@ lcusageplot = function(fit,n=512,mask=NULL,base="noneuc.0",lcdfun="geomLCdist",.
   
   lcd.fun = match.fun(lcdfun)
   
-  if(!is.element("noneuc.0",names(covariates(mask))))
-    stop("Must have 'noneuc.0' as one of the mask covariates. It is not there.")
+  if(!is.element("noneuc.0",names(covariates(mask)))){
+    if(!is.element("noneuc.0",names(covariates(mask)))) stop("Must have 'noneuc.0' as one of the mask covariates. It is not there.")
+    else stop("Must have 'noneuc.0' as one of the mask covariates. It is not there.")
+  }
   if(!is.element(base,names(covariates(mask)))) {
     warning(paste("mask does not have a covariate called ",base,"; noneuc.0 being used instead."))
   }
