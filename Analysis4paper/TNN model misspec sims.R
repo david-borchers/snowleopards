@@ -91,6 +91,10 @@ load("./Analysis4paper/TNNnoNEfits.RData")
 
 # best model among those with Euclidian distance
 fit = TNNfit.DGrid.a0Waterxsess_topo.sig1
+# ... OR
+# 2nd best:
+#fit = TNNfit.DGrid.a0Waterxsess.sig1
+
 # best model among those with flat density
 fit0 = TNNfit.D1.LamSess.sig1
 
@@ -100,7 +104,7 @@ Nemegt = dat$Nemegt
 Noyon = dat$Noyon
 
 # predict density 
-Dhats.mask = predictDsurface(fit)
+Dhats.mask = predictDsurface(fit,se.D=TRUE,cl.D=TRUE)
 Dhats = list(Tost=NA, Noyon=NA, Nemegt=NA)
 mean.Dhat = rep(NA,3)
 for(i in 1:3) {
@@ -180,19 +184,109 @@ text(730000,4805000,labels="Noyon")
 text(600000,4798000,labels="Tost")
 splotcovariate(fit$mask[[1]],"stdGC",what="scale",col=parula(40))
 
+
+# Plot saddle/canyon/steppe at traps
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/trapsTopo.pdf",h=4,w=9)
+layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
+splotcovariate(fit$mask[[1]],"stdGC",what="image",zlim=stdGCrange,xlim=xlim,ylim=ylim,col=parula(40),
+               main="stdGC",cex.main=0.75)
+i=1
+cams = traps(fit$capthist)[[i]]
+tcol=rep(0,dim(cams)[1])
+tcol[covariates(cams)$Topo=="Saddle"] = "red"
+tcol[covariates(cams)$Topo=="Canyon"] = "black"
+tcol[covariates(cams)$Topo=="Steppe"] = "green"
+points(cams$x,cams$y,pch=19,col=tcol)
+splotcovariate(fit$mask[[2]],"stdGC",what="image",zlim=stdGCrange,add=TRUE,col=parula(40))
+i=2
+cams = traps(fit$capthist)[[i]]
+tcol=rep(0,dim(cams)[1])
+tcol[covariates(cams)$Topo=="Saddle"] = "red"
+tcol[covariates(cams)$Topo=="Canyon"] = "black"
+tcol[covariates(cams)$Topo=="Steppe"] = "green"
+points(cams$x,cams$y,pch=19,col=tcol)
+splotcovariate(fit$mask[[3]],"stdGC",what="image",zlim=stdGCrange,add=TRUE,col=parula(40))
+legend("topleft",bty="n",lty=rep(1,3),col=c("red","black","green"),legend=c("Saddle","Canyon","Steppe"),cex=0.75)
+i=3
+cams = traps(fit$capthist)[[i]]
+tcol=rep(0,dim(cams)[1])
+tcol[covariates(cams)$Topo=="Saddle"] = "red"
+tcol[covariates(cams)$Topo=="Canyon"] = "black"
+tcol[covariates(cams)$Topo=="Steppe"] = "green"
+points(cams$x,cams$y,pch=19,col=tcol)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+splotcovariate(fit$mask[[1]],"stdGC",what="scale",col=parula(40))
+dev.off()
+
+
+# Plot Water at traps
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/trapsWater.pdf",h=4,w=9)
+layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
+splotcovariate(fit$mask[[1]],"stdGC",what="image",zlim=stdGCrange,xlim=xlim,ylim=ylim,col=parula(40),
+               main="stdGC",cex.main=0.75)
+i=1
+cams = traps(fit$capthist)[[i]]
+wcol=rep(0,dim(cams)[1])
+wcol[covariates(cams)$Water=="Yes"] = "red"
+wcol[covariates(cams)$Water=="No"] = "black"
+points(cams$x,cams$y,pch=19,col=wcol)
+splotcovariate(fit$mask[[2]],"stdGC",what="image",zlim=stdGCrange,add=TRUE,col=parula(40))
+i=2
+cams = traps(fit$capthist)[[i]]
+wcol=rep(0,dim(cams)[1])
+wcol[covariates(cams)$Water=="Yes"] = "red"
+wcol[covariates(cams)$Water=="No"] = "black"
+points(cams$x,cams$y,pch=19,col=wcol)
+splotcovariate(fit$mask[[3]],"stdGC",what="image",zlim=stdGCrange,add=TRUE,col=parula(40))
+legend("topleft",bty="n",lty=rep(1,2),col=c("red","black"),legend=c("Yes","No"),cex=0.75)
+i=3
+cams = traps(fit$capthist)[[i]]
+wcol=rep(0,dim(cams)[1])
+wcol[covariates(cams)$Water=="Yes"] = "red"
+wcol[covariates(cams)$Water=="No"] = "black"
+points(cams$x,cams$y,pch=19,col=wcol)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+splotcovariate(fit$mask[[1]],"stdGC",what="scale",col=parula(40))
+dev.off()
+
+tab = vector(length=3,mode="list")
+for(i in 1:3) tab[[i]] = table(covariates(traps(fit$capthist[[i]]))[,c("Topo","Water")])
+tab
+
 # Plot Density in space
 D = Dhats.mask
-Dmin = 99999999
-Dmax = -99999999
+Dmin = DCVmin = Dlclmin = Duclmin = 99999999
+Dmax = DCVmax = Dlclmax = Duclmax = -99999999
 for(i in 1:3) {
   covariates(D[[i]])$Dhat = covariates(D[[i]])$D.0 *10^4
+  covariates(D[[i]])$Dlcl = covariates(D[[i]])$lcl.0 *10^4
+  covariates(D[[i]])$Ducl = covariates(D[[i]])$ucl.0 *10^4
+  covariates(D[[i]])$DhatCV = 100*covariates(D[[i]])$SE.0/covariates(D[[i]])$D.0
   Dmin = min(Dmin,covariates(D[[i]])$Dhat)
   Dmax = max(Dmax,covariates(D[[i]])$Dhat)
+  DCVmin = min(DCVmin,covariates(D[[i]])$DhatCV)
+  DCVmax = max(DCVmax,covariates(D[[i]])$DhatCV)
+  Dlclmin = min(Dlclmin,covariates(D[[i]])$Dlcl)
+  Dlclmax = max(Dlclmax,covariates(D[[i]])$Dlcl)
+  Duclmin = min(Duclmin,covariates(D[[i]])$Ducl)
+  Duclmax = max(Duclmax,covariates(D[[i]])$Ducl)
 }
+
+# Plot density maps
+# -----------------
 xlim = range(D[[1]]$x,D[[2]]$x,D[[3]]$x)
 ylim = range(D[[1]]$y,D[[2]]$y,D[[3]]$y)
 Dlim=c(Dmin,Dmax)
-quartz(h=4,w=9)
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/Dhat.pdf",h=4,w=9)
 layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
 splotcovariate(D[[1]],"Dhat",what="image",zlim=Dlim,xlim=xlim,ylim=ylim,col=parula(40),
                main="Number per 100 sq km",cex.main=0.75)
@@ -206,7 +300,72 @@ text(680000,4825000,labels="Nemegt")
 text(730000,4805000,labels="Noyon")
 text(600000,4798000,labels="Tost")
 splotcovariate(D[[1]],"Dhat",what="scale",col=parula(40))
+dev.off()
 
+# Plot density CV maps
+# -----------------
+xlim = range(D[[1]]$x,D[[2]]$x,D[[3]]$x)
+ylim = range(D[[1]]$y,D[[2]]$y,D[[3]]$y)
+DCVlim=c(DCVmin,DCVmax)
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/DpcCV.pdf",h=4,w=9)
+layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
+splotcovariate(D[[1]],"DhatCV",what="image",zlim=DCVlim,xlim=xlim,ylim=ylim,col=parula(40),
+               main="% Coefficient of variation",cex.main=0.75)
+plot(traps(fit$capthist[[1]]),add=TRUE)
+splotcovariate(D[[2]],"DhatCV",what="image",zlim=DCVlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[2]]),add=TRUE)
+splotcovariate(D[[3]],"DhatCV",what="image",zlim=DCVlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[3]]),add=TRUE)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+splotcovariate(D[[1]],"DhatCV",what="scale",col=parula(40))
+dev.off()
+
+# Plot density lcl and ucl maps on same scale
+# -------------------------------------------
+xlim = range(D[[1]]$x,D[[2]]$x,D[[3]]$x)
+ylim = range(D[[1]]$y,D[[2]]$y,D[[3]]$y)
+DCIlim=range(Dlclmin,Dlclmax,Duclmin,Duclmax)
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/DlowerCI.pdf",h=4,w=9)
+layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
+splotcovariate(D[[1]],"Dlcl",what="image",zlim=DCIlim,xlim=xlim,ylim=ylim,col=parula(40),
+               main="Lower CI for D",cex.main=0.75)
+plot(traps(fit$capthist[[1]]),add=TRUE)
+splotcovariate(D[[2]],"Dlcl",what="image",zlim=DCIlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[2]]),add=TRUE)
+splotcovariate(D[[3]],"Dlcl",what="image",zlim=DCIlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[3]]),add=TRUE)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+splotcovariate(D[[1]],"Dlcl",what="scale",zlim=DCIlim,col=parula(40))
+dev.off()
+
+# Plot density ucl maps
+# -----------------
+xlim = range(D[[1]]$x,D[[2]]$x,D[[3]]$x)
+ylim = range(D[[1]]$y,D[[2]]$y,D[[3]]$y)
+#quartz(h=4,w=9)
+pdf(file="./Analysis4paper/Plots/DupperCI.pdf",h=4,w=9)
+layout(mat=matrix(1:2,nrow=1),widths=c(.9,.1))
+splotcovariate(D[[1]],"Ducl",what="image",zlim=DCIlim,xlim=xlim,ylim=ylim,col=parula(40),
+               main="Upper CI for D",cex.main=0.75)
+plot(traps(fit$capthist[[1]]),add=TRUE)
+splotcovariate(D[[2]],"Ducl",what="image",zlim=DCIlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[2]]),add=TRUE)
+splotcovariate(D[[3]],"Ducl",what="image",zlim=DCIlim,add=TRUE,col=parula(40))
+plot(traps(fit$capthist[[3]]),add=TRUE)
+# add region labels
+text(680000,4825000,labels="Nemegt")
+text(730000,4805000,labels="Noyon")
+text(600000,4798000,labels="Tost")
+splotcovariate(D[[1]],"Ducl",what="scale",zlim=DCIlim,col=parula(40))
+dev.off()
 
 
 #-------------------------------------------------------------------------------
