@@ -98,6 +98,21 @@ fit = TNNfit.DGrid.a0Waterxsess_topo.sig1
 # best model among those with flat density
 fit0 = TNNfit.D1.LamSess.sig1
 
+# Look at total abundance estimates, and CIs and CVs for best and simplest model:
+Nbest = region.N(fit)
+N0 = region.N(fit0)
+Nhats = array(rep(NA,5*3*2),dim=c(3,6,2),
+              dimnames=list(region=c("Tost","Noyon","Nemegt"),
+                            est=c("point","SE","lcl","ucl","n","CV"),
+                            model=c("best","const-D")))
+for(i in 1:3) {
+  Nhats[i,,1] = c(as.numeric(Nbest[[i]]["E.N",]),Nbest[[i]]["E.N",2]/Nbest[[i]]["E.N",1])
+  Nhats[i,,2] = c(as.numeric(N0[[i]]["E.N",]),N0[[i]]["E.N",2]/N0[[i]]["E.N",1])
+}
+Nhats
+pcCVdiff = 100*(Nhats[,"CV",1]-Nhats[,"CV",2])/Nhats[,"CV",1]
+pcCVdiff
+
 # Extract data
 Tost = dat$Tost
 Nemegt = dat$Nemegt
