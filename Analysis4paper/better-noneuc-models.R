@@ -19,6 +19,10 @@ bbox.Tost = bbox(Tostboundary)
 bbxlim = range(bbox.Nemegt["x",],bbox.Noyon["x",],bbox.Tost["x",]) #Set plot limit for all 3 areas together
 bbylim = range(bbox.Nemegt["y",],bbox.Noyon["y",],bbox.Tost["y",])
 
+dxlim = diff(bbxlim)
+xlim = c(bbxlim[1],bbxlim[2]+0.15*dxlim)
+ylim = bbylim
+
 # ----------------------- Individual region models ---------------------------
 # This taken straight from secr vignette:
 userdfn1 <- function (xy1, xy2, mask) {
@@ -62,9 +66,14 @@ AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
 
 summary(TNNfit.DGrid.a0Waterxsess_topo.sig3)
 
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[1]],"D.0",col=parula(40))
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[2]],"D.0",col=parula(40))
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]],"D.0",col=parula(40))
+zlim = range(covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[1]])$`D.0`,
+             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[2]])$`D.0`,
+             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]])$`D.0`)
+
+plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) 
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[1]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[2]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
 
 # not sure how to show noneuc results when D~1
 plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig2)[[1]],"D.0",col=parula(40))
