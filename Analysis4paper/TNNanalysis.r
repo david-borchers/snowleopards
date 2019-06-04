@@ -30,6 +30,23 @@ plot(Tostboundary,add=TRUE)
 plot(Noyonboundary,add=TRUE)
 plot(Nemegtboundary,add=TRUE)
 
+quartz(w=8,h=4)
+plot(Tostboundary)
+plot(Tost_ch,tracks=TRUE,icolours=rainbow(dim(Tost_ch)[1]),add=TRUE)
+plot(traps(Tost_ch),add=TRUE)
+quartz(w=8,h=4)
+plot(Noyonboundary)
+plot(Noyon_ch,tracks=TRUE,icolours=rainbow(dim(Noyon_ch)[1]),add=TRUE)
+plot(traps(Noyon_ch),add=TRUE)
+quartz(w=8,h=4)
+plot(Nemegtboundary)
+plot(Nemegt_ch,tracks=TRUE,icolours=rainbow(dim(Nemegt_ch)[1]),type="petal",add=TRUE)
+ymax = max(bbox(Nemegtboundary)[,2])
+xrange = range(bbox(Nemegtboundary)[1,])
+xs = seq(min(xrange),max(xrange),length=dim(Nemegt_ch)[1])
+points(xs,rep(ymax,dim(Nemegt_ch)[1]),pch=19,col=rainbow(dim(Nemegt_ch)[1]))
+plot(traps(Nemegt_ch),add=TRUE)
+
 # Plot GC means
 zlim = range(covariates(NemegtMask)$rmeanGC,
              covariates(NoyonMask)$rmeanGC,
@@ -222,6 +239,7 @@ coefficients(Noyon.NUstdGC)
 coefficients(Tost.NUstdGC)
 coefficients(TNN.GCmean_dev.WW)
 
+AIC(Tost.NUstdGC,Noyon.NUstdGC,Nemegt.NUstdGC)
 # Conclusion so far:
 # 1. Nemegt has stdGC REDUCING density and INCREASING conductance; also lambda0~Water
 # 2. Tost and Noyon have the opposite effects, and no lambda0 effect
@@ -232,6 +250,8 @@ save(Tost.NUBC,Tost.NUstdGC,Tost.NUstdGC.W,
      Nemegt.NUBC,Nemegt.NUstdGC,Nemegt.NUstdGC.W,
      TNN.GCmean_dev.WW,
      file="./Analysis4paper/Fits1.RData")
+
+load("./Analysis4paper/Fits1.RData")
 
 # Try with region interaction with stdGC in Density and noneuc:
 TNN.GCmean_dev.WW.session <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
