@@ -77,3 +77,21 @@ plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]],"D.0",co
 
 # not sure how to show noneuc results when D~1
 plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig2)[[1]],"D.0",col=parula(40))
+
+
+# ====== try something similar to previous noneuc model that gave problems ==========
+# First, this is the previous problematic model
+TNN.GCmean_dev.WW <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                              model=list(D~rmeanGC+rmeanGCdev, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1))
+# So now try this instead:
+TNN.GCmean_dev.NE <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                              model=list(D~rmeanGC+rmeanGCdev, a0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1))
+
+AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
+    TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3,
+    TNN.GCmean_dev.NE)
+
