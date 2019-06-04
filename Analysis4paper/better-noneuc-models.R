@@ -93,5 +93,37 @@ TNN.GCmean_dev.NE <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonM
 
 AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
     TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3,
-    TNN.GCmean_dev.NE)
+    TNN.GCmean_dev.NE,TNN.GCmean_dev.WW)
+
+# Try best model, with noneuc, separately in each region:
+Tostfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = list(noneuc = 1))
+# refit, starting where left off:
+Tostfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                                                model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                details = list(userdist = userdfn1),
+                                                start = Tostfit.DGrid.a0Waterxsess_topo.sig)
+
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = list(noneuc = 1))
+# refit, starting where left off:
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = Noyonfit.DGrid.a0Waterxsess_topo.sig)
+# re-refit, starting where left off:
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = Noyonfit.DGrid.a0Waterxsess_topo.sig)
+# Problem estimating variance; seems to arise from Steppe level of Topo factor
+
+Nemegtfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = list(noneuc = 1))
 
