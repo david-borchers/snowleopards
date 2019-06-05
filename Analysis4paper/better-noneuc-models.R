@@ -55,6 +55,79 @@ TNNfit.DGrid.a0Waterxsess_topo.sig3 <- secr.fit(TNN_ch, detectfn="HHN", mask=lis
                                                 details = list(userdist = userdfn1),
                                                 start = TNNfit.DGrid.a0Waterxsess_topo.sig0)
 
+#save(TNNfit.DGrid.a0Waterxsess_topo.sig0, TNNfit.DGrid.a0Waterxsess_topo.sig1,
+#     TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3, 
+#     file = "Analysis4paper/nonEuc-mdls.RData")
+
+load("Analysis4paper/nonEuc-mdls.RData")
+
+AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
+    TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3)
+
+summary(TNNfit.DGrid.a0Waterxsess_topo.sig3)
+
+zlim = range(covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[1]])$`D.0`,
+             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[2]])$`D.0`,
+             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]])$`D.0`)
+
+plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) 
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[1]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[2]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig3)[[3]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+
+# not sure how to show noneuc results when D~1
+plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig2)[[1]],"D.0",col=parula(40))
+
+
+# ====== try something similar to previous noneuc model that gave problems ==========
+# First, this is the previous problematic model
+TNN.GCmean_dev.WW <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                              model=list(D~rmeanGC+rmeanGCdev, lambda0~Water:Winter, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1))
+# So now try this instead:
+TNN.GCmean_dev.NE <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                              model=list(D~rmeanGC+rmeanGCdev, a0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), 
+                              details = list(userdist = userdfn1),
+                              start = list(noneuc = 1))
+
+AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
+    TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3,
+    TNN.GCmean_dev.NE,TNN.GCmean_dev.WW)
+
+# Try best model, with noneuc, separately in each region:
+Tostfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                                                model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                details = list(userdist = userdfn1),
+                                                start = list(noneuc = 1))
+# refit, starting where left off:
+Tostfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                                                model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                details = list(userdist = userdfn1),
+                                                start = Tostfit.DGrid.a0Waterxsess_topo.sig)
+
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = list(noneuc = 1))
+# refit, starting where left off:
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = Noyonfit.DGrid.a0Waterxsess_topo.sig)
+# re-refit, starting where left off:
+Noyonfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                                 model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                 details = list(userdist = userdfn1),
+                                                 start = Noyonfit.DGrid.a0Waterxsess_topo.sig)
+# Problem estimating variance; seems to arise from Steppe level of Topo factor
+
+Nemegtfit.DGrid.a0Waterxsess_topo.sig <- secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
+                                                  model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                                  details = list(userdist = userdfn1),
+                                                  start = list(noneuc = 1))
+#===================
+
 ### water:winter on a0
 
 # D~1, euc
@@ -112,29 +185,40 @@ TNNfit.check4 <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask,
 
 AIC(TNNfit.check1, TNNfit.check2, TNNfit.check3, TNNfit.check4)
 
-save(TNNfit.DGrid.a0Waterxsess_topo.sig0, TNNfit.DGrid.a0Waterxsess_topo.sig1,
-     TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3, 
-     TNNfit.DGrid.a0WaterxWinter.sig0, TNNfit.DGrid.a0WaterxWinter.sig1,
-     TNNfit.DGrid.a0WaterxWinter.sig2,TNNfit.DGrid.a0WaterxWinter.sig3, 
-     TNNfit.check1, TNNfit.check2, TNNfit.check3, TNNfit.check4,
-     file = "Analysis4paper/nonEuc-mdls.RData")
+### separate regions
 
-load("Analysis4paper/nonEuc-mdls.RData")
+Tost.a0Waterxsess_topo.sig3 <- secr.fit(Tost_ch, detectfn="HHN", mask=TostMask,
+                                        model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                        details = list(userdist = userdfn1))
 
-AIC(TNNfit.DGrid.a0Waterxsess_topo.sig0,TNNfit.DGrid.a0Waterxsess_topo.sig1,
-    TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3)
+Noyon.a0Waterxsess_topo.sig3 <- secr.fit(Noyon_ch, detectfn="HHN", mask=NoyonMask,
+                                         model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                         details = list(userdist = userdfn1),
+                                         start = Tost.a0Waterxsess_topo.sig3)
 
-summary(TNNfit.DGrid.a0Waterxsess_topo.sig3)
+Nemegt.a0Waterxsess_topo.sig3 <- secr.fit(Nemegt_ch, detectfn="HHN", mask=NemegtMask,
+                                          model=list(D~stdGC, a0~Topo+Water, sigma~1, noneuc ~ stdGC -1), 
+                                          details = list(userdist = userdfn1),
+                                          start = Tost.a0Waterxsess_topo.sig3)
 
-# full model
-zlim = range(covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[1]])$`D.0`,
-             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[2]])$`D.0`,
-             covariates(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[3]])$`D.0`)
+All.a0Waterxsess_topo.sig3 <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                       model=list(D~stdGC, a0~Topo+Water*session, sigma~1, noneuc ~ stdGC*session -1), 
+                                       details = list(userdist = userdfn1),
+                                       start = TNNfit.DGrid.a0Waterxsess_topo.sig0)
 
-plot(bbxlim,bbylim,xlim=xlim,ylim=ylim,xlab="",ylab="",bty="n",type="n",xaxt="n",yaxt="n",asp=1) 
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[1]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[2]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig4)[[3]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
+AIC(TNNfit.DGrid.a0WaterxWinter.sig0, TNNfit.DGrid.a0WaterxWinter.sig1, 
+    TNNfit.DGrid.a0WaterxWinter.sig2, TNNfit.DGrid.a0WaterxWinter.sig3,
+    All.a0Waterxsess_topo.sig3)
+
+### save all
+# save(TNNfit.DGrid.a0Waterxsess_topo.sig0, TNNfit.DGrid.a0Waterxsess_topo.sig1,
+#      TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3, 
+#      TNNfit.DGrid.a0WaterxWinter.sig0, TNNfit.DGrid.a0WaterxWinter.sig1,
+#      TNNfit.DGrid.a0WaterxWinter.sig2,TNNfit.DGrid.a0WaterxWinter.sig3, 
+#      TNNfit.check1, TNNfit.check2, TNNfit.check3, TNNfit.check4,
+#      Tost.a0Waterxsess_topo.sig3, Noyon.a0Waterxsess_topo.sig3, Nemegt.a0Waterxsess_topo.sig3,
+#      All.a0Waterxsess_topo.sig3,
+#      file = "Analysis4paper/nonEuc-mdls.RData")
 
 # reduced (no a0)
 zlim = range(covariates(predictDsurface(TNNfit.check4)[[1]])$`D.0`,
@@ -147,5 +231,4 @@ plotcovariate(predictDsurface(TNNfit.check4)[[2]],"D.0",col=parula(40), asp = 1,
 plotcovariate(predictDsurface(TNNfit.check4)[[3]],"D.0",col=parula(40), asp = 1, zlim = zlim, contour = FALSE, add = TRUE)
 
 
-# not sure how to show noneuc results when D~1
-plotcovariate(predictDsurface(TNNfit.DGrid.a0Waterxsess_topo.sig2)[[1]],"D.0",col=parula(40))
+
