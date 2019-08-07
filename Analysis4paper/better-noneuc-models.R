@@ -55,9 +55,60 @@ TNNfit.DGrid.a0Waterxsess_topo.sig3 <- secr.fit(TNN_ch, detectfn="HHN", mask=lis
                                                 details = list(userdist = userdfn1),
                                                 start = TNNfit.DGrid.a0Waterxsess_topo.sig0)
 
-#save(TNNfit.DGrid.a0Waterxsess_topo.sig0, TNNfit.DGrid.a0Waterxsess_topo.sig1,
-#     TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3, 
-#     file = "Analysis4paper/nonEuc-mdls.RData")
+# Weird test, just to see if there are convergence problems when start from where left off (as other models seem to fail to converge in this case):
+testfit <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                                model=list(D~stdGC, a0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), 
+                                                details = list(userdist = userdfn1),
+                                                start = TNNfit.DGrid.a0Waterxsess_topo.sig3)
+
+# Check if this is any better than model with lambda0 instead of a0:
+TNNfit.DGrid.lam0Waterxsess_topo.sig3 <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                                model=list(D~stdGC, lambda0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), 
+                                                details = list(userdist = userdfn1), ncores=ncores,
+                                                start = list(noneuc = 1))
+# Try again, from where ended up:
+TNNfit.DGrid.lam0Waterxsess_topo.sig3 <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                                  model=list(D~stdGC, lambda0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), 
+                                                  details = list(userdist = userdfn1), ncores=ncores,
+                                                  start = TNNfit.DGrid.lam0Waterxsess_topo.sig3)
+# Worked fine
+
+# Compare to equivalent a0 model:
+AIC(TNNfit.DGrid.lam0Waterxsess_topo.sig3,TNNfit.DGrid.a0Waterxsess_topo.sig3)
+# They are identical!
+
+
+# Check if the lambda0 versions of the other models are identical:
+# D~1, euc
+TNNfit.DGrid.lam0Waterxsess_topo.sig0<-secr.fit(TNN_ch,detectfn="HHN", list(TostMask, NoyonMask, NemegtMask),
+                                              model=list(D~1, lambda0~Topo+Water*session, sigma~1), ncores=ncores)
+# Conveged OK
+
+# D~stdGC, euc
+TNNfit.DGrid.lam0Waterxsess_topo.sig1<-secr.fit(TNN_ch,detectfn="HHN", list(TostMask, NoyonMask, NemegtMask),
+                                              model=list(D~stdGC, lambda0~Topo+Water*session, sigma~1), ncores=ncores)
+#Warning messages:
+#1: In autoini(ch, msk, binomN = details$binomN, ignoreusage = details$ignoreusage) :
+#  'autoini' failed to find g0; setting initial g0 = 0.1
+#2: In secr.fit(TNN_ch, detectfn = "HHN", list(TostMask, NoyonMask,  :
+#                                                at least one variance calculation failed 
+
+
+# D~1, noneuc~stdGC
+TNNfit.DGrid.lam0Waterxsess_topo.sig2 <- secr.fit(TNN_ch, detectfn="HHN", mask=list(TostMask, NoyonMask, NemegtMask),
+                                                model=list(D~1, lambda0~Topo+Water*session, sigma~1, noneuc ~ stdGC -1), ncores=ncores,
+                                                details = list(userdist = userdfn1),
+                                                start = TNNfit.DGrid.lam0Waterxsess_topo.sig0)
+# Warning message:
+# In secr.fit(TNN_ch, detectfn = "HHN", mask = list(TostMask, NoyonMask,  :
+#                                                     possible maximization error: nlm returned code 3. See ?nlm
+
+
+save(TNNfit.DGrid.a0Waterxsess_topo.sig0, TNNfit.DGrid.a0Waterxsess_topo.sig1,
+     TNNfit.DGrid.a0Waterxsess_topo.sig2,TNNfit.DGrid.a0Waterxsess_topo.sig3, 
+     TNNfit.DGrid.lam0Waterxsess_topo.sig0, TNNfit.DGrid.lam0Waterxsess_topo.sig1,
+     TNNfit.DGrid.lam0Waterxsess_topo.sig2,TNNfit.DGrid.lam0Waterxsess_topo.sig3, 
+     file = "Analysis4paper/nonEuc-mdls.RData")
 
 load("Analysis4paper/nonEuc-mdls.RData")
 
