@@ -141,7 +141,7 @@ b.meanRN1/RN1 # bstrap mean/original est of RN
 b.seRN1;b.seRN2
 RNtable = data.frame(N1 = RN1, se.N1=b.seRN1, pcv.N1=100*b.seRN1/RN1, lcl.N1=b.ciRN1[1,], ucl.N1=b.ciRN1[2,],
                      N2 = RN2, se.N2=b.seRN2, pcv.N2=100*b.seRN2/RN2, lcl.N2=b.ciRN2[1,], ucl.N2=b.ciRN2[2,])
-round(RNtable,1)
+round(RNtable,2)
 RDtable = RNtable
 for(i in 1:3) {
   RDtable[i,-c(3,8)] = RDtable[i,-c(3,8)]/A[i] * 100 # density in 100 sq km
@@ -160,16 +160,17 @@ b.ciEN2 = apply(b.EN2,2,quantile,probs=c(0.025,0.975))
 n
 b.meanEN1;b.meanEN2
 b.meanEN2/b.meanEN1
-EN1 = c(Nhat1[[1]][2,1],Nhat1[[2]][2,1],Nhat1[[3]][2,1])
-EN2 = c(Nhat2[[1]][2,1],Nhat2[[2]][2,1],Nhat2[[3]][2,1])
+EN1 = c(Nhat1[[1]][1,1],Nhat1[[2]][1,1],Nhat1[[3]][1,1])
+EN2 = c(Nhat2[[1]][1,1],Nhat2[[2]][1,1],Nhat2[[3]][1,1])
 b.meanEN1/EN1 # bstrap mean/original est of EN
 b.seEN1;b.seEN2
 ENtable = data.frame(N1 = EN1, se.N1=b.seEN1, pcv.N1=100*b.seEN1/EN1, lcl.N1=b.ciEN1[1,], ucl.N1=b.ciEN1[2,],
                      N2 = EN2, se.N2=b.seEN2, pcv.N2=100*b.seEN2/EN2, lcl.N2=b.ciEN2[1,], ucl.N2=b.ciEN2[2,])
-round(ENtable,1)
+round(ENtable,2)
 EDtable = ENtable
 for(i in 1:3) {
   EDtable[i,-c(3,8)] = EDtable[i,-c(3,8)]/A[i] * 100 # density in 100 sq km
 }
-signif(EDtable,4)
+signif(EDtable,3)
+
 
