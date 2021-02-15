@@ -12,7 +12,6 @@ setwd("E:/public/users/koustubh")
 #----------------------- Load the RData objects made by Make_TNN_RData.r --------------------------
 load("./Analysis4paper/TNN_boundaries.RData") # Tostboundary,Noyonboundary,Nemegtboundary
 load("./Analysis4paper/TNN_masks.RData") # TostMask,NoyonMask,NemegtMask
-#load("./Analysis4paper/TN_caphists.RData") # Tost_ch,Noyon_ch,TN_ch
 load("./Analysis4paper/TNN_caphists.RData") # Tost_ch,Noyon_ch,Nemegt_sh,TNN_ch)
 #----------------------- ----------------------------------------------- --------------------------
 summary(TNN_ch)
@@ -204,7 +203,8 @@ save(TNNfit.DGridXSess.a0Sess.sigsess, TNNfit.DGrid_Sess.a0Sess.sigsess, TNNfit.
 getwd()
 # Load models run in thinkpad
 load("./Analysis4paper/TNNnoNEfits_Thinkpad.RData")
-load("E:/public/users/koustubh/Analysis4paper/TNNnoNEfits_all.RData")
+#load("E:/public/users/koustubh/Analysis4paper/TNNnoNEfits_all.RData")
+load("./Analysis4paper/TNNnoNEfits_all.RData")
 
 
 TNN_AICc<-AIC(TNNfit.DGridXSess.a0Sess.sigsess, TNNfit.DGrid_Sess.a0Sess.sigsess, TNNfit.DGrid_Sess.a0TopoXSess.sigsess, TNNfit.DGrid_Sess.a0Topo.Sess.sigsess, 

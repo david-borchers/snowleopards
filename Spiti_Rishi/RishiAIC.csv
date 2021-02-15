@@ -1,0 +1,16 @@
+,model,detectfn,npar,logLik,AIC,AICc,dAIC,AICwt
+Rishi.WPrey.AltNonU,D~StdWPreyD lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,7,-154.092241,322.184,336.184,0,0.4529
+Rishi.WP_LSBio.AltNonU,D~StdWPreyD + StdLS_Biomass lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,8,-153.741444,323.483,344.054,1.299,0.2366
+Rishi.AltNonU,D~1 lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,6,-156.6283346,325.257,334.59,3.073,0.0974
+Rishi.WPxLSBio.AltNonU,D~StdWPreyD * StdLS_Biomass lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,9,-153.7413794,325.483,355.483,3.299,0.087
+Rishi.SmallLS.AltNonU,D~StdSmall_LS lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,7,-156.219244,326.438,340.438,4.254,0.054
+Rishi.LargeLS.AltNonU,D~StdLarge_LS lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,7,-156.6218559,327.244,341.244,5.06,0.0361
+Rishi.LSBio.AltNonU,D~StdLS_Biomass lambda0~Z sigma~1 noneuc~StdAlt - 1,hazard halfnormal,7,-156.6227621,327.246,341.246,5.062,0.036
+Rishi.D_WPrey.l0_z,D~StdWPreyD lambda0~Z sigma~1,hazard halfnormal,6,-160.4792875,332.959,342.292,10.775,0
+Rishi.D_WP_Alt.l0_z,D~StdAlt + StdWPreyD lambda0~Z sigma~1,hazard halfnormal,7,-159.8937687,333.788,347.788,11.604,0
+Rishi.l0_z,D~1 lambda0~Z sigma~1,hazard halfnormal,5,-162.6522257,335.304,341.304,13.12,0
+Rishi.D_WP_Alt_Rgd.l0_z,D~StdAlt + StdWPreyD + StdRgd lambda0~Z sigma~1,hazard halfnormal,8,-159.8240137,335.648,356.219,13.464,0
+Rishi.D_Alt.l0_z,D~StdAlt lambda0~Z sigma~1,hazard halfnormal,6,-162.2945536,336.589,345.922,14.405,0
+Rishi.D_Rgd.l0_z,D~StdRgd lambda0~Z sigma~1,hazard halfnormal,6,-162.3252513,336.651,345.984,14.467,0
+Rishi.D_Alt2.l0_z,D~StdAlt + I(StdAlt^2) lambda0~Z sigma~1,hazard halfnormal,7,-161.8337227,337.667,351.667,15.483,0
+Rishi.null,D~1 lambda0~1 sigma~1,hazard halfnormal,3,-250.4799402,506.96,508.96,184.776,0
